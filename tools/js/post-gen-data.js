@@ -59,7 +59,10 @@ const BLOCK_TYPES = {
             if (ta) b.text = ta.value;
         },
         toBodyHtml: function(b, px) {
-            return px + '<p>' + escHtml(b.text) + '</p>';
+            // Preserve author line breaks: escape first, then turn each newline
+            // into a <br> so the tag itself isn't escaped. Normalises CRLF/CR.
+            const html = escHtml(b.text).replace(/\r\n?|\n/g, '<br>');
+            return px + '<p>' + html + '</p>';
         }
     },
 
