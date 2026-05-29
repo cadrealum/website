@@ -1,0 +1,210 @@
+/* Image Picker panel — read-only browser for the basic page.
+   Sits INLINE inside .content-contrib-row alongside the content-blocks step
+   and the contributors sidebar (same pattern as .contrib-sidebar). Styled as
+   a block to match the surrounding .step cards.
+   Reuses design tokens from ../../css/postGen-style.css. */
+
+/* Sticky/fixed to the viewport so it follows scroll — initial top edge
+   aligns with the (1) Post Details block. Positioned LEFT of the centered
+   760px main block. The (admin_w - template_w)/2 term tracks the asymmetry
+   as either sidebar collapses (basic page has no admin sidebar so that
+   variable defaults to 0 via :root, keeping the picker aligned). */
+.image-picker-panel {
+    position: fixed;
+    top: calc(var(--header-h) + 28px);
+    right: calc(50% + 400px + (var(--admin-sidebar-w) - var(--template-sidebar-w)) / 2);
+    width: 320px;
+    max-height: calc(100vh - var(--header-h) - 56px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 50;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    transition: right 0.2s ease;
+}
+body.admin-panel-open .image-picker-panel:not(.image-picker-modal-mode) {
+    right: calc(50% + 580px + (var(--admin-sidebar-w) - var(--template-sidebar-w)) / 2);
+}
+
+/* Modal mode — triggered when a 📁 picker button (next to an image-path
+   input) opens the picker. Replaces the side-pinned panel with a centered
+   overlay + backdrop so the user can focus on selection.
+   Sits at a LOW z-index (100) so any real .modal-overlay opened over the top
+   of it — e.g. the Add Image upload modal, file-overwrite confirm, settings
+   — stacks above the picker and remains interactive. */
+.image-picker-panel.image-picker-modal-mode {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 540px);
+    max-height: 80vh;
+    z-index: 100;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+}
+.image-picker-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 99;
+    cursor: pointer;             /* hint that clicking the backdrop closes the modal */
+}
+
+.image-picker-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface2);
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+}
+
+.image-picker-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    overflow: hidden;
+}
+
+.image-picker-tool-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: var(--radius);
+    line-height: 1;
+}
+.image-picker-tool-btn:hover { background: var(--surface2); }
+
+.image-picker-close {
+    background: transparent;
+    border: 0;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    line-height: 1;
+}
+.image-picker-close:hover { background: var(--surface2); color: var(--text); }
+
+.image-picker-body {
+    flex: 1 1 auto;
+    min-height: 0;             /* let the body shrink below content height so
+                                  overflow-y:auto actually engages (otherwise
+                                  the flex item refuses to shrink and the
+                                  panel pushes past its max-height). */
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.image-picker-placeholder {
+    padding: 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+}
+.image-picker-error { color: var(--danger); }
+
+/* Tree rows -------------------------------------------------------- */
+.img-picker-tree { display: flex; flex-direction: column; }
+
+.img-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: var(--text);
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.img-picker-folder { cursor: pointer; }
+.img-picker-folder:hover,
+.img-picker-image:hover  { background: var(--surface2); }
+
+.img-picker-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+.img-picker-thumb {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 3px;
+    background: var(--surface2);
+}
+
+.img-picker-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.img-picker-empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-style: italic;
+    padding: 3px 8px;
+}
+
+/* Right-click context menu (just "Copy Relative Path" on basic) ---- */
+.image-picker-context-menu {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    padding: 4px 0;
+    z-index: 10000;
+    min-width: 180px;
+}
+.image-picker-context-menu-item {
+    padding: 7px 14px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.image-picker-context-menu-item:hover { background: var(--accent); color: white; }
+
+/* Editor input being targeted by an image-row drag — same rule
+   image-manager.css uses on admin, redefined here so basic gets the
+   visual feedback too (the shared image-drag-target.js adds this class). */
+.drop-target-hover {
+    outline: 2px dashed var(--accent);
+    outline-offset: -2px;
+}
+
+/* Active state for the trigger button while the picker panel is open.
+   Generic enough to work on either .btn-header-action or .btn-panel-toggle
+   (image-picker.js just toggles this class regardless of the base style). */
+.image-picker-btn-active {
+    background: var(--accent) !important;
+    color: white !important;
+    border-color: var(--accent) !important;
+}
+
+/* 720p height compensation (matches body { zoom: 0.8 } in postGen-style.css) */
+@media (max-height: 800px) {
+    .image-picker-panel {
+        max-height: calc(100vh / 0.64 - var(--header-h) - 56px);   /* match the
+                                                                       28px top + 28px bottom
+                                                                       padding of the default rule */
+    }
+}

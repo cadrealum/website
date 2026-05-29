@@ -1,0 +1,129 @@
+/* AdminTools styles — right-side sidebar that holds admin-only features.
+   Loaded only on tools/post-generator-admin.html.
+   Mirrors the layout of .template-sidebar on the left so the two flank the
+   main editing area symmetrically. Reuses design tokens from postGen-style.css. */
+
+.admin-tools-sidebar {
+    width: var(--admin-sidebar-w);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 16px 10px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: visible;             /* let the toggle-tab stick out to the left */
+    transition: width 0.25s ease, padding 0.25s ease;
+}
+/* Collapsed state — 10px rail; hide every child except the re-open toggle. */
+body.admin-sidebar-collapsed .admin-tools-sidebar {
+    padding: 0;
+    /* Keep border-left so the collapsed rail still has a divider. */
+}
+body.admin-sidebar-collapsed .admin-tools-sidebar > *:not(.sidebar-toggle) {
+    display: none;
+}
+
+/* Header row at the top of the sidebar — section title on the left,
+   Commit button on the right. */
+.admin-tools-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.admin-tools-header .sidebar-section-title { margin: 0; }
+
+/* Commit button — primary action; show-changes.js manages its enabled state
+   and count text ("💾 Commit" / "💾 Commit (3)"). */
+.commit-btn {
+    background: var(--accent);
+    color: white;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1;
+}
+.commit-btn:hover:not(:disabled) { opacity: 0.9; }
+.commit-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* Right-click context menu — shared across admin tools. Both image-manager
+   and show-changes create elements with these classes. */
+.admin-context-menu {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    padding: 4px 0;
+    z-index: 10000;
+    min-width: 180px;
+}
+.admin-context-menu-item {
+    padding: 7px 14px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.admin-context-menu-item:hover { background: var(--accent); color: white; }
+.admin-context-menu-item-disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+
+.admin-tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-tools-empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 12px 8px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+/* Tool buttons injected into #admin-tools-list by individual AdminTools modules.
+   First user: image-manager.js. */
+.admin-tool-btn {
+    width: 100%;
+    text-align: left;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s;
+}
+.admin-tool-btn:hover { background: var(--surface); border-color: var(--accent); }
+.admin-tool-btn-active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* On narrower viewports the editor needs the room more than the sidebar does. */
+@media (max-width: 1100px) {
+    .admin-tools-sidebar { display: none; }
+}
+
+/* Match the 80% body zoom kicked in at ≤800px viewport height (postGen-style.css):
+   compensate the sidebar's height so it still extends to the bottom of the viewport. */
+@media (max-height: 800px) {
+    .admin-tools-sidebar {
+        height: calc(100vh / 0.64 - var(--header-h));
+    }
+}

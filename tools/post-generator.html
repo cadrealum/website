@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADRE Blog Generator (Restricted)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/postGen-style.css">
+    <link rel="stylesheet" href="AuthManager/auth.css">
+    <link rel="stylesheet" href="BasicTools/image-picker/image-picker.css">
+</head>
+<body data-page-role="basic">
+
+<header class="site-header">
+    <button class="btn-settings" id="btn-open-settings" title="Settings" aria-label="Open settings"><span class="btn-settings-icon">⚙</span></button>
+    <div class="logo"><span>CADRE</span> Alumni</div>
+    <div class="subtitle">— Blog Generator - (Restricted)</div>
+    <div class="header-filename">
+        <span class="header-filename-prefix">Announcements-Blogs/</span>
+        <input type="text" id="f-filename" placeholder="untitled-blog-post" autocomplete="off">
+        <span class="header-filename-suffix">.html</span>
+    </div>
+    <div class="header-actions">
+        <button class="btn-header-action" id="btn-open-image-picker" title="Browse images on the server and drag paths into the editor">📁 Browse Images</button>
+        <button class="btn-header-action" id="btn-save-layout" disabled>💾 Save As</button>
+        <button class="btn-header-action" id="btn-load-layout">📂 Load</button>
+        <button class="btn-header-action btn-header-danger" id="btn-clear-post" title="Wipe the current post and start fresh">🗑 Clear Post</button>
+        <div id="auth-chip"></div>
+        <input type="file" id="import-file" accept=".json" style="display:none">
+    </div>
+</header>
+
+<div class="app-layout">
+
+    <!-- Sidebar: template picker -->
+    <aside class="template-sidebar">
+        <button class="sidebar-toggle sidebar-toggle-left" id="btn-template-sidebar-toggle" title="Hide template sidebar" aria-label="Hide template sidebar">◀</button>
+        <div class="sidebar-section-title">Templates</div>
+        <nav class="template-nav" id="template-nav">
+            <div class="loading-msg">Loading…</div>
+        </nav>
+    </aside>
+
+    <!-- Main work area -->
+    <div class="main-area">
+
+        <!-- Step 1: Post Details -->
+        <div class="step">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div class="step-title">Post Details</div>
+            </div>
+            <div class="field-grid">
+                <div class="field full">
+                    <label for="f-title">Post Title</label>
+                    <input type="text" id="f-title" placeholder="e.g. CADRE Annual Banquet 2026">
+                </div>
+                <div class="field">
+                    <label for="f-author">Written by</label>
+                    <input type="text" id="f-author" placeholder="e.g. Jane Doe">
+                </div>
+                <div class="field">
+                    <label for="f-date">Date</label>
+                    <input type="date" id="f-date">
+                </div>
+                <div class="field" id="field-end-date" style="display:none">
+                    <label for="f-end-date">End Date <span style="font-weight:400;text-transform:none">(events only)</span></label>
+                    <input type="date" id="f-end-date">
+                </div>
+                <div class="field full">
+                    <label for="f-thumbnail">Thumbnail Image Path</label>
+                    <div class="img-input-row">
+                        <input type="text" id="f-thumbnail" placeholder="e.g. images/events/my-event-thumb.png">
+                        <button type="button" class="btn-pick-image" data-pick-image-for="thumbnail" title="Pick an image from the server">📁</button>
+                    </div>
+                    <div class="field-hint">Used for the card on the blog listing page. Path is relative to the site root.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Content builder + Contributors + Image Picker (side by side) -->
+        <div class="content-contrib-row" id="content-contrib-row">
+            <div class="step" id="step-content">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Content Blocks</div>
+                    <button class="btn-panel-toggle" id="btn-contrib-toggle" title="Show/hide contributors sidebar">🤝 Contributors</button>
+                </div>
+                <div id="content-builder">
+                    <div class="placeholder-prompt">Select a template on the left to start writing.</div>
+                </div>
+            </div>
+            <aside class="contrib-sidebar" id="contrib-sidebar" style="display:none"></aside>
+
+            <!-- Image Picker panel — read-only image browser. Sits as an inline
+                 block alongside the content builder; toggled by the Step 1
+                 "📁 Browse Images" header button and by every 📁 picker button
+                 next to an image-path input. -->
+            <aside class="image-picker-panel" id="image-picker-panel" style="display:none">
+                <div class="image-picker-header">
+                    <div class="image-picker-title">Images</div>
+                    <button class="image-picker-tool-btn" id="image-picker-reload" title="Reload from GitHub">↻</button>
+                    <button class="image-picker-close"    id="image-picker-close"  title="Close">✕</button>
+                </div>
+                <div class="image-picker-body" id="image-picker-body">
+                    <div class="image-picker-placeholder">Loading…</div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Generate button -->
+        <div class="generate-bar">
+            <button class="btn-generate btn-generate-secondary" id="btn-preview">👁 Preview</button>
+            <button class="btn-generate" id="btn-generate">Generate Post HTML</button>
+        </div>
+
+        <!-- Output -->
+        <div class="step output-section" id="output-section">
+            <div class="step-header">
+                <div class="step-number">✓</div>
+                <div class="step-title">Your Generated Post</div>
+            </div>
+
+            <div class="output-block">
+                <div class="output-label">
+                    HTML File
+                    <button class="btn-copy" id="btn-copy-html">Copy</button>
+                    <button class="btn-download" id="btn-download-html">Download</button>
+                </div>
+                <textarea class="output-textarea" id="out-html" readonly rows="14"></textarea>
+            </div>
+
+            <div class="output-block">
+                <div class="output-label">
+                    blog-data.json Entry
+                    <button class="btn-copy" id="btn-copy-json">Copy</button>
+                </div>
+                <textarea class="output-textarea" id="out-json" readonly rows="8"></textarea>
+            </div>
+
+            <div class="instructions-box">
+                <h3>Next Steps</h3>
+                <ol>
+                    <li>Click <strong>Download</strong> above and save the file to the <code>Announcements-Blogs/</code> folder in the project.</li>
+                    <li>Upload any images you referenced to the <code>images/</code> folder.</li>
+                    <li>Copy the <strong>blog-data.json entry</strong> above and paste it into <code>json/blog-data.json</code> — add it inside the <code>"announcements"</code> (or <code>"events"</code>) array.</li>
+                    <li>Commit and push your changes to GitHub. The site will update automatically.</li>
+                </ol>
+            </div>
+        </div>
+
+    </div><!-- end main-area -->
+
+</div><!-- end app-layout -->
+
+<!-- Shared modals (drop overlay, preview overlay, switch-template, sign-in,
+     clear post) are injected by tools/js/post-gen-modals.js into this slot. -->
+<div id="post-gen-shared-modals-slot"></div>
+
+<!-- Restricted-access modal: basic-page-only. Shown when an unauthenticated
+     user was just kicked back from the admin page. -->
+<div class="modal-overlay" id="restricted-modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title">Restricted Access</div>
+        <div class="modal-body">
+            The admin tool is for signed-in team members. You can keep using this basic generator, or sign in to unlock the admin tools.
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="restricted-modal-close">Close</button>
+            <button class="btn-modal-confirm" id="restricted-modal-login">🔒 Sign in</button>
+        </div>
+    </div>
+</div>
+
+<!-- post-gen-modals.js MUST load before auth.js — auth.js queries auth-modal-*
+     element IDs at top-level execution time, and they only exist after the
+     modal slot has been replaced. -->
+<script src="js/post-gen-modals.js"></script>
+<script src="AuthManager/auth.js"></script>
+<script src="AuthManager/github-api.js"></script>
+<script src="js/post-gen-data.js"></script>
+<script src="js/post-gen-output.js"></script>
+<script src="js/post-gen.js"></script>
+<script src="js/image-drag-target.js"></script>
+<script src="BasicTools/image-picker/image-picker.js"></script>
+</body>
+</html>

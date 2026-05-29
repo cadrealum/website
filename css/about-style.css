@@ -1,0 +1,125 @@
+/* Welcome / about section (index.html) */
+.about-section {
+    padding: var(--space-5) var(--space-3);
+}
+
+.about-container {
+    max-width: clamp(320px, 80vw, var(--max-width));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-5);
+    align-items: center;
+}
+
+.about-text p {
+    margin: 0 0 var(--space-2) 0;
+    color: var(--color-fg);
+}
+
+/* About page (about.html) */
+.about-page {
+    padding: var(--space-5) var(--space-3);
+}
+
+.about-page-inner {
+    max-width: clamp(320px, 60vw, var(--max-width));
+    margin: 0 auto;
+}
+
+.about-page-title {
+    margin: 0 auto var(--space-4) auto;
+    padding-bottom: var(--space-2);
+    text-align: center;
+}
+
+.about-page-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.about-page-text {
+    text-align: justify;
+    margin: 0 0 var(--space-3) 0;
+}
+
+.about-page-figure {
+    margin: var(--space-4) 0 0 0;
+}
+
+.about-page-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.about-links-title {
+    text-align: center;
+    margin: 0 auto var(--space-3) auto;
+    padding-bottom: var(--space-2);
+    font-size: 2.5rem;
+}
+
+.about-links-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.about-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.about-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.about-link:hover {
+    transform: translateY(-2px);
+    opacity: 0.85;
+}
+
+.about-link img,
+.about-link svg {
+    display: block;
+    width: 240px;
+    height: auto;
+}
+
+.about-link-themed {
+    color: #000;
+}
+
+[data-theme="dark"] .about-link-themed {
+    color: #fff;
+}
+
+@media (max-width: 800px) {
+    .about-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+        max-width: 100%;
+    }
+
+    .about-text p {
+        text-align: justify;
+        hyphens: auto;
+    }
+
+    .about-page-inner {
+        max-width: 100%;
+    }
+
+    .about-link img,
+    .about-link svg {
+        width: 180px;
+    }
+}

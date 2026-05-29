@@ -1,0 +1,8 @@
+# Claude Code
+.claude/
+CLAUDE.local.md
+.mcp.local.json
+
+# OS
+Thumbs.db
+.DS_Store

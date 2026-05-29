@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - CADRE Alumni</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/calender-style.css">
+    <script>
+        (function () {
+            var stored = localStorage.getItem('theme');
+            document.documentElement.setAttribute('data-theme', stored || 'dark');
+        })();
+    </script>
+</head>
+<body data-page="calendar" data-root="">
+    <div class="bg-squares bg-squares-left" aria-hidden="true"></div>
+    <div class="bg-squares bg-squares-right" aria-hidden="true"></div>
+
+    <div id="site-header"></div>
+
+    <main>
+        <section class="calendar-section">
+            <div class="calendar-inner">
+
+                <div class="calendar-top">
+                    <h1>Calendar</h1>
+                    <div class="calendar-subscribe">
+                        <p class="calendar-subscribe-label">Subscribe to get events added to your calendar automatically:</p>
+                        <div class="calendar-subscribe-btns">
+                            <a href="https://calendar.google.com/calendar/r?cid=4c739808402cc36b71be0d0266266d55114860250964933f589bfd6a8cf1189b%40group.calendar.google.com"
+                               class="calendar-btn calendar-btn-primary"
+                               target="_blank"
+                               rel="noopener"
+                               aria-label="Subscribe with Google Calendar">
+                                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                    <line x1="12" y1="15" x2="12" y2="15"/>
+                                    <line x1="12" y1="15" x2="12" y2="19"/>
+                                </svg>
+                                Google Calendar
+                            </a>
+                            <a href="webcal://calendar.google.com/calendar/ical/4c739808402cc36b71be0d0266266d55114860250964933f589bfd6a8cf1189b%40group.calendar.google.com/public/basic.ics"
+                               class="calendar-btn calendar-btn-outline"
+                               aria-label="Subscribe via iCal for Apple Calendar or Outlook">
+                                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                iCal / Outlook
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calendar-frame">
+                    <iframe
+                        src="https://calendar.google.com/calendar/embed?src=4c739808402cc36b71be0d0266266d55114860250964933f589bfd6a8cf1189b%40group.calendar.google.com&ctz=America%2FLos_Angeles&showPrint=0"
+                        title="CADRE Alumni Calendar"
+                        loading="lazy"
+                        frameborder="0"
+                        scrolling="no"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+
+                <p class="calendar-hint">Click any event on the calendar to view details or add it to your personal calendar.</p>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="js/partials.js"></script>
+    <script src="js/bg-squares.js"></script>
+    <script src="js/image-modal.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calender.js"></script>
+</body>
+</html>

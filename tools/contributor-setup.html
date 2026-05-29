@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADRE Blog Generator — Contributor Setup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/postGen-style.css">
+    <link rel="stylesheet" href="AuthManager/auth.css">
+    <style>
+        .setup-page { padding: 28px 24px 60px; }
+        .setup-intro {
+            max-width: 760px;
+            margin: 0 auto 24px;
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .setup-intro strong { color: var(--text); }
+        .step ol, .step ul { margin: 0 0 0 22px; padding: 0; }
+        .step li { margin-bottom: 8px; line-height: 1.6; }
+        .step p { margin: 0 0 12px; line-height: 1.6; }
+        .step code {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--accent);
+        }
+        .step a { color: var(--accent); font-weight: 600; text-decoration: none; }
+        .step a:hover { text-decoration: underline; }
+        .step-cta {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff !important;
+            padding: 10px 18px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 8px;
+        }
+        .step-cta:hover { background: var(--accent-hover); text-decoration: none; }
+        .callout {
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+            margin: 12px 0;
+        }
+        .callout.warn {
+            background: rgba(240, 160, 80, 0.1);
+            border-color: var(--warn);
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="logo"><span>CADRE</span> Alumni</div>
+    <div class="subtitle">— Contributor Setup</div>
+    <div class="header-actions" style="margin-left:auto">
+        <a class="btn-header-action" href="post-generator.html">← Back to Post Generator</a>
+    </div>
+</header>
+
+<div class="setup-page">
+
+    <div class="setup-intro">
+        <p>This guide walks you through the four steps to publish blog posts to the CADRE Alumni site. You only need to do this <strong>once</strong> — after setup, sign in from the post generator and start writing.</p>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step">
+        <div class="step-header">
+            <div class="step-number">1</div>
+            <div class="step-title">Accept the collaborator invite</div>
+        </div>
+        <p>The repo owner will invite you as a collaborator on <code>BenBeary/Cadre-Test-Site</code>. You'll receive:</p>
+        <ul>
+            <li>An email titled <em>"[GitHub] @BenBeary has invited you to collaborate"</em></li>
+            <li>A notification on your GitHub home page</li>
+        </ul>
+        <p>Click <strong>View invitation</strong> and then <strong>Accept invitation</strong>. Without this step, the token you generate in Step 2 will not be able to publish posts.</p>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+        <div class="step-header">
+            <div class="step-number">2</div>
+            <div class="step-title">Generate a classic Personal Access Token</div>
+        </div>
+        <p>Open GitHub's token generator and create a <strong>classic</strong> PAT. The button below pre-fills the form for you.</p>
+        <p><a class="step-cta" href="https://github.com/settings/tokens/new?scopes=public_repo&description=Cadre%20Post%20Generator%20(contributor)" target="_blank" rel="noopener">Generate classic PAT →</a></p>
+        <p>On the GitHub page that opens:</p>
+        <ul>
+            <li>Confirm only the <code>public_repo</code> checkbox is ticked (it's pre-checked for you). <strong>Do not</strong> tick anything else — no other scope is needed.</li>
+            <li>Set <strong>Expiration</strong> to whatever you prefer — 90 days is a reasonable default. You'll need to repeat this step when the token expires.</li>
+            <li>Scroll to the bottom and click <strong>Generate token</strong>.</li>
+        </ul>
+        <div class="callout">
+            <strong>Why <code>public_repo</code> and not the full <code>repo</code> scope?</strong> The CADRE site is a public repo, and <code>public_repo</code> is the narrowest scope that lets you publish here. The broader <code>repo</code> scope would grant access to all your private repos too — unnecessary for this tool.
+        </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+        <div class="step-header">
+            <div class="step-number">3</div>
+            <div class="step-title">Copy the token</div>
+        </div>
+        <p>GitHub will show your new token <strong>once</strong>. It looks like <code>ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>.</p>
+        <div class="callout warn">
+            <strong>⚠ Copy it now.</strong> If you navigate away before copying, you'll have to delete it and generate a new one.
+        </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+        <div class="step-header">
+            <div class="step-number">4</div>
+            <div class="step-title">Paste it into the post generator</div>
+        </div>
+        <p>Open the post generator, click <strong>🔒 Sign in</strong> in the top-right, and paste your token into the input field.</p>
+        <p><a class="step-cta" href="post-generator.html">Open the Post Generator →</a></p>
+        <p>If your token is valid and you've been added as a collaborator, you'll be signed in and redirected to the admin tools. From there you can write posts, upload images, and publish directly to the site.</p>
+    </div>
+
+    <!-- Why classic? -->
+    <div class="step">
+        <div class="step-header">
+            <div class="step-number">?</div>
+            <div class="step-title">Why classic and not fine-grained?</div>
+        </div>
+        <p>GitHub offers two kinds of Personal Access Tokens: <strong>fine-grained</strong> (newer, more secure) and <strong>classic</strong> (older, broader scopes).</p>
+        <p>Fine-grained PATs are restricted to repos owned by the token creator's own account or organization — they <strong>cannot</strong> target repositories where you are only a collaborator. Since this repo is owned by <code>BenBeary</code>, contributors must use a classic PAT with the <code>repo</code> scope to publish here.</p>
+        <p>If you own a different repo that uses these tools, you can generate a fine-grained PAT instead using the link on the sign-in modal.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+/* AuthManager styles — auth chip + auth-modal extras.
+   Reuses the design tokens defined at :root in ../css/postGen-style.css
+   (--surface, --border, --accent, --text, --text-muted, --danger).
+   Modal chrome itself (.modal-overlay, .modal-box, etc.) also comes from
+   postGen-style.css — these rules add only the auth-specific bits.        */
+
+#auth-chip { display: flex; align-items: center; }
+
+.auth-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px;
+}
+.auth-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: block;
+}
+.auth-login {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#auth-modal-overlay .modal-body p {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+#auth-modal-overlay .modal-body a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+#auth-modal-overlay .modal-body a:hover { text-decoration: underline; }
+
+#auth-pat-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 9px 12px;
+    margin-top: 8px;
+}
+#auth-pat-input:focus { outline: none; border-color: var(--accent); }
+
+.auth-error {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.auth-expiry-warn {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--danger);
+    background: rgba(255, 90, 90, 0.12);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    padding: 2px 6px;
+    line-height: 1.2;
+    cursor: help;
+}
+
+/* Sign-in is benign — override the destructive-red confirm-button color used
+   by the other (template-switch / clear-post) modals. */
+#auth-modal-overlay .btn-modal-confirm,
+#restricted-modal-overlay .btn-modal-confirm { background: var(--accent); }
+#auth-modal-overlay .btn-modal-confirm:hover,
+#restricted-modal-overlay .btn-modal-confirm:hover { opacity: 0.9; }
+#auth-modal-overlay .btn-modal-confirm:disabled { opacity: 0.5; cursor: default; }
+

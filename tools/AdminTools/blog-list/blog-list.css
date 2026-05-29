@@ -1,0 +1,106 @@
+/* Blog List panel — read-only roster of Announcements-Blogs/*.html.
+   Mirrors the layout of .image-manager-panel (sticky right-side column with
+   --header-h offset + height compensation for 720p body { zoom: 0.8 }).
+   Reload + close buttons reuse the .image-manager-tool-btn / .image-manager-close
+   classes from image-manager.css since they're already loaded on this page. */
+
+.blog-list-panel {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: hidden;
+}
+
+.blog-list-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.blog-list-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 1;
+    overflow: hidden;
+}
+
+.blog-list-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.blog-list-placeholder {
+    padding: 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+}
+.blog-list-error { color: var(--danger); }
+
+.blog-list-files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.blog-list-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.blog-list-item:hover { background: var(--surface2); }
+
+/* Row state when an unpublishHtml is staged for this blog. */
+.blog-list-item-pending {
+    background: rgba(245, 24, 24, 0.10);
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+.blog-list-item-pending:hover { background: rgba(245, 24, 24, 0.16); }
+.blog-list-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--danger);
+    color: white;
+    flex-shrink: 0;
+}
+
+.blog-list-icon { font-size: 14px; flex-shrink: 0; }
+
+.blog-list-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-height: 800px) {
+    .blog-list-panel {
+        height: calc(100vh / 0.64 - var(--header-h));
+    }
+}

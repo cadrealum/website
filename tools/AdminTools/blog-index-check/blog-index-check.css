@@ -1,0 +1,120 @@
+/* Blog Index Check panel — same sticky-right-column layout as the other
+   admin tool panels. Reuses design tokens from ../../css/postGen-style.css. */
+
+.blog-index-check-panel {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: hidden;
+}
+
+.blog-index-check-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.blog-index-check-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 1;
+    overflow: hidden;
+}
+
+.blog-index-check-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.blog-index-check-placeholder {
+    padding: 24px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+}
+.blog-index-check-error { color: var(--danger); }
+.blog-index-check-ok    { color: var(--success); }
+
+.blog-index-check-summary {
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.blog-index-check-section { padding: 6px 0; }
+.blog-index-check-section-title {
+    padding: 8px 12px 4px 12px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.blog-index-check-list { list-style: none; margin: 0; padding: 0; }
+.blog-index-check-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 6px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text);
+    cursor: context-menu;
+}
+.blog-index-check-item:hover { background: var(--surface2); }
+.blog-index-check-tag {
+    grid-row: 1 / span 2;
+    align-self: start;
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+.tag-orphan     { background: var(--danger);  color: white; }
+.tag-unindexed  { background: var(--warn);    color: #1a1300; }
+.tag-broken     { background: var(--danger);  color: white; }
+.tag-bad-date   { background: #d4a017;        color: #1a1300; }
+
+.blog-index-check-name {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.blog-index-check-detail {
+    grid-column: 2;
+    color: var(--text-muted);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 720p height compensation (matches body { zoom: 0.8 } in postGen-style.css) */
+@media (max-height: 800px) {
+    .blog-index-check-panel {
+        height: calc(100vh / 0.64 - var(--header-h));
+    }
+}

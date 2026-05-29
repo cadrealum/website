@@ -1,0 +1,108 @@
+/* Publish Blog modal — pick Announcements vs Events.
+   Reuses .modal-overlay / .modal-box chrome from postGen-style.css.
+   Only the bits unique to this modal live here. */
+
+/* Disabled state for the renamed "📤 Publish Blog" button when the content
+   builder has no blocks. publish-blog.js toggles the `disabled` attribute via
+   a MutationObserver on #content-builder. */
+#btn-generate:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--surface2);
+    color: var(--text-muted);
+}
+#btn-generate:disabled:hover {
+    background: var(--surface2);
+    color: var(--text-muted);
+}
+
+#publish-modal-overlay .modal-body ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+#publish-modal-overlay .modal-body li {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+
+.publish-modal-help {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1.4;
+}
+
+#publish-modal-overlay .modal-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Both "Announcement" and "Event" are benign queue-only actions; override
+   the default destructive-red confirm color. */
+#publish-modal-overlay .publish-modal-event-btn,
+#publish-modal-overlay .publish-modal-announce-btn {
+    background: var(--accent);
+}
+#publish-modal-overlay .publish-modal-event-btn:hover,
+#publish-modal-overlay .publish-modal-announce-btn:hover {
+    opacity: 0.9;
+}
+
+/* Pre-publish validation panel — listed at the top of the publish modal
+   body when fields/blocks are missing. Soft warning only; user can still
+   publish via the Event / Announcement buttons. */
+.publish-modal-validation {
+    background: rgba(212, 160, 23, 0.12);
+    border: 1px solid #d4a017;
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin: 0 0 14px 0;
+    color: var(--text);
+}
+.publish-modal-validation-title {
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #d4a017;
+}
+.publish-modal-validation ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: disc;
+}
+.publish-modal-validation li {
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 3px;
+    line-height: 1.4;
+}
+.publish-modal-validation-help {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 6px 0 0 0;
+    font-style: italic;
+}
+
+/* When the user has filled an end-date we suggest Event as the primary
+   action. publish-blog.js toggles the .publish-modal-default class. */
+.publish-modal-default {
+    box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgba(255, 255, 255, 0.08);
+}
+
+/* Inline filename-collision chip — inserted by publish-blog.js next to
+   the header filename input when the chosen filename matches an existing
+   post on the server. */
+.publish-collision-chip {
+    background: #d4a017;
+    color: #1a1300;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-left: 8px;
+    white-space: nowrap;
+    align-self: center;
+    line-height: 1.2;
+}

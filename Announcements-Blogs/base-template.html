@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PAGE_TITLE}} - CADRE Alumni</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/blog-style.css">{{SLIDESHOW_CSS}}
+    <script>
+        (function () {
+            var stored = localStorage.getItem('theme');
+            document.documentElement.setAttribute('data-theme', stored || 'dark');
+        })();
+    </script>
+</head>
+<body data-page="events" data-root="../">
+    <div class="bg-squares bg-squares-left" aria-hidden="true"></div>
+    <div class="bg-squares bg-squares-right" aria-hidden="true"></div>
+
+    <div id="site-header"></div>
+
+    <main>
+        <section class="blog-section">
+            <div class="blog-inner">
+                <header class="blog-header">
+                    <h1>{{POST_TITLE}}</h1>
+                    <div class="blog-meta">
+                        <span class="blog-meta-row"><span class="blog-meta-label">Date:</span><span class="blog-meta-value">{{POST_DATE}}</span></span>
+                        <span class="blog-meta-row"><span class="blog-meta-label">Written by:</span><span class="blog-meta-value">{{POST_AUTHOR}}</span></span>
+                    </div>
+                </header>{{POST_CONTENT}}
+
+            </div>
+        </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="../js/partials.js"></script>
+    <script src="../js/bg-squares.js"></script>
+    <script src="../js/image-modal.js"></script>{{SLIDESHOW_JS}}
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Blog Posting from Browser - CADRE Alumni</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/blog-style.css">
+    <link rel="stylesheet" href="../css/slideshow.css">
+    <script>
+        (function () {
+            var stored = localStorage.getItem('theme');
+            document.documentElement.setAttribute('data-theme', stored || 'dark');
+        })();
+    </script>
+</head>
+<body data-page="events" data-root="../">
+    <div class="bg-squares bg-squares-left" aria-hidden="true"></div>
+    <div class="bg-squares bg-squares-right" aria-hidden="true"></div>
+
+    <div id="site-header"></div>
+
+    <main>
+        <section class="blog-section">
+            <div class="blog-inner">
+                <header class="blog-header">
+                    <h1>Testing Blog Posting from Browser</h1>
+                    <div class="blog-meta">
+                        <span class="blog-meta-row"><span class="blog-meta-label">Date:</span><span class="blog-meta-value">May 29, 2026</span></span>
+                        <span class="blog-meta-row"><span class="blog-meta-label">Written by:</span><span class="blog-meta-value">Ben Beary</span></span>
+                    </div>
+                </header>
+
+                <div class="blog-body">
+                    <h2 class="blog-section-heading">Test</h2>
+
+                    <div class="blog-two-col">
+                        <div class="blog-row">
+                            <div class="blog-row-text">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            </div>
+                            <div class="blog-row-media">
+                                <div class="blog-slideshow">
+                                    <div class="slideshow" data-autoplay-interval="5000">
+                                        <button class="slideshow-arrow slideshow-arrow-prev" aria-label="Previous slide">
+                                            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><polyline points="15 4 7 12 15 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </button>
+                                        <div class="slideshow-viewport">
+                                            <img class="slideshow-slide is-active" src="../images/Blog-Images/Test-Images/Business Card BACK.png" alt="Slide 1">
+                                            <img class="slideshow-slide" src="../images/Blog-Images/Test-Images/Business Card FRONT.png" alt="Slide 2">
+                                            <img class="slideshow-slide" src="../images/misc/CAO-placeholder.png" alt="Slide 3">
+                                        </div>
+                                        <button class="slideshow-arrow slideshow-arrow-next" aria-label="Next slide">
+                                            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><polyline points="9 4 17 12 9 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </button>
+                                        <div class="slideshow-dots" role="tablist" aria-label="Select slide"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p></p>
+
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                    <div class="blog-two-col">
+                        <div class="blog-row">
+                            <div class="blog-row-text">
+                                <figure class="blog-figure">
+                                    <img src="../images/Blog-Images/Test-Images/Business Card FRONT.png" alt="">
+                                    <figcaption>Test image for Show</figcaption>
+                                </figure>
+                            </div>
+                            <div class="blog-row-media">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="../js/partials.js"></script>
+    <script src="../js/bg-squares.js"></script>
+    <script src="../js/image-modal.js"></script>
+    <script src="../js/Slideshow.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+/* Show Changes panel — admin tool that displays pending ChangeQueue contents.
+   Mirrors the layout of .image-manager-panel (sticky right-side column with
+   --header-h offset + height-compensation for 720p body { zoom: 0.8 }).
+   Reuses design tokens from ../../css/postGen-style.css. */
+
+.show-changes-panel {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: hidden;
+}
+
+.show-changes-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.show-changes-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 1;
+    overflow: hidden;
+}
+
+.show-changes-tool-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: var(--radius);
+    line-height: 1;
+    white-space: nowrap;
+}
+.show-changes-tool-btn:hover:not(:disabled) { background: var(--surface2); }
+.show-changes-tool-btn:disabled { opacity: 0.35; cursor: default; }
+
+.show-changes-commit-btn {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    font-weight: 600;
+}
+.show-changes-commit-btn:hover:not(:disabled) { opacity: 0.9; }
+.show-changes-commit-btn:disabled { background: var(--accent); opacity: 0.35; }
+
+.show-changes-close {
+    background: transparent;
+    border: 0;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    line-height: 1;
+}
+.show-changes-close:hover { background: var(--surface2); color: var(--text); }
+
+.show-changes-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.show-changes-placeholder {
+    padding: 24px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+.show-changes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.show-changes-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text);
+    cursor: default;
+}
+.show-changes-item:hover { background: var(--surface2); }
+
+.show-changes-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+}
+.show-changes-tag-add       { background: var(--accent); color: white; }
+.show-changes-tag-del       { background: var(--danger); color: white; }
+.show-changes-tag-overwrite { background: #d4a017;       color: #1a1300; }
+
+.show-changes-item-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Commit conflict modal: error message pre block --------------------- */
+.commit-conflict-message {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 120px;
+    overflow-y: auto;
+    margin: 8px 0;
+}
+
+/* Commit modal: custom-name input ------------------------------------ */
+.commit-modal-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 12px 0 4px 0;
+}
+.commit-modal-label-hint {
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: none;
+}
+.commit-modal-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 13px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.commit-modal-input:focus { outline: none; border-color: var(--accent); }
+.commit-modal-input::placeholder { color: var(--text-muted); font-style: italic; }
+.commit-modal-help {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+    line-height: 1.4;
+}
+
+/* "Committing…" overlay shown while ghBatchCommit is in-flight.
+   Absolutely positioned inside the panel (which is position: sticky and
+   therefore acts as its absolute-positioning containing block). */
+.show-changes-committing {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 100;
+}
+.show-changes-committing-icon {
+    font-size: 48px;
+    color: white;
+    animation: show-changes-spin 1s linear infinite;
+    line-height: 1;
+}
+.show-changes-committing-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+@keyframes show-changes-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* 720p height compensation (matches body { zoom: 0.8 } in postGen-style.css) */
+@media (max-height: 800px) {
+    .show-changes-panel {
+        height: calc(100vh / 0.64 - var(--header-h));
+    }
+}

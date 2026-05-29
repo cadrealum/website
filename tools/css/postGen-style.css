@@ -1,0 +1,965 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg: #0e0f18;
+    --surface: #15172a;
+    --surface2: #1e2038;
+    --border: #2a2d52;
+    --border-light: #353868;
+    --text: #dde0f5;
+    --text-muted: #7880b0;
+    --accent: #6272f8;
+    --accent-hover: #7d8dff;
+    --accent-dim: rgba(98, 114, 248, 0.15);
+    --danger: #e05252;
+    --success: #3ecf6e;
+    --warn: #f0a050;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --sidebar-w: 230px;
+    --contrib-w: 280px;
+    --header-h: 61px;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Figtree', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ---- Custom scrollbars (applied to every scrollable element) ----
+   Dark track, light-gray thumb that brightens to white on hover, and white
+   directional arrows on the buttons (where the platform paints them). */
+html {
+    scrollbar-color: #d0d0d0 #15172a;   /* Firefox: thumb track */
+    scrollbar-width: thin;
+}
+::-webkit-scrollbar         { width: 12px; height: 12px; }
+::-webkit-scrollbar-track   { background: #15172a; }
+::-webkit-scrollbar-corner  { background: #15172a; }
+::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border: 2px solid #15172a;          /* inset gap so the thumb reads as a pill */
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: #ffffff; }
+::-webkit-scrollbar-button {
+    background-color: #15172a;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 8px 8px;
+    display: block;
+    height: 14px;
+    width: 12px;
+}
+::-webkit-scrollbar-button:vertical:decrement {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><polygon points='6,3 2,8 10,8' fill='white'/></svg>");
+}
+::-webkit-scrollbar-button:vertical:increment {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><polygon points='6,9 2,4 10,4' fill='white'/></svg>");
+}
+::-webkit-scrollbar-button:horizontal:decrement {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><polygon points='3,6 8,2 8,10' fill='white'/></svg>");
+}
+::-webkit-scrollbar-button:horizontal:increment {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><polygon points='9,6 4,2 4,10' fill='white'/></svg>");
+}
+
+/* ---- Header ---- */
+.site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.site-header .logo { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+.site-header .logo span { color: var(--accent); }
+.site-header .subtitle { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
+
+/* ---- Header filename path ---- */
+.header-filename {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-left: auto;
+}
+.header-filename-prefix,
+.header-filename-suffix { color: var(--text-muted); white-space: nowrap; }
+.header-filename input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 2px 4px;
+    width: 180px;
+    font-weight: 600;
+}
+.header-filename input:focus { outline: none; border-color: transparent; }
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.btn-header-action {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    transition: all 0.15s;
+}
+.btn-header-action:hover { color: var(--text); border-color: var(--border-light); }
+.btn-header-action:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+.btn-header-action.btn-header-danger:hover { color: var(--danger); border-color: var(--danger); }
+
+/* ---- Settings gear button (lives at the far left of the header) ----
+   The button itself is the square — always visible, never rotates.
+   The inner .btn-settings-icon is the gear glyph, which spins on hover. */
+.btn-settings {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 6px 10px;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-settings:hover {
+    background: var(--border-light);
+    color: var(--text);
+    border-color: var(--accent);
+}
+.btn-settings-icon {
+    display: inline-block;
+    line-height: 1;
+    transition: transform 0.4s;
+}
+.btn-settings:hover .btn-settings-icon { transform: rotate(45deg); }
+
+/* ---- Settings modal rows ---- */
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    cursor: pointer;
+}
+.settings-row + .settings-row { border-top: 1px solid var(--border); }
+/* Compact variant used inside other modals (e.g. the sign-in modal) — no top
+   separator and a tighter padding so it doesn't break the surrounding rhythm. */
+.settings-row-compact {
+    padding: 10px 0 0;
+    border-top: 0;
+    margin-top: 4px;
+}
+.settings-row-text  { flex: 1; }
+.settings-row-label { font-size: 14px; font-weight: 600; color: var(--text); }
+.settings-row-hint  { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+
+/* iOS-style toggle */
+.settings-toggle {
+    -webkit-appearance: none; appearance: none;
+    position: relative;
+    width: 44px; height: 24px;
+    background: var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+    margin: 0;
+}
+.settings-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.15s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.settings-toggle:checked         { background: var(--accent); }
+.settings-toggle:checked::after  { transform: translateX(20px); }
+
+/* When the "Show image thumbnails" setting is OFF, hide the <img> thumbnails
+   in both image picker and image manager, then paint a generic 🖼 emoji into
+   the icon slot via ::before. */
+body.hide-thumbnails .img-picker-thumb,
+body.hide-thumbnails .img-row-thumb { display: none; }
+body.hide-thumbnails .img-picker-image .img-picker-icon::before,
+body.hide-thumbnails .img-row-image    .img-row-icon::before {
+    content: '🖼';
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* ---- Two-panel app layout ---- */
+.app-layout {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - var(--header-h));
+}
+
+/* ---- Left sidebar (templates) ----
+   Per-sidebar widths use CSS variables so the collapse toggles can flip a
+   sidebar to its narrow "stub" width without touching every consumer. The
+   image picker + floating Preview/Publish bar read these variables to stay
+   aligned with the live layout. */
+body {
+    --template-sidebar-w: var(--sidebar-w);
+}
+body[data-page-role="admin"] {
+    --admin-sidebar-w: var(--sidebar-w);
+}
+body[data-page-role="basic"] {
+    --admin-sidebar-w: 0px;          /* basic page has no admin sidebar */
+}
+/* Collapsed: shrink the sidebar to a 10px rail so its surface and divider
+   line still hint at the sidebar along the page edge. The toggle tab is
+   positioned absolutely outside the sidebar's edge so it remains visible
+   (and clickable) regardless of width. */
+body.template-sidebar-collapsed { --template-sidebar-w: 10px; }
+body.admin-sidebar-collapsed    { --admin-sidebar-w:    10px; }
+
+.template-sidebar {
+    width: var(--template-sidebar-w);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 16px 10px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: visible;             /* allow the toggle-tab to stick out */
+    transition: width 0.25s ease, padding 0.25s ease;
+}
+.template-sidebar > .template-nav {
+    overflow-y: auto;              /* scroll inside the nav instead of the sidebar */
+    flex: 1;
+    min-height: 0;
+}
+/* When collapsed, hide every child except the toggle button and tighten
+   padding so the sidebar reads as a thin rail with just the re-open button. */
+body.template-sidebar-collapsed .template-sidebar {
+    padding: 0;
+    /* Keep border-right so the 10px collapsed rail still has a divider. */
+}
+body.template-sidebar-collapsed .template-sidebar > *:not(.sidebar-toggle) {
+    display: none;
+}
+
+/* ---- Collapse / expand toggle buttons (both sidebars) ----
+   Vertical tab sitting flush AGAINST the outer edge of the sidebar — fully
+   outside it, with the side touching the sidebar flattened so the two edges
+   join cleanly. */
+.sidebar-toggle {
+    position: absolute;
+    top: 14px;
+    width: 32px;
+    height: 56px;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.sidebar-toggle:hover  { background: var(--surface2); border-color: var(--accent); }
+.sidebar-toggle:active { transform: scale(0.96); }
+
+/* Template sidebar (LEFT in the layout) — tab sticks out to the RIGHT.
+   Flatten the LEFT side (touching the sidebar) and drop its border so the
+   two edges merge into one line. */
+.sidebar-toggle-left {
+    right: -32px;
+    border-radius: 0 10px 10px 0;
+    border-left: 0;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.35);
+}
+/* Admin sidebar (RIGHT in the layout) — tab sticks out to the LEFT.
+   Flatten the RIGHT side. */
+.sidebar-toggle-right {
+    left: -32px;
+    border-radius: 10px 0 0 10px;
+    border-right: 0;
+    box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.35);
+    transition: left 0.2s ease, background 0.15s, border-color 0.15s, transform 0.15s;
+}
+/* When an admin tool panel (Show Changes / Blog List / Blog Index Check) is
+   open, slide the toggle past it — 360px tool-panel width + the same 32px
+   tab width — so the toggle hugs the LEFT edge of the visible admin column
+   instead of being hidden behind the tool panel. */
+body.admin-panel-open .sidebar-toggle-right {
+    left: calc(-32px - 360px);
+}
+
+.sidebar-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 4px 8px 6px;
+}
+
+.loading-msg { font-size: 13px; color: var(--text-muted); padding: 10px 8px; }
+
+/* ---- Template nav ---- */
+.template-nav { display: flex; flex-direction: column; gap: 2px; }
+
+.tpl-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    padding: 8px 10px;
+    text-align: left;
+    transition: all 0.15s;
+}
+.tpl-btn:hover { background: var(--surface2); border-color: var(--border); }
+.tpl-btn.selected { background: var(--accent-dim); border-color: var(--accent); }
+.tpl-icon { font-size: 18px; flex-shrink: 0; line-height: 1; }
+.tpl-info { display: flex; flex-direction: column; min-width: 0; }
+.tpl-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tpl-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+
+/* ---- Content builder + side panels row ----
+   Step-content is pinned to a fixed 760px column centered in the main area.
+   Side panels (.image-picker-panel / .image-manager-panel on the LEFT,
+   .contrib-sidebar on the RIGHT) are absolutely positioned against this row
+   so they can appear / disappear WITHOUT shifting step-content horizontally.
+   The main block stays in the same place regardless of which panels are open. */
+.content-contrib-row {
+    position: relative;
+    width: 760px;
+    margin: 0 auto 20px;
+}
+.content-contrib-row #step-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+/* ---- Contributors sidebar — absolutely positioned to the RIGHT of step 2,
+       so it doesn't push step-content when it opens. ---- */
+.contrib-sidebar {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 20px);
+    width: 260px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    flex-direction: column;
+    gap: 8px;
+}
+.contrib-sidebar-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 4px 4px 6px;
+}
+.contrib-item { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface2); flex-shrink: 0; }
+.contrib-item-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 600;
+}
+.contrib-item-header .controls { margin-left: auto; display: flex; gap: 4px; }
+.contrib-item-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+/* ---- Social link list (inside contributor) ---- */
+.social-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+.social-item {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.social-item select { flex: 0 0 auto; width: 120px; font-size: 12px; padding: 6px 8px; }
+.social-item input  { flex: 1; min-width: 0; font-size: 12px; padding: 6px 8px; }
+
+/* ---- Main area ---- */
+.main-area {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 28px 80px;
+}
+
+/* ---- Step sections ---- */
+.step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-bottom: 20px;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+.step-number {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.step-title { font-size: 17px; font-weight: 600; color: var(--text); }
+
+/* ---- Form fields ---- */
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: 13px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.3px; text-transform: uppercase; }
+input[type="text"], input[type="date"], input[type="url"], textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 9px 12px;
+    transition: border-color 0.15s;
+    width: 100%;
+}
+/* Tell the browser this is a dark UI so the date input's calendar-picker
+   icon is drawn in the light/white variant instead of dark-on-dark. */
+input[type="date"] { color-scheme: dark; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+textarea { resize: vertical; min-height: 80px; }
+.field-hint { font-size: 12px; color: var(--text-muted); }
+.field-hint code { background: rgba(255,255,255,0.07); border-radius: 3px; padding: 1px 4px; font-family: 'Courier New', monospace; font-size: 11px; }
+
+/* Image-path input with a 📁 picker button on the right. */
+.img-input-row { display: flex; gap: 6px; align-items: stretch; }
+.img-input-row > input { flex: 1; }
+.btn-pick-image {
+    background: var(--border-light);      /* lighter than the input bg so it pops */
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 10px;
+    line-height: 1;
+    flex-shrink: 0;
+    align-self: stretch;                  /* match neighbour input height */
+    min-width: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.btn-pick-image:hover {
+    background: var(--surface2);           /* hover blends back into the surrounding input bg */
+    border-color: var(--accent);
+}
+/* Toggle-active state: shown while the picker panel is open in response to
+   THIS button. JS toggles the .btn-pick-image-active class. */
+.btn-pick-image-active,
+.btn-pick-image-active:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+/* While a picker is in "pick mode", subtle hint that image rows are clickable. */
+.image-picker-pick-mode .img-picker-image,
+.image-manager-pick-mode .img-row-image { cursor: copy; }
+.image-picker-pick-mode .img-picker-image:hover,
+.image-manager-pick-mode .img-row-image:hover {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* Load button popover — "Open file…" + recent drafts. */
+.load-menu {
+    width: 260px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+}
+.load-menu-item {
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.load-menu-item:hover { background: var(--surface2); }
+.load-menu-divider {
+    color: var(--text-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 10px 4px 10px;
+    font-weight: 700;
+}
+.load-menu-empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-style: italic;
+    padding: 8px 10px;
+}
+.load-menu-draft-title { font-weight: 600; }
+.load-menu-draft-when  { color: var(--text-muted); font-size: 11px; }
+.load-menu-clear {
+    color: var(--danger);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding-top: 8px;
+}
+
+/* ---- Content builder ---- */
+.block-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.block-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface2);
+}
+.block-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+}
+.block-item.dragging { opacity: 0.4; }
+.block-item.drop-target-before { box-shadow: 0 -3px 0 0 var(--accent); }
+.block-item.drop-target-after  { box-shadow: 0  3px 0 0 var(--accent); }
+
+/* ── Drag handle — TEMP dotted outline (delete the .drag-handle border/background to remove the visible marker) ── */
+.drag-handle {
+    flex: 1;
+    min-width: 40px;
+    align-self: stretch;
+    margin: -9px 8px 0; /* top: extend through header padding; sides: extra breathing room from badge/controls */
+    background: rgba(0, 0, 0, 0.06); /* low-contrast darker fill, barely off the header */
+    border: 1px dotted var(--border-light);
+    border-top: 0;      /* keep the top edge invisible */
+    border-radius: 0 0 4px 4px;
+    cursor: grab;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+.drag-handle:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent); }
+.block-item.dragging .drag-handle { cursor: grabbing; background: rgba(255, 255, 255, 0.08); border-color: var(--accent); }
+.block-type-badge {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--accent-dim); color: var(--accent);
+}
+.block-type-badge.type-image     { background: rgba(60,170,100,0.15); color: #3ecf6e; }
+.block-type-badge.type-youtube   { background: rgba(220,60,60,0.15);  color: #ef7070; }
+.block-type-badge.type-slideshow { background: rgba(200,130,40,0.15); color: #f0a050; }
+.block-type-badge.type-section-heading { background: rgba(176,112,248,0.15); color: #b070f8; }
+.block-type-badge.type-divider         { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+.divider-preview { height: 1px; background: var(--border-light); width: 100%; margin: 8px 0; }
+.block-controls { margin-left: auto; display: flex; gap: 4px; }
+.btn-icon {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 3px 7px;
+    transition: color 0.1s, border-color 0.1s;
+}
+.btn-icon:hover { color: var(--text); border-color: var(--border-light); }
+.btn-icon.danger:hover { color: var(--danger); border-color: var(--danger); }
+.btn-icon:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.block-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* ---- Add block bar ---- */
+.add-block-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.btn-add {
+    background: var(--surface2);
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    transition: all 0.15s;
+}
+.btn-add:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+/* ---- Slide list ---- */
+.slide-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.slide-item {
+    display: flex; gap: 8px; align-items: center;
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.03);
+}
+.slide-item input { flex: 1; }
+.slide-num { font-size: 12px; font-weight: 700; color: var(--text-muted); min-width: 20px; text-align: center; }
+
+/* ---- Contributors panel toggle button ---- */
+.btn-panel-toggle {
+    margin-left: auto;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+    transition: all 0.15s;
+}
+.btn-panel-toggle:hover { color: var(--text); border-color: var(--border-light); }
+.btn-panel-toggle.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.btn-panel-toggle.btn-panel-toggle-danger:hover { color: var(--danger); border-color: var(--danger); }
+
+/* ---- Column assignment badge + toggle ---- */
+.col-badge {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 2px 7px; border-radius: 3px;
+}
+.col-badge.col-a { background: rgba(98,114,248,0.2); color: var(--accent); }
+.col-badge.col-b { background: rgba(130,80,220,0.2); color: #b070f8; }
+
+.btn-col-toggle { font-size: 11px; font-weight: 700; min-width: 22px; text-align: center; }
+.btn-col-toggle.col-active-a { background: rgba(98,114,248,0.2); border-color: var(--accent); color: var(--accent); }
+.btn-col-toggle.col-active-b { background: rgba(130,80,220,0.2); border-color: #b070f8; color: #b070f8; }
+
+/* ---- Generate button ---- */
+/* Floating action bar — Preview + Generate / Publish.
+   Fixed to the bottom-right of the viewport with padding so the buttons are
+   always reachable no matter where the user has scrolled.
+   When an admin sidebar tool is open, the bar shifts left by the panel's
+   360px so it doesn't get hidden behind the admin panel. */
+.generate-bar {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    gap: 12px;
+    z-index: 60;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 10px 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    margin: 0;
+    max-width: none;
+    transition: right 0.2s ease;
+}
+/* Admin page: always clear the admin-tools sidebar that lives on the right
+   edge of the app-layout. Uses --admin-sidebar-w so collapsing the sidebar
+   slides the floating bar back to the right edge of the viewport. */
+body[data-page-role="admin"] .generate-bar {
+    right: calc(24px + var(--admin-sidebar-w));
+}
+/* And when an admin tool panel (Show Changes / Blog List / Blog Index Check)
+   is open, clear that panel's additional 360px too. */
+body[data-page-role="admin"].admin-panel-open .generate-bar {
+    right: calc(24px + var(--admin-sidebar-w) + 360px);
+}
+.btn-generate {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px; font-weight: 700;
+    padding: 13px 40px;
+    transition: background 0.15s, transform 0.1s, border-color 0.15s;
+}
+.btn-generate:hover { background: var(--accent-hover); }
+.btn-generate:active { transform: scale(0.98); }
+.btn-generate-secondary {
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+.btn-generate-secondary:hover { background: var(--accent-dim); color: var(--accent-hover); }
+
+/* ---- Output section ---- */
+.output-section { display: none; }
+.output-section.visible { display: block; }
+.output-block { margin-bottom: 20px; }
+.output-label {
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+}
+.output-label .btn-copy, .output-label .btn-download {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 12px;
+    transition: all 0.15s;
+}
+.output-label .btn-copy:hover    { color: var(--accent); border-color: var(--accent); }
+.output-label .btn-download:hover{ color: var(--success); border-color: var(--success); }
+.output-textarea {
+    background: #090a10;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: #b8c0e0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px; line-height: 1.5;
+    padding: 14px;
+    width: 100%;
+    resize: vertical;
+    min-height: 180px;
+}
+.instructions-box {
+    background: rgba(98,114,248,0.08);
+    border: 1px solid rgba(98,114,248,0.25);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+}
+.instructions-box h3 { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+.instructions-box ol { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.instructions-box li { font-size: 14px; color: var(--text); }
+.instructions-box code {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 1px 5px;
+}
+
+/* ---- Misc ---- */
+.placeholder-prompt { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
+
+/* ---- Full-screen drag-drop overlay ---- */
+.drop-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 6, 18, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.drop-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.drop-overlay-inner {
+    border: 3px dashed var(--accent);
+    border-radius: var(--radius-lg);
+    color: var(--accent);
+    font-size: 20px;
+    font-weight: 700;
+    padding: 60px 100px;
+    background: var(--surface);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+.drop-overlay-icon { font-size: 48px; line-height: 1; }
+
+/* ---- Modal ---- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+/* No per-modal override needed any more — the picker modal sits at z-index
+   100, well below the .modal-overlay default of 500, so every real modal
+   (Add Image, Settings, Overwrite confirm, etc.) naturally stacks above it. */
+.modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    max-width: 420px;
+    padding: 28px;
+    width: 90%;
+}
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+.modal-body { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-modal-cancel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px; font-weight: 600;
+    padding: 9px 18px;
+    transition: border-color 0.15s;
+}
+.btn-modal-cancel:hover { border-color: var(--border-light); }
+.btn-modal-confirm {
+    background: var(--danger);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px; font-weight: 600;
+    padding: 9px 18px;
+    transition: opacity 0.15s;
+}
+.btn-modal-confirm:hover { opacity: 0.85; }
+
+/* ---- Preview overlay ---- */
+.preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 600;
+    padding: 24px;
+}
+.preview-frame-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 1280px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.preview-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.preview-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: var(--text-muted);
+    margin-right: auto;
+}
+.btn-preview-action,
+.btn-preview-close {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.btn-preview-action:hover { color: var(--accent); border-color: var(--accent); }
+.btn-preview-close:hover { color: var(--danger); border-color: var(--danger); background: rgba(224, 82, 82, 0.08); }
+#preview-iframe {
+    flex: 1;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}
+body.preview-open { overflow: hidden; }
+
+/* ---- 720p / small-laptop scale-down ---- */
+/* Lives at the end of the file so its rules win the cascade over the base
+   .template-sidebar and body rules above.
+   `zoom: 0.8` shrinks the whole tool to 80% on short viewports so the three-
+   column layout fits comfortably. Because `zoom` scales geometry AFTER layout,
+   a child laid out at `height: 100vh` only paints 80% of the viewport — so
+   heights and min-heights inside this block get over-sized by 1/0.8 = 125%
+   to compensate. Larger displays bypass this block and keep full size. */
+@media (max-height: 800px) {
+    body {
+        zoom: 0.64;                          /* 0.8 * 0.8 — another 20% smaller */
+        min-height: calc(100vh / 0.64);
+    }
+    .template-sidebar {
+        height: calc(100vh / 0.64 - var(--header-h));
+    }
+}

@@ -1,0 +1,79 @@
+{
+    "announcements": [
+        {
+            "href": "Announcements-Blogs/template-basic-blog.html",
+            "title": "Basic Blog",
+            "date": "05-12-2026",
+            "thumbnail": "images/misc/CAO-placeholder.png"
+        },
+        {
+            "href": "Announcements-Blogs/template-youtube-video.html",
+            "title": "Youtube Video",
+            "date": "05-10-2026",
+            "thumbnail": "images/misc/CAO-placeholder.png"
+        },
+        {
+            "href": "Announcements-Blogs/template-blog-with-people.html",
+            "title": "Blog With People",
+            "date": "05-25-2026",
+            "thumbnail": "images/misc/CAO-placeholder.png"
+        },
+        {
+            "href": "Announcements-Blogs/template-two-column-blog.html",
+            "title": "Two Column Blog",
+            "date": "06-01-2026",
+            "thumbnail": "images/misc/CAO-placeholder.png"
+        },
+        {
+            "href": "Announcements-Blogs/template-blog-Slideshow.html",
+            "title": "Basic Blog Slideshow",
+            "date": "06-10-2026",
+            "thumbnail": "images/misc/CAO-placeholder.png"
+        },
+        {
+            "href": "Announcements-Blogs/untitled-blog-post.html",
+            "title": "Testing Blog Posting from Browser",
+            "date": "05-29-2026",
+            "thumbnail": ""
+        },
+        {
+            "href": "Announcements-Blogs/test-upload-blog.html",
+            "title": "The Next Event To Try Out!",
+            "date": "08-22-2026",
+            "thumbnail": "images/Blog-Images/Test-Images/Chang Mai.png"
+        },
+        {
+            "href": "Announcements-Blogs/laguna-interactive-goes-public-and-purchases-all-of-faze-cla.html",
+            "title": "Laguna Interactive goes Public and purchases all of faze clan stock",
+            "date": "06-06-2026",
+            "thumbnail": "images/Blog-Images/Test-Images/112121212.png"
+        },
+        {
+            "href": "Announcements-Blogs/laguna-interactive-holds-a-seminar-about-game-development.html",
+            "title": "Laguna Interactive Holds A Seminar About Game Development",
+            "date": "11-30-2030",
+            "thumbnail": "images/Blog-Images/Test-Images/Business Card FRONT.png"
+        },
+        {
+            "href": "Announcements-Blogs/messing-with-postings.html",
+            "title": "Messing With Postings",
+            "date": "05-29-2026",
+            "thumbnail": "images/Blog-Images/Test-Images/Business Card FRONT.png"
+        }
+    ],
+    "events": [
+        {
+            "href": "Announcements-Blogs/template-blog-youtube-with-people.html",
+            "title": "Youtube with people",
+            "date": "06-18-2026",
+            "end_date": "06-21-2026",
+            "thumbnail": "images/misc/CAO-placeholder.png"
+        },
+        {
+            "href": "Announcements-Blogs/template-event.html",
+            "title": "The Next Event To Try Out!",
+            "date": "07-22-2026",
+            "thumbnail": ""
+        }
+    ]
+}

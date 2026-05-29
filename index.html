@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADRE Alumni</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="fetch" href="json/blog-data.json" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/about-style.css">
+    <link rel="stylesheet" href="css/slideshow.css">
+    <link rel="stylesheet" href="css/video-style.css">
+    <script>
+        (function () {
+            var stored = localStorage.getItem('theme');
+            document.documentElement.setAttribute('data-theme', stored || 'dark');
+        })();
+    </script>
+</head>
+
+<body data-page="home" data-root="">
+    <div class="bg-squares bg-squares-left" aria-hidden="true"></div>
+    <div class="bg-squares bg-squares-right" aria-hidden="true"></div>
+
+    <div id="site-header"></div>
+
+    <main>
+        <section class="about-section">
+            <div class="about-container">
+                <div class="about-text">
+                    <h1>Welcome to CADRE Alumni</h1>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                        mollit anim id est laborum.</p>
+                    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
+                        totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae
+                        dicta sunt explicabo.</p>
+                </div>
+
+                <div class="slideshow" data-autoplay-interval="5000">
+                    <button class="slideshow-arrow slideshow-arrow-prev" aria-label="Previous slide">
+                        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+                            <polyline points="15 4 7 12 15 20" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+
+                    <div class="slideshow-viewport">
+                        <img class="slideshow-slide is-active" src="images/misc/CAO-placeholder.png"
+                            alt="CADRE showcase">
+                        <img class="slideshow-slide" src="images/misc/CAO-placeholder.png" alt="CADRE placeholder">
+                        <img class="slideshow-slide" src="images/misc/CAO-placeholder.png" alt="CADRE placeholder">
+                    </div>
+
+                    <button class="slideshow-arrow slideshow-arrow-next" aria-label="Next slide">
+                        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+                            <polyline points="9 4 17 12 9 20" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+
+                    <div class="slideshow-dots" role="tablist" aria-label="Select slide"></div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section class="news-section">
+            <div class="news-inner">
+                <div class="news-column" data-blog-preview="combined">
+                    <div class="news-header">
+                        <h2 class="news-title">Announcements</h2>
+                        <a href="Announcements-Blogs/index.html" class="news-more-link">Full listing &#10142;</a>
+                    </div>
+                    <div class="news-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section class="video-section">
+            <div class="video-inner">
+                <div class="video-frame">
+                    <iframe src="https://www.youtube.com/embed/IFTG52ngvKA" title="CADRE40 Recap" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section class="faq-section">
+            <div class="faq-inner">
+                <h2 class="faq-title">Frequently Asked Questions</h2>
+
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>What is CADRE Alumni?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+                                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                                ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>How do I join the alumni network?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                                nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+                                officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>Are there any membership fees?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
+                                laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
+                                architecto beatae vitae dicta sunt explicabo.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>How can I get involved with events?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
+                                consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>Who can I contact for more information?</span>
+                            <span class="faq-icon" aria-hidden="true"></span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci
+                                velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam
+                                aliquam quaerat voluptatem.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="js/partials.js"></script>
+    <script src="js/Slideshow.js"></script>
+    <script src="js/blog-grabber.js"></script>
+    <script src="js/bg-squares.js"></script>
+    <script src="js/image-modal.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

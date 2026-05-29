@@ -1,0 +1,120 @@
+{
+  "socialPlatforms": [
+    { "value": "bluesky",   "label": "Bluesky",         "icon": "icon-bluesky" },
+    { "value": "discord",   "label": "Discord",         "icon": "icon-discord" },
+    { "value": "facebook",  "label": "Facebook",        "icon": "icon-facebook" },
+    { "value": "instagram", "label": "Instagram",       "icon": "icon-instagram" },
+    { "value": "itchdotio", "label": "Itch.io",         "icon": "icon-itchdotio" },
+    { "value": "linkedin",  "label": "LinkedIn",        "icon": "icon-linkedin" },
+    { "value": "linktree",  "label": "Linktree",        "icon": "icon-linktree" },
+    { "value": "x",         "label": "X / Twitter",     "icon": "icon-x" },
+    { "value": "youtube",   "label": "YouTube",         "icon": "icon-youtube" },
+    { "value": "other",     "label": "Website / Other", "icon": "icon-link" }
+  ],
+  "templates": [
+    {
+      "id": "blank",
+      "name": "Blank",
+      "icon": "📄",
+      "desc": "Start fresh with no pre-filled blocks.",
+      "settings": { "isEvent": false, "hasSlideshowCss": false, "showContributors": false },
+      "blocks": [],
+      "contributors": []
+    },
+    {
+      "id": "basic",
+      "name": "Basic Blog Post",
+      "icon": "✍️",
+      "desc": "Title, author, paragraphs, and images.",
+      "settings": { "isEvent": false, "hasSlideshowCss": false, "showContributors": false },
+      "blocks": [
+        { "type": "paragraph", "text": "" },
+        { "type": "image", "url": "", "alt": "", "caption": "" },
+        { "type": "paragraph", "text": "" }
+      ],
+      "contributors": []
+    },
+    {
+      "id": "event",
+      "name": "Event Post",
+      "icon": "📅",
+      "desc": "Same as a blog post, for event announcements.",
+      "settings": { "isEvent": true, "hasSlideshowCss": false, "showContributors": false },
+      "blocks": [
+        { "type": "paragraph", "text": "" },
+        { "type": "image", "url": "", "alt": "", "caption": "" },
+        { "type": "paragraph", "text": "" }
+      ],
+      "contributors": []
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube Video",
+      "icon": "▶️",
+      "desc": "YouTube video at the top, then text below.",
+      "settings": { "isEvent": false, "hasSlideshowCss": false, "showContributors": false },
+      "blocks": [
+        { "type": "youtube-inline", "url": "" },
+        { "type": "paragraph", "text": "" }
+      ],
+      "contributors": []
+    },
+    {
+      "id": "contributors",
+      "name": "Blog + Contributors",
+      "icon": "🤝",
+      "desc": "Blog content with a contributor sidebar.",
+      "settings": { "isEvent": false, "hasSlideshowCss": false, "showContributors": true },
+      "blocks": [
+        { "type": "paragraph", "text": "" },
+        { "type": "image", "url": "", "alt": "", "caption": "" },
+        { "type": "paragraph", "text": "" }
+      ],
+      "contributors": [
+        { "name": "", "photo": "", "socials": [] }
+      ]
+    },
+    {
+      "id": "yt-people",
+      "name": "YouTube + Contributors",
+      "icon": "🎬",
+      "desc": "YouTube header and a contributor sidebar.",
+      "settings": { "isEvent": false, "hasSlideshowCss": false, "showContributors": true },
+      "blocks": [
+        { "type": "paragraph", "text": "" },
+        { "type": "youtube-inline", "url": "" },
+        { "type": "paragraph", "text": "" }
+      ],
+      "contributors": [
+        { "name": "", "photo": "", "socials": [] }
+      ]
+    },
+    {
+      "id": "two-col",
+      "name": "Two-Column Layout",
+      "icon": "🗂️",
+      "desc": "Alternating rows of text and image.",
+      "settings": { "isEvent": false, "hasSlideshowCss": false, "showContributors": false },
+      "blocks": [
+        { "type": "paragraph", "text": "", "col": "A" },
+        { "type": "image", "url": "", "alt": "", "caption": "", "col": "B" },
+        { "type": "paragraph", "text": "", "col": "A" },
+        { "type": "image", "url": "", "alt": "", "caption": "", "col": "B" }
+      ],
+      "contributors": []
+    },
+    {
+      "id": "slideshow",
+      "name": "Slideshow Post",
+      "icon": "🖼️",
+      "desc": "Blog post with an image slideshow carousel.",
+      "settings": { "isEvent": false, "hasSlideshowCss": true, "showContributors": false },
+      "blocks": [
+        { "type": "paragraph", "text": "" },
+        { "type": "slideshow", "slides": [{ "url": "", "alt": "" }, { "url": "", "alt": "" }] },
+        { "type": "paragraph", "text": "" }
+      ],
+      "contributors": []
+    }
+  ]
+}
