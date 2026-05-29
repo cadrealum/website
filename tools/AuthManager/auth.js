@@ -20,8 +20,8 @@
 
 // TODO: Fill in your GitHub username. Once set, the "Generate a token" link
 // in the sign-in modal will deep-link to a token form pre-scoped to this repo.
-const GITHUB_OWNER = 'BenBeary';
-const GITHUB_REPO  = 'Cadre-Test-Site';
+const GITHUB_OWNER = 'cadrealum';
+const GITHUB_REPO  = 'website';
 
 const LS_KEYS = {
     pat:    'pg_pat',
