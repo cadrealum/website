@@ -94,6 +94,12 @@ const POST_GEN_SHARED_MODALS_HTML = `
                 </div>
                 <input type="checkbox" id="setting-keep-logged-in" class="settings-toggle">
             </label>
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <div class="settings-row-label">Tutorial</div>
+                </div>
+                <button type="button" id="setting-replay-tutorial" class="btn-modal-cancel">▶ Replay Tutorial</button>
+            </div>
         </div>
         <div class="modal-actions">
             <button class="btn-modal-confirm" id="settings-modal-close">Done</button>

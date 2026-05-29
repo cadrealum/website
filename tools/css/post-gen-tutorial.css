@@ -1,0 +1,128 @@
+/* Post Generator tutorial — spotlight coach-marks.
+   Driven by tools/js/post-gen-tutorial.js. The overlay sits above every modal
+   (modals are z-index 500, preview 600) so it always covers the whole UI.
+
+   The dim-everything-but-the-target effect is produced by a single highlight
+   element with a huge box-shadow spread (no SVG mask needed). */
+
+.pg-tut-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    /* The overlay container itself is transparent; the dimming comes from the
+       highlight's box-shadow. pointer-events on children handle interaction. */
+    pointer-events: none;
+}
+
+/* The bright ring + cut-out around the highlighted element. Positioned via
+   inline top/left/width/height set by the engine from getBoundingClientRect. */
+.pg-tut-highlight {
+    position: fixed;
+    border-radius: var(--radius);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.72),
+                0 0 0 3px var(--accent);
+    transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+    pointer-events: none;
+}
+
+/* Centered variant for steps with no target (e.g. the welcome step). Collapses
+   the ring to nothing in the middle so the whole screen is just dimmed. */
+.pg-tut-highlight.pg-tut-highlight-center {
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.72);
+}
+
+/* The tooltip card. Positioned via inline top/left by the engine. */
+.pg-tut-card {
+    position: fixed;
+    z-index: 1001;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+    pointer-events: auto;
+    font-family: 'Figtree', sans-serif;
+}
+
+.pg-tut-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px 4px;
+    transition: color 0.15s;
+}
+.pg-tut-close:hover { color: var(--text); }
+
+.pg-tut-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    padding-right: 20px;
+}
+.pg-tut-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+/* Progress dots */
+.pg-tut-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.pg-tut-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border-light);
+    transition: background 0.15s;
+}
+.pg-tut-dot.pg-tut-dot-active { background: var(--accent); }
+
+.pg-tut-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pg-tut-actions .pg-tut-spacer { flex: 1; }
+
+.pg-tut-btn {
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    transition: border-color 0.15s, opacity 0.15s, background 0.15s;
+}
+.pg-tut-btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+.pg-tut-btn-secondary:hover { border-color: var(--border-light); }
+.pg-tut-btn-text {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 4px;
+}
+.pg-tut-btn-text:hover { color: var(--text); }
+.pg-tut-btn-primary {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+}
+.pg-tut-btn-primary:hover { background: var(--accent-hover); }

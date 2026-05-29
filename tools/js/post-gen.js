@@ -1106,6 +1106,7 @@ function initSettingsModal() {
     const thumbsTog   = document.getElementById('setting-show-thumbnails');
     const keepRow     = document.getElementById('settings-row-keep-logged-in');
     const keepTog     = document.getElementById('setting-keep-logged-in');
+    const replayBtn   = document.getElementById('setting-replay-tutorial');
     if (!overlay || !openBtn || !thumbsTog) return;
 
     function syncKeepLoggedInRow() {
@@ -1138,6 +1139,10 @@ function initSettingsModal() {
     });
     thumbsTog.addEventListener('change', function() {
         window.PostGenSettings.set({ showImageThumbnails: thumbsTog.checked });
+    });
+    if (replayBtn) replayBtn.addEventListener('click', function() {
+        close();
+        if (window.PostGenTutorial) window.PostGenTutorial.start();
     });
     if (keepTog) keepTog.addEventListener('change', function() {
         // Toggle just moves credentials between localStorage and sessionStorage.
