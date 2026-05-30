@@ -53,7 +53,10 @@ const ChangeQueue = (function () {
             if      (a.type === 'createFolder')    creates++;
             else if (a.type === 'uploadFile')      uploads++;
             else if (a.type === 'deleteFile')      deletes++;
-            else if (a.type === 'deleteFolder')    deletes += a.containedFiles.length;
+            // Count at least 1 so an EMPTY folder delete still registers in the
+            // summary (and isn't mistaken for "no changes"). Non-empty folders
+            // count their contained files.
+            else if (a.type === 'deleteFolder')    deletes += Math.max(1, a.containedFiles.length);
             else if (a.type === 'publishHtml')     publishes++;
             else if (a.type === 'unpublishHtml')   unpublishes++;
             // updateBlogIndex is bundled with publishes/unpublishes — don't count separately
@@ -80,6 +83,11 @@ const ChangeQueue = (function () {
                 a.containedFiles.forEach(function(f) {
                     out.push({ op: 'delete', path: f.path });
                 });
+                // Folders are created with a .gitkeep (see createFolder above), so
+                // a folder can exist on the server with no other files. Always
+                // delete the .gitkeep too — otherwise an empty folder produces
+                // ZERO delete ops and the folder is never actually removed.
+                out.push({ op: 'delete', path: a.path + '/.gitkeep' });
             } else if (a.type === 'publishHtml' || a.type === 'updateBlogIndex') {
                 out.push({ op: 'put', path: a.path, content: a.content });
             }

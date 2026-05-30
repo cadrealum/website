@@ -133,7 +133,7 @@ function buildJSONEntry() {
         + '            "href": "Announcements-Blogs/' + escJson(filename) + '",\n'
         + '            "title": "' + escJson(title) + '",\n'
         + '            "date": "' + formatJsonDate(date) + '"';
-    if (state.settings.isEvent && endDate) entry += ',\n            "end_date": "' + formatJsonDate(endDate) + '"';
+    if (endDate) entry += ',\n            "end_date": "' + formatJsonDate(endDate) + '"';
     entry += ',\n            "thumbnail": "' + escJson(thumbnail) + '"\n        },';
     return entry;
 }

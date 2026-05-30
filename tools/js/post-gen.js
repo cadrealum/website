@@ -95,6 +95,8 @@ function initElementCache() {
     els.fDate              = document.getElementById('f-date');
     els.fEndDate           = document.getElementById('f-end-date');
     els.fEndDateField      = document.getElementById('field-end-date');
+    els.btnAddEndDate      = document.getElementById('btn-add-end-date');
+    els.btnRemoveEndDate   = document.getElementById('btn-remove-end-date');
     els.fThumbnail         = document.getElementById('f-thumbnail');
     els.fFilename          = document.getElementById('f-filename');
     els.btnSave            = document.getElementById('btn-save-layout');
@@ -165,7 +167,7 @@ function applyTemplate(tplId) {
     const tpl = templates.find(function(t) { return t.id === tplId; });
     if (!tpl) return;
     state.templateId = tplId;
-    state.settings = Object.assign({ isEvent: false, hasSlideshowCss: false, showContributors: false }, tpl.settings);
+    state.settings = Object.assign({ isEvent: false, hasSlideshowCss: false, showContributors: false, hasEndDate: false }, tpl.settings);
     state.blocks = JSON.parse(JSON.stringify(tpl.blocks || []));
     state.contributors = JSON.parse(JSON.stringify(tpl.contributors || []));
     state.showContributors = !!tpl.settings.showContributors;
@@ -180,7 +182,21 @@ function applyTemplate(tplId) {
 }
 
 function updateDetailsFields() {
-    els.fEndDateField.style.display = state.settings.isEvent ? '' : 'none';
+    // The end-date field is shown when state.settings.hasEndDate is on. The
+    // "+ End Date" button (inline with the start date) is hidden while the
+    // field is showing. hasEndDate starts off for every template — the user
+    // opts in via the button — but is re-enabled when loading an older save
+    // that had an event end date (see applySaveData back-compat).
+    const show = !!state.settings.hasEndDate;
+    if (els.fEndDateField) els.fEndDateField.style.display = show ? '' : 'none';
+    if (els.btnAddEndDate) els.btnAddEndDate.style.display = show ? 'none' : '';
+}
+
+function setEndDateVisible(show) {
+    state.settings.hasEndDate = !!show;
+    if (!show && els.fEndDate) els.fEndDate.value = '';   // clear when removed
+    updateDetailsFields();
+    scheduleAutosave();
 }
 
 // ─── Editor chrome ────────────────────────────────────────────────────────────
@@ -463,6 +479,33 @@ function initEvents() {
     initBlockDragReorder(els.contentBuilder);
 }
 
+// ─── End-date toggle ──────────────────────────────────────────────────────────
+// "+ End Date" (inline with the start date) reveals the end-date field; the ✕
+// next to the end-date input removes it again. See setEndDateVisible().
+function initEndDateToggle() {
+    if (els.btnAddEndDate) els.btnAddEndDate.addEventListener('click', function() {
+        setEndDateVisible(true);
+        if (els.fEndDate) els.fEndDate.focus();
+    });
+    if (els.btnRemoveEndDate) els.btnRemoveEndDate.addEventListener('click', function() {
+        setEndDateVisible(false);
+    });
+}
+
+// ─── Duplicate Post-Details header buttons ─────────────────────────────────────
+// The Post Details step header has its own "📁 Browse Images" / "🗑 Clear Post"
+// copies. Clear Post (btn-clear-post-step) is wired directly in
+// initClearPostEvents(); Browse Images is owned by the image-picker / image-
+// manager modules (bound to btn-open-image-picker), so the step copy just
+// forwards its click to that real navbar button.
+function initStepHeaderButtonAliases() {
+    const stepPicker = document.getElementById('btn-open-image-picker-step');
+    const realPicker = document.getElementById('btn-open-image-picker');
+    if (stepPicker && realPicker) {
+        stepPicker.addEventListener('click', function() { realPicker.click(); });
+    }
+}
+
 // ─── Image-picker buttons ─────────────────────────────────────────────────────
 // Every image-path input renders a small 📁 button next to it. Clicking
 // dispatches to whichever image-tooling module is on the page:
@@ -658,7 +701,13 @@ function getSaveData() {
 function applySaveData(data) {
     if (!data || !data.templateId) { alert('This save file does not have a valid template.'); return; }
     state.templateId = data.templateId;
-    state.settings = Object.assign({ isEvent: false, hasSlideshowCss: false, showContributors: false }, data.settings || {});
+    state.settings = Object.assign({ isEvent: false, hasSlideshowCss: false, showContributors: false, hasEndDate: false }, data.settings || {});
+    // Back-compat: older saves used isEvent (event template) to imply an end
+    // date, or simply stored a non-empty endDate value. Reveal the field in
+    // both cases so loaded posts keep their end date.
+    if (!state.settings.hasEndDate && (state.settings.isEvent || (data.fields && data.fields.endDate))) {
+        state.settings.hasEndDate = true;
+    }
     state.blocks = data.blocks || [];
     state.contributors = data.contributors || [];
     state.showContributors = !!data.showContributors;
@@ -1042,6 +1091,13 @@ function setSidebarCollapsed(which /* 'template' | 'admin' */, collapsed) {
     const openIcon  = which === 'admin' ? '▶' : '◀';   // collapse direction
     const closeIcon = which === 'admin' ? '◀' : '▶';   // expand direction
     document.body.classList.toggle(bodyCls, collapsed);
+    // Folding the admin column away should also close any open tool panel —
+    // otherwise the panel floats with no sidebar to anchor it. (AdminToolManager
+    // is admin-page-only; this function also runs for the template sidebar.)
+    if (which === 'admin' && collapsed && typeof AdminToolManager !== 'undefined') {
+        const openTool = AdminToolManager.getActive();
+        if (openTool) AdminToolManager.close(openTool);
+    }
     if (btn) {
         btn.textContent = collapsed ? closeIcon : openIcon;
         btn.title       = collapsed ? 'Show ' + which + ' sidebar' : 'Hide ' + which + ' sidebar';
@@ -1163,6 +1219,8 @@ function initSettingsModal() {
 initElementCache();
 applySettings(loadSettings());     // apply persisted prefs BEFORE the trees render
 initEvents();
+initEndDateToggle();
+initStepHeaderButtonAliases();
 initContribEvents();
 initTemplateNavEvents();
 initSwitchTemplateModal();

@@ -20,7 +20,7 @@ const SOCIAL_PLATFORMS_FALLBACK = [
 
 const state = {
     templateId: null,
-    settings: { isEvent: false, hasSlideshowCss: false },
+    settings: { isEvent: false, hasSlideshowCss: false, hasEndDate: false },
     blocks: [],          // each: { type, ...fields, col?: 'A'|'B' }
     contributors: [],    // each: { name, photo, socials: [{platform, url}] }
     showContributors: false,

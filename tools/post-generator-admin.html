@@ -57,6 +57,10 @@
             <div class="step-header">
                 <div class="step-number">1</div>
                 <div class="step-title">Post Details</div>
+                <div class="step-header-actions">
+                    <button class="btn-panel-toggle" id="btn-open-image-picker-step" title="Browse images on the server and drag paths into the editor">📁 Browse Images</button>
+                    <button class="btn-panel-toggle btn-panel-toggle-danger" id="btn-clear-post-step" title="Wipe the current post and start fresh">🗑 Clear Post</button>
+                </div>
             </div>
             <div class="field-grid">
                 <div class="field full">
@@ -69,11 +73,17 @@
                 </div>
                 <div class="field">
                     <label for="f-date">Date</label>
-                    <input type="date" id="f-date">
+                    <div class="date-input-row">
+                        <input type="date" id="f-date">
+                        <button type="button" class="btn-add-end-date" id="btn-add-end-date" title="Add an end date (for multi-day events)">+ End Date</button>
+                    </div>
                 </div>
                 <div class="field" id="field-end-date" style="display:none">
-                    <label for="f-end-date">End Date <span style="font-weight:400;text-transform:none">(events only)</span></label>
-                    <input type="date" id="f-end-date">
+                    <label for="f-end-date">End Date</label>
+                    <div class="date-input-row">
+                        <input type="date" id="f-end-date">
+                        <button type="button" class="btn-remove-end-date" id="btn-remove-end-date" title="Remove the end date">✕</button>
+                    </div>
                 </div>
                 <div class="field full">
                     <label for="f-thumbnail">Thumbnail Image Path</label>

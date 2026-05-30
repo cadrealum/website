@@ -442,6 +442,9 @@ body.admin-panel-open .sidebar-toggle-right {
     margin-right: auto;
 }
 .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+/* Button group pinned to the right of a step header (e.g. Post Details:
+   Browse Images + Clear Post). */
+.step-header-actions { margin-left: auto; display: flex; gap: 8px; }
 .step-number {
     width: 28px; height: 28px;
     border-radius: 50%;
@@ -510,6 +513,48 @@ textarea { resize: vertical; min-height: 80px; }
     border-color: var(--accent);
     color: white;
 }
+
+/* Date input with an inline "+ End Date" / "✕" button on the right. The end
+   date lives in its own .field directly under the start date (same grid column)
+   and is toggled by JS via #field-end-date. */
+.date-input-row { display: flex; gap: 6px; align-items: stretch; }
+.date-input-row > input { flex: 1; }
+/* Keep the End Date field in the right column, directly under the Date field
+   (the grid would otherwise flow it into the left column under "Written by"). */
+#field-end-date { grid-column: 2; }
+.btn-add-end-date {
+    background: var(--border-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 12px;
+    line-height: 1;
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+}
+.btn-add-end-date:hover { background: var(--surface2); border-color: var(--accent); }
+.btn-remove-end-date {
+    background: var(--border-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 10px;
+    line-height: 1;
+    flex-shrink: 0;
+    min-width: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-remove-end-date:hover { background: var(--surface2); border-color: var(--danger); color: var(--danger); }
 
 /* While a picker is in "pick mode", subtle hint that image rows are clickable. */
 .image-picker-pick-mode .img-picker-image,
