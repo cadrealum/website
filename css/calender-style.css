@@ -67,14 +67,14 @@
 
 .calendar-btn-primary {
     background-color: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-primary);
     border: 2px solid var(--color-primary);
 }
 
 .calendar-btn-primary:hover {
     background-color: var(--color-complimentary);
     border-color: var(--color-complimentary);
-    color: #fff;
+    color: var(--color-on-primary);
 }
 
 .calendar-btn-outline {

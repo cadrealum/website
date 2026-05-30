@@ -115,6 +115,11 @@ body.admin-sidebar-collapsed .admin-tools-sidebar > *:not(.sidebar-toggle) {
 .admin-tool-btn:hover { background: var(--surface); border-color: var(--accent); }
 .admin-tool-btn-active { background: var(--accent); color: white; border-color: var(--accent); }
 
+/* Anchor styled as a tool button (launches a standalone tool page in a new tab).
+   The base .admin-tool-btn sets width:100%, which needs a block box to apply. */
+.admin-tool-link { display: block; text-decoration: none; }
+.admin-tool-link:hover { text-decoration: none; }
+
 /* On narrower viewports the editor needs the room more than the sidebar does. */
 @media (max-width: 1100px) {
     .admin-tools-sidebar { display: none; }

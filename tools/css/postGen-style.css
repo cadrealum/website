@@ -132,6 +132,9 @@ html {
 .btn-header-action:hover { color: var(--text); border-color: var(--border-light); }
 .btn-header-action:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 .btn-header-action.btn-header-danger:hover { color: var(--danger); border-color: var(--danger); }
+/* The class is built for <button>; clear the underline when used on a nav <a>
+   (e.g. the "🏠 Home" / "Editor Home" links). */
+a.btn-header-action { text-decoration: none; }
 
 /* ---- Settings gear button (lives at the far left of the header) ----
    The button itself is the square — always visible, never rotates.

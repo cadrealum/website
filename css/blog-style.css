@@ -160,7 +160,7 @@
     margin-bottom: var(--space-1);
     padding: var(--space-2xs) var(--space-sm);
     background-color: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-primary);
     font-size: 0.8rem;
     font-weight: 700;
     border-radius: var(--radius);

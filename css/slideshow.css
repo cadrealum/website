@@ -58,7 +58,7 @@
 
 .slideshow-arrow:hover {
     color: var(--color-primary);
-    background-color: rgba(86, 58, 255, 0.08);
+    background-color: var(--color-primary-tint);
 }
 
 .slideshow-arrow:focus-visible {

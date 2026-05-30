@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADRE — Theme Colors</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/postGen-style.css">
+    <link rel="stylesheet" href="AuthManager/auth.css">
+    <link rel="stylesheet" href="AdminTools/color-picker/color-picker.css">
+</head>
+<!-- No data-page-role: this page is NOT part of the basic/admin redirect gate.
+     It gates inline via isAuthenticated() (see color-picker.js cpApplyAuthGate). -->
+<body>
+
+<header class="site-header">
+    <div class="logo"><span>CADRE</span> Alumni</div>
+    <div class="subtitle">— Theme Colors</div>
+    <div class="header-actions">
+        <a class="btn-header-action" href="index.html" title="Back to the editor home">🏠 Editor Home</a>
+        <div id="auth-chip"></div>
+    </div>
+</header>
+
+<!-- Shared modals (sign-in, settings, …) are injected here by post-gen-modals.js
+     BEFORE auth.js runs (auth.js queries auth-modal-* IDs at load). -->
+<div id="post-gen-shared-modals-slot"></div>
+
+<div class="cp-page">
+
+    <!-- Sign-in gate — shown until the user is authenticated. -->
+    <div class="cp-signin-gate" id="cp-signin-gate" style="display:none">
+        <div class="cp-gate-icon">🔒</div>
+        <div class="cp-gate-title">Sign in to edit theme colors</div>
+        <div>Editing the site palette commits to the repository, so you need to be signed in.</div>
+        <button class="cp-commit-btn" id="cp-signin-btn">🔑 Sign in</button>
+    </div>
+
+    <!-- Editor + live preview — shown once authenticated. -->
+    <div class="cp-app" id="cp-app" style="display:none">
+        <div class="cp-editor-col">
+            <div class="cp-toolbar">
+                <div class="cp-toolbar-title">🎨 Theme Colors</div>
+                <button class="cp-btn cp-btn-icon" id="cp-export" title="Copy CSS for these colors">⧉</button>
+                <button class="cp-btn cp-btn-icon" id="cp-reset"  title="Reset to committed values">⟲</button>
+                <button class="cp-btn cp-btn-icon" id="cp-reload" title="Re-fetch css/style.css">↻</button>
+            </div>
+            <div class="cp-editor" id="cp-editor">
+                <div class="cp-placeholder">Loading…</div>
+            </div>
+            <div class="cp-commit-bar">
+                <span class="cp-commit-status" id="cp-commit-status"></span>
+                <button class="cp-commit-btn" id="cp-commit" disabled>💾 Commit</button>
+            </div>
+        </div>
+        <div class="cp-preview-col">
+            <div class="cp-preview-bar">
+                <span>Live preview</span>
+                <button class="cp-btn cp-btn-icon" id="cp-preview-theme-toggle" title="Toggle preview light/dark">🌓 Dark</button>
+            </div>
+            <iframe class="cp-preview-iframe" id="cp-preview-iframe" title="Theme preview"></iframe>
+        </div>
+    </div>
+
+</div><!-- end cp-page -->
+
+<!-- Commit-to-GitHub confirmation modal -->
+<div class="modal-overlay" id="cp-commit-modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title">Commit <span id="cp-commit-count"></span>?</div>
+        <div class="modal-body">
+            <p>This commits <code>css/style.css</code> directly to <code>main</code> in a single commit.</p>
+            <label class="cp-commit-label" for="cp-commit-name">Commit name <span class="cp-commit-label-hint">(optional)</span></label>
+            <input type="text" id="cp-commit-name" class="cp-commit-name" autocomplete="off" spellcheck="false">
+            <p class="cp-commit-help">Leave blank to use the default (shown as placeholder). The final message is prefixed with <code>Browser:</code> automatically.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="cp-commit-cancel">Cancel</button>
+            <button class="btn-modal-confirm" id="cp-commit-confirm">Commit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Export / copy-CSS modal -->
+<div class="modal-overlay" id="cp-export-modal-overlay" style="display:none">
+    <div class="modal-box cp-modal-wide">
+        <div class="modal-title">Theme colors CSS</div>
+        <div class="modal-body">
+            <p class="cp-export-hint">Paste these blocks over the matching ones in <code>css/style.css</code>.</p>
+            <textarea class="output-textarea" id="cp-export-textarea" readonly rows="16" spellcheck="false"></textarea>
+            <div class="cp-export-actions">
+                <button class="btn-copy" id="cp-export-copy">Copy</button>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="cp-export-close">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- post-gen-modals.js MUST load before auth.js — auth.js queries auth-modal-*
+     element IDs at top-level execution time, and they only exist after the
+     modal slot has been replaced. -->
+<script src="js/post-gen-modals.js"></script>
+<script src="AuthManager/auth.js"></script>
+<script src="AuthManager/github-api.js"></script>
+<script src="js/admin-utils.js"></script>
+<script src="AdminTools/color-picker/color-picker.js"></script>
+</body>
+</html>

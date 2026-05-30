@@ -99,7 +99,7 @@
 }
 
 [data-theme="dark"] .about-link-themed {
-    color: #fff;
+    color: var(--color-on-overlay);
 }
 
 @media (max-width: 800px) {

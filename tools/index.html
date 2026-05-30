@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADRE — Editor Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/postGen-style.css">
+    <link rel="stylesheet" href="AuthManager/auth.css">
+    <style>
+        /* Editor Home is a small landing page — styles are page-specific and
+           kept inline. Header/chip/buttons come from postGen-style.css. */
+        /* body is min-height:100vh (not a flex column), so size explicitly to
+           fill below the sticky 61px header and center the content. */
+        .eh-main {
+            min-height: calc(100vh - var(--header-h));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+        }
+        /* postGen-style.css applies body { zoom: 0.64 } on short viewports. */
+        @media (max-height: 800px) {
+            .eh-main { min-height: calc(100vh / 0.64 - var(--header-h)); }
+        }
+        .eh-heading { text-align: center; margin-bottom: 32px; }
+        .eh-heading h1 { font-size: 26px; font-weight: 700; color: var(--text); margin: 0 0 6px; }
+        .eh-heading p { color: var(--text-muted); margin: 0; }
+
+        /* Tool cards */
+        .eh-cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 260px));
+            gap: 20px;
+        }
+        .eh-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 26px 22px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            color: var(--text);
+            text-decoration: none;
+            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .eh-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            background: var(--surface2);
+        }
+        .eh-card-icon { font-size: 40px; }
+        .eh-card-title { font-size: 17px; font-weight: 700; }
+        .eh-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+        /* Theme Colors card while signed out: grayed + not navigable. */
+        .eh-card-disabled { opacity: 0.55; cursor: not-allowed; }
+        .eh-card-disabled:hover { transform: none; border-color: var(--border); background: var(--surface); }
+        .eh-card-lock { font-size: 12px; font-weight: 700; color: var(--accent); margin-top: 2px; }
+
+        @media (max-width: 620px) {
+            .eh-cards { grid-template-columns: minmax(0, 320px); }
+        }
+    </style>
+</head>
+<!-- No data-page-role: this hub gates inline via isAuthenticated() (see
+     editor-home.js) rather than participating in the basic/admin redirect. -->
+<body>
+
+<header class="site-header">
+    <div class="logo"><span>CADRE</span> Alumni</div>
+    <div class="subtitle">— Editor</div>
+    <div class="header-actions">
+        <div id="auth-chip"></div>
+    </div>
+</header>
+
+<!-- Shared modals (sign-in, …) injected here by post-gen-modals.js before auth.js. -->
+<div id="post-gen-shared-modals-slot"></div>
+
+<main class="eh-main">
+    <div class="eh-heading">
+        <h1>CADRE Editor</h1>
+        <p>Choose a tool to get started.</p>
+    </div>
+
+    <!-- Both cards are always visible. Blog Post works without signing in
+         (editor-home.js points it at the basic or admin generator depending on
+         auth). Theme Colors is grayed until signed in (it commits to the repo);
+         clicking it signed-out opens the sign-in modal. Sign-in itself lives in
+         the navbar (#auth-chip, top right). -->
+    <div class="eh-cards" id="eh-cards">
+        <a class="eh-card" id="eh-card-blog" href="post-generator.html">
+            <div class="eh-card-icon">📝</div>
+            <div class="eh-card-title">Blog Post Generator</div>
+            <div class="eh-card-desc">Write, preview, and publish blog posts and event announcements.</div>
+        </a>
+        <a class="eh-card" id="eh-card-color" href="color-picker.html">
+            <div class="eh-card-icon">🎨</div>
+            <div class="eh-card-title">Theme Colors</div>
+            <div class="eh-card-desc">Edit the site's light &amp; dark color palette with a live preview, then commit.</div>
+            <div class="eh-card-lock" id="eh-color-lock">🔒 Sign in to use</div>
+        </a>
+    </div>
+</main>
+
+<!-- post-gen-modals.js MUST load before auth.js — auth.js queries auth-modal-*
+     element IDs at top-level execution time. -->
+<script src="js/post-gen-modals.js"></script>
+<script src="AuthManager/auth.js"></script>
+<script src="editor-home.js"></script>
+</body>
+</html>

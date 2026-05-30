@@ -1,0 +1,274 @@
+/* Color Picker / Theme Editor — standalone page (tools/color-picker.html).
+   Loaded alongside tools/css/postGen-style.css, which provides the page chrome
+   (.site-header, modals, buttons) and the admin design tokens used here
+   (--surface, --surface2, --border, --text, --text-muted, --accent, --radius…).
+   This file styles the editor/preview layout, the per-token rows, and the
+   sign-in gate — NONE of it uses the public site's --color-* tokens, so the
+   chrome is unaffected by whatever colors are being edited. */
+
+/* Fill the viewport below the sticky 61px header so the editor scrolls
+   internally and the preview iframe gets real height. body is NOT a flex
+   column here (postGen-style.css only sets min-height), so we size explicitly
+   — mirroring the .template-sidebar pattern in postGen-style.css. */
+.cp-page {
+    height: calc(100vh - var(--header-h));
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Sign-in gate (shown when signed out) */
+.cp-signin-gate {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+.cp-signin-gate .cp-gate-icon { font-size: 48px; }
+.cp-signin-gate .cp-gate-title { font-size: 18px; font-weight: 700; color: var(--text); }
+
+/* App shell: editor column + preview column */
+.cp-app {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.cp-editor-col {
+    width: 480px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-height: 0;
+}
+
+.cp-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.cp-toolbar-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+}
+
+.cp-editor {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+    min-height: 0;
+}
+
+.cp-placeholder {
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+}
+.cp-error { color: var(--danger); }
+
+/* Theme section (Light / Dark) */
+.cp-section { margin-bottom: 16px; }
+.cp-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 2px;
+    position: sticky;
+    top: -10px;
+    background: var(--surface);
+    z-index: 1;
+}
+
+/* One editable token: swatch | label | [color] | text */
+.cp-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 32px 150px;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 2px;
+}
+/* rgba()/shadow rows have no color input — give the text field that space. */
+.cp-row-text-only {
+    grid-template-columns: 24px 1fr 192px;
+}
+
+.cp-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    border: 1px solid var(--border-light);
+    /* checkerboard shows translucency through rgba()/shadow values */
+    background-image:
+        linear-gradient(45deg, #555 25%, transparent 25%),
+        linear-gradient(-45deg, #555 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #555 75%),
+        linear-gradient(-45deg, transparent 75%, #555 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.cp-label {
+    font-size: 13px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cp-label code {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+}
+
+.cp-color {
+    width: 32px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--border-light);
+    border-radius: 5px;
+    background: none;
+    cursor: pointer;
+}
+.cp-color::-webkit-color-swatch-wrapper { padding: 2px; }
+.cp-color::-webkit-color-swatch { border: none; border-radius: 3px; }
+
+.cp-text {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 5px 7px;
+}
+.cp-text:focus { outline: none; border-color: var(--accent); }
+
+/* Commit bar at the bottom of the editor column */
+.cp-commit-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.cp-commit-status {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cp-commit-status-error { color: var(--danger); }
+
+/* Preview column */
+.cp-preview-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg);
+}
+.cp-preview-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.cp-preview-bar span { flex: 1; }
+.cp-preview-iframe {
+    flex: 1;
+    width: 100%;
+    border: 0;
+    background: #fff;
+    min-height: 0;
+}
+
+/* Generic buttons (toolbar + gate). The commit button reuses .commit-btn from
+   postGen-style.css; the secondary actions use .cp-btn. */
+.cp-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cp-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.cp-btn-icon { padding: 7px 10px; }
+
+.cp-commit-btn {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+.cp-commit-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.cp-commit-btn:disabled { opacity: 0.5; cursor: default; }
+
+.cp-export-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.cp-export-hint { color: var(--text-muted); font-size: 12px; margin: 0 0 8px; }
+
+/* Commit modal name input (show-changes.css isn't loaded on this page). */
+.cp-modal-wide { max-width: 560px; }
+.cp-commit-label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin: 10px 0 4px; }
+.cp-commit-label-hint { color: var(--text-muted); font-weight: 400; }
+.cp-commit-name {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 9px;
+}
+.cp-commit-name:focus { outline: none; border-color: var(--accent); }
+.cp-commit-help { color: var(--text-muted); font-size: 12px; margin: 8px 0 0; }
+
+/* Stack columns on narrow viewports */
+@media (max-width: 900px) {
+    .cp-app { flex-direction: column; }
+    .cp-editor-col { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    .cp-preview-col { min-height: 420px; }
+}
+
+/* postGen-style.css applies body { zoom: 0.64 } on short viewports, so a child
+   sized at 100vh paints over-sized — compensate by 1/0.64 (same as the admin
+   sidebar/template-sidebar rules). */
+@media (max-height: 800px) {
+    .cp-page { height: calc(100vh / 0.64 - var(--header-h)); }
+}
