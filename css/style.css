@@ -5,6 +5,7 @@
     --color-primary: rgb(86, 58, 255);
     --color-accent: rgb(76, 169, 203);
     --color-complimentary: rgb(255, 81, 77);
+    --color-logo: rgb(86, 58, 255);                    /* header/footer brand logo (CADRE mark) */
 
     --color-muted: rgba(20, 20, 28, 0.6);
     --color-border: rgba(20, 20, 28, 0.12);
@@ -47,6 +48,7 @@
     --color-primary: rgb(140, 119, 255);
     --color-accent: rgb(110, 196, 226);
     --color-complimentary: rgb(255, 120, 117);
+    --color-logo: rgb(140, 119, 255);                  /* header/footer brand logo (CADRE mark) */
 
     --color-muted: rgba(232, 233, 240, 0.6);
     --color-border: rgba(232, 233, 240, 0.14);
@@ -232,7 +234,7 @@ h1 {
 .site-title {
     display: inline-flex;
     align-items: center;
-    color: var(--color-primary);
+    color: var(--color-logo);
     text-decoration: none;
     transition: color 0.2s ease;
 }
