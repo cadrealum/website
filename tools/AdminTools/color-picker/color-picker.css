@@ -17,6 +17,21 @@
     min-height: 0;
 }
 
+/* Navbar: centered "GitHub takes time to update" notice + sign-in pinned right.
+   .site-header is position:sticky (a positioning context), so the notice can be
+   absolutely centered independent of the left/right item widths. The auth chip
+   gets margin-left:auto to sit in the far-right corner. */
+.cp-navbar-notice {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    color: var(--text);
+    white-space: nowrap;
+    pointer-events: none;
+}
+.cp-auth-right { margin-left: auto; }
+
 /* App shell: editor column + preview column */
 .cp-app {
     flex: 1;

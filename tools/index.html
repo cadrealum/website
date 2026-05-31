@@ -26,6 +26,9 @@
         @media (max-height: 800px) {
             .eh-main { min-height: calc(100vh / 0.64 - var(--header-h)); }
         }
+        /* Sign-in chip is the only header action here — pin it to the right. */
+        .site-header .header-actions { margin-left: auto; }
+
         .eh-heading { text-align: center; margin-bottom: 32px; }
         .eh-heading h1 { font-size: 26px; font-weight: 700; color: var(--text); margin: 0 0 6px; }
         .eh-heading p { color: var(--text-muted); margin: 0; }
