@@ -92,12 +92,25 @@ const CP_THEMES = ['light', 'dark'];
 // Editor grouping (dividers). Main colors first; the shadow "other items" last.
 // Every CP_TOKENS entry must appear in exactly one group.
 const CP_GROUPS = [
-    { title: 'Main colors',       tokens: ['--color-bg', '--color-surface', '--color-fg', '--color-primary', '--color-accent', '--color-complimentary', '--color-logo', '--color-logo-highlight'] },
+    { title: 'Main colors',       tokens: ['--color-bg', '--color-surface', '--color-fg', '--color-primary', '--color-logo', '--color-accent', '--color-complimentary', '--color-logo-highlight'] },
     { title: 'Text & borders',    tokens: ['--color-muted', '--color-border', '--color-on-primary', '--color-focus-ring'] },
     { title: 'Overlays & badges', tokens: ['--color-overlay', '--color-badge-bg', '--color-on-overlay', '--color-on-overlay-soft', '--color-on-overlay-muted', '--color-primary-tint'] },
     { title: 'Scrollbar',         tokens: ['--color-scrollbar-thumb', '--color-scrollbar-track'] },
     { title: 'Shadows',           tokens: ['--shadow-soft', '--shadow-faq'] }
 ];
+
+// Optional "link" pairs. A link toggle is drawn between the source row and the
+// target row; when linked, the target token mirrors the source token and the
+// target row is greyed out / read-only. Each pair toggles independently and
+// starts UNLINKED. (Both tokens must be adjacent in the same CP_GROUPS list so
+// the connector renders between them.)
+const CP_LINKS = [
+    { source: '--color-primary',       target: '--color-logo' },
+    { source: '--color-complimentary', target: '--color-logo-highlight' }
+];
+const CP_LINK_BY_SOURCE = {};
+const CP_LINK_BY_TARGET = {};
+CP_LINKS.forEach(function(l) { CP_LINK_BY_SOURCE[l.source] = l; CP_LINK_BY_TARGET[l.target] = l; });
 
 // ---- Module state ---------------------------------------------------------
 let cpLoaded = false;
@@ -112,6 +125,7 @@ let cpActiveTheme = 'dark';                // which theme's palette is shown/pre
 let cpConvertTarget = 'hex';               // what the RGB⇄Hex button will convert to next
 let cpRenderTimer = null;                  // debounce handle for preview re-render
 let cpShowingOriginal = false;             // preview is showing committed colors (compare mode)
+let cpLinked = {};                         // link target token -> true when mirroring its source
 
 // Undo: a stack of prior cpEdited snapshots. We push one snapshot per field-edit
 // session (captured on focusin, committed on the first input) plus before
@@ -331,10 +345,15 @@ function cpRenderEditors() {
     const body = document.getElementById('cp-editor');
     if (!body) return;
     const theme = cpActiveTheme;
+    cpApplyLinks(theme);   // make linked targets mirror their source before drawing
     body.innerHTML = CP_GROUPS.map(function(group) {
         const rows = group.tokens.map(function(t) {
             if (cpEdited[theme][t] === undefined) return '';   // token absent — skip
-            return cpRenderRow(theme, t);
+            let html = cpRenderRow(theme, t);
+            // Draw the link toggle right after the source row (its target follows).
+            const link = CP_LINK_BY_SOURCE[t];
+            if (link && cpEdited[theme][link.target] !== undefined) html += cpRenderLinkConnector(link);
+            return html;
         }).join('');
         if (!rows) return '';
         return '<div class="cp-group">'
@@ -348,26 +367,92 @@ function cpRenderRow(themeKey, token) {
     const value = cpEdited[themeKey][token];
     const label = CP_LABELS[token] || token;
     const isColor = cpKind[token] === 'color';
+    // A linked target row mirrors its source and is read-only: disable its
+    // inputs and grey it out (see .cp-row-linked).
+    const linkedTarget = !!cpLinked[token] && !!CP_LINK_BY_TARGET[token];
+    const dis = linkedTarget ? ' disabled' : '';
     // Every row uses the same 5-column grid so the text fields line up: color
     // tokens (incl. translucent rgba) get a native color box + an opacity slider
     // in columns 3-4; shadow tokens get empty spacers there (a shadow isn't a
     // single color a box/slider can edit).
     const colorCell = isColor
-        ? '<input type="color" class="cp-color" value="' + cpEsc(cpToHex(value)) + '" title="Pick a color">'
+        ? '<input type="color" class="cp-color" value="' + cpEsc(cpToHex(value)) + '" title="Pick a color"' + dis + '>'
         : '<span class="cp-color-spacer" aria-hidden="true"></span>';
     const alphaCell = isColor
-        ? '<input type="range" class="cp-alpha" min="0" max="1" step="0.01" value="' + cpAlphaOf(value) + '" title="Opacity">'
+        ? '<input type="range" class="cp-alpha" min="0" max="1" step="0.01" value="' + cpAlphaOf(value) + '" title="Opacity"' + dis + '>'
         : '<span class="cp-alpha-spacer" aria-hidden="true"></span>';
     const desc = CP_DESC[token] || '';
-    return '<div class="cp-row" '
+    return '<div class="cp-row' + (linkedTarget ? ' cp-row-linked' : '') + '" '
          + 'data-theme-key="' + themeKey + '" data-token="' + cpEsc(token) + '"'
          + (desc ? ' title="' + cpEsc(desc) + '"' : '') + '>'
          + '<span class="cp-swatch" style="background:' + cpEsc(value) + '"></span>'
          + '<label class="cp-label">' + cpEsc(label) + ' <code>' + cpEsc(token) + '</code></label>'
          + colorCell
          + alphaCell
-         + '<input type="text" class="cp-text" value="' + cpEsc(value) + '" spellcheck="false" autocomplete="off">'
+         + '<input type="text" class="cp-text" value="' + cpEsc(value) + '" spellcheck="false" autocomplete="off"' + dis + '>'
          + '</div>';
+}
+
+// The clickable link toggle drawn between a source row and its target row.
+function cpRenderLinkConnector(link) {
+    const linked = !!cpLinked[link.target];
+    const sLabel = CP_LABELS[link.source] || link.source;
+    const tLabel = CP_LABELS[link.target] || link.target;
+    const title = linked ? ('Unlink ' + tLabel + ' from ' + sLabel)
+                         : ('Link ' + tLabel + ' to ' + sLabel + ' (mirror its color)');
+    const icon = linked ? '../images/misc/Link-icon.svg' : '../images/misc/Link-icon-locked.svg';
+    return '<div class="cp-link-connector">'
+         + '<button type="button" class="cp-link-toggle' + (linked ? ' is-linked' : '') + '"'
+         + ' data-link-target="' + cpEsc(link.target) + '"'
+         + ' aria-pressed="' + (linked ? 'true' : 'false') + '" title="' + cpEsc(title) + '">'
+         + '<img class="cp-link-icon" src="' + icon + '" alt="" aria-hidden="true"></button>'
+         + '</div>';
+}
+
+// Make every linked target mirror its source value for the given theme.
+function cpApplyLinks(themeKey) {
+    CP_LINKS.forEach(function(l) {
+        if (cpLinked[l.target] && cpEdited[themeKey][l.source] !== undefined) {
+            cpEdited[themeKey][l.target] = cpEdited[themeKey][l.source];
+        }
+    });
+}
+
+// After a source token is edited, push its value into a linked target's row
+// (value + visuals) without a full re-render so the edited field keeps focus.
+function cpMaybeSyncLink(themeKey, sourceToken, val) {
+    const link = CP_LINK_BY_SOURCE[sourceToken];
+    if (!link || !cpLinked[link.target]) return;
+    cpEdited[themeKey][link.target] = val;
+    const rows = document.querySelectorAll('.cp-row');
+    rows.forEach(function(r) {
+        if (r.dataset.themeKey !== themeKey || r.dataset.token !== link.target) return;
+        const sw = r.querySelector('.cp-swatch');
+        const tx = r.querySelector('.cp-text');
+        const co = r.querySelector('.cp-color');
+        const al = r.querySelector('.cp-alpha');
+        if (sw) sw.style.background = val;
+        if (tx) tx.value = val;
+        if (cpIsColor(val)) {
+            if (co) co.value = cpToHex(val);
+            if (al) al.value = cpAlphaOf(val);
+        }
+    });
+}
+
+// Toggle a link pair on/off (delegated click on #cp-editor).
+function cpToggleLink(target) {
+    if (cpLinked[target]) {
+        cpLinked[target] = false;            // unlink: target keeps its value, now editable
+    } else {
+        cpPushUndo();                        // linking changes the target value — make it undoable
+        cpLinked[target] = true;
+        CP_THEMES.forEach(cpApplyLinks);     // sync both themes' target to their source
+        cpExitShowOriginal();
+    }
+    cpRenderEditors();
+    cpInjectIntoPreview();
+    cpUpdateCommitButton();
 }
 
 // Delegated input handler on #cp-editor for both the color and text inputs.
@@ -394,6 +479,7 @@ function cpOnInput(e) {
             if (alphaEl) alphaEl.value = cpAlphaOf(val);
         }
         if (swatch) swatch.style.background = val;
+        cpMaybeSyncLink(themeKey, token, val);
         cpScheduleRender();
     } else if (e.target.classList.contains('cp-color')) {
         const val = cpColorFromHex(colorEl.value, cpEdited[themeKey][token]);
@@ -403,6 +489,7 @@ function cpOnInput(e) {
             cpEdited[themeKey][token] = val;
             textEl.value = val;
             if (swatch) swatch.style.background = val;
+            cpMaybeSyncLink(themeKey, token, val);
             cpScheduleRender();
         }
     } else if (e.target.classList.contains('cp-alpha')) {
@@ -412,6 +499,7 @@ function cpOnInput(e) {
         cpEdited[themeKey][token] = val;
         textEl.value = val;
         if (swatch) swatch.style.background = val;
+        cpMaybeSyncLink(themeKey, token, val);
         cpScheduleRender();
     }
 }
@@ -1177,6 +1265,11 @@ function cpInit() {
     const editor = document.getElementById('cp-editor');
     if (editor) {
         editor.addEventListener('input', cpOnInput);
+        // Link toggles between paired rows (primary↔logo, complimentary↔logo hover).
+        editor.addEventListener('click', function(e) {
+            const btn = e.target.closest('.cp-link-toggle');
+            if (btn) cpToggleLink(btn.dataset.linkTarget);
+        });
         // Snapshot the palette when a field gains focus; cpCaptureUndo() commits
         // that snapshot to the undo stack on the field's first actual change.
         editor.addEventListener('focusin', function(e) {

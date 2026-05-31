@@ -229,6 +229,46 @@ select.cp-commit-name { cursor: pointer; }
    their text fields stay aligned with the color rows (uniform 5-column grid). */
 .cp-color-spacer, .cp-alpha-spacer { display: block; }
 
+/* Link toggle drawn between a source row (primary / complimentary) and its
+   logo row. The connector mirrors the row's 5-column grid so the button lands
+   in column 3 — centered between the two "pick a color" boxes it ties together.
+   Off by default; .is-linked swaps in the locked icon. */
+.cp-link-connector {
+    display: grid;
+    grid-template-columns: 24px 1fr 32px 52px 140px;
+    gap: 8px;
+    padding: 0 2px;
+    margin: -4px 0;
+}
+.cp-link-toggle {
+    grid-column: 3;
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+}
+.cp-link-toggle:hover,
+.cp-link-toggle.is-linked { opacity: 1; }
+.cp-link-icon { width: 16px; height: 16px; display: block; pointer-events: none; }
+
+/* A linked logo row mirrors its source and is read-only. */
+.cp-row-linked .cp-swatch,
+.cp-row-linked .cp-label { opacity: 0.55; }
+.cp-row-linked .cp-color,
+.cp-row-linked .cp-alpha,
+.cp-row-linked .cp-text {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
 /* Opacity slider */
 .cp-alpha {
     width: 100%;
