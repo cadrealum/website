@@ -484,6 +484,15 @@ function cpInjectIntoPreview() {
     }
     style.textContent = cpBuildOverrideCss();
     if (doc.documentElement) doc.documentElement.setAttribute('data-theme', cpActiveTheme);
+    // The background squares (js/bg-squares.js) bake --color-primary/-accent/
+    // -complimentary into each square's inline style at paint time, so a CSS
+    // override alone won't recolor them — re-call the homepage's painter so it
+    // re-reads the (now overridden) palette. Guarded: it only exists once the
+    // iframe's scripts have run, and only repaints on wide enough viewports.
+    try {
+        const win = iframe.contentWindow;
+        if (win && typeof win.paintBgSquares === 'function') win.paintBgSquares();
+    } catch (e) { /* cross-frame / not ready — ignore */ }
     return true;
 }
 
