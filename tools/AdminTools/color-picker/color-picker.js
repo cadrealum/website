@@ -61,6 +61,16 @@ const CP_LABELS = {
 
 const CP_THEMES = ['light', 'dark'];
 
+// Editor grouping (dividers). Main colors first; the shadow "other items" last.
+// Every CP_TOKENS entry must appear in exactly one group.
+const CP_GROUPS = [
+    { title: 'Main colors',       tokens: ['--color-bg', '--color-surface', '--color-fg', '--color-primary', '--color-accent', '--color-complimentary'] },
+    { title: 'Text & borders',    tokens: ['--color-muted', '--color-border', '--color-on-primary', '--color-focus-ring'] },
+    { title: 'Overlays & badges', tokens: ['--color-overlay', '--color-badge-bg', '--color-on-overlay', '--color-on-overlay-soft', '--color-on-overlay-muted', '--color-primary-tint'] },
+    { title: 'Scrollbar',         tokens: ['--color-scrollbar-thumb', '--color-scrollbar-track'] },
+    { title: 'Shadows',           tokens: ['--shadow-soft', '--shadow-faq'] }
+];
+
 // ---- Module state ---------------------------------------------------------
 let cpLoaded = false;
 let cpLoading = false;
@@ -69,9 +79,17 @@ let cpFileText = '';                       // raw fetched css/style.css — rewr
 let cpFileSha = '';                        // informational
 let cpOriginal = { light: {}, dark: {} };  // token -> committed value string (diff baseline)
 let cpEdited   = { light: {}, dark: {} };  // token -> current edited value string
-let cpKind = {};                           // token -> 'solid' | 'text' (classified at load)
-let cpPreviewTheme = 'dark';               // in-iframe toggle; 'dark' matches the site default
+let cpKind = {};                           // token -> 'color' | 'text' (classified at load)
+let cpActiveTheme = 'dark';                // which theme's palette is shown/previewed
 let cpRenderTimer = null;                  // debounce handle for preview re-render
+let cpShowingOriginal = false;             // preview is showing committed colors (compare mode)
+
+// Undo: a stack of prior cpEdited snapshots. We push one snapshot per field-edit
+// session (captured on focusin, committed on the first input) plus before
+// reset/load, so Undo / Ctrl+Z steps back one logical change at a time.
+let cpUndoStack = [];
+let cpFieldSnapshot = null;                // cpEdited copy taken when a field gains focus
+let cpFieldPushed = false;                 // has this focus session's snapshot been pushed?
 
 // ---- Small helpers --------------------------------------------------------
 // Local HTML-escape so the page has no dependency on post-gen.js (the blog
@@ -84,39 +102,51 @@ function cpEsc(str) {
 function cpEscRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 function cpDeepCopy(o) { return JSON.parse(JSON.stringify(o)); }
 
-// rgb(r, g, b) -> #rrggbb (null if not a plain solid rgb()).
-function cpRgbToHex(s) {
-    const m = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i.exec(s || '');
+// Parse rgb()/rgba() -> { r, g, b, a } (a defaults to 1), or null.
+function cpParseRgb(s) {
+    const m = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([0-9.]+)\s*)?\)$/i.exec(s || '');
     if (!m) return null;
-    return '#' + [m[1], m[2], m[3]].map(function(n) {
-        return ('0' + Math.min(255, +n).toString(16)).slice(-2);
-    }).join('');
+    return { r: +m[1], g: +m[2], b: +m[3], a: m[4] === undefined ? 1 : parseFloat(m[4]) };
 }
 
-// #rgb or #rrggbb -> rgb(r, g, b) (matching the file's "rgb(86, 58, 255)" spacing).
-function cpHexToRgb(hex) {
+// True if the value is any editable color form (#hex, #hex8, rgb(), rgba()).
+function cpIsColor(value) {
+    const v = (value || '').trim();
+    return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(v) || !!cpParseRgb(v);
+}
+
+// A token gets a native color box when its value is a color; shadow strings
+// (and anything else) stay text-only.
+function cpClassify(value) {
+    return cpIsColor(value) ? 'color' : 'text';
+}
+
+// Normalize any color form to the #rrggbb an <input type="color"> needs
+// (alpha is dropped for the box; it's preserved separately in cpColorFromHex).
+function cpToHex(value) {
+    const v = (value || '').trim();
+    if (/^#[0-9a-f]{6}$/i.test(v)) return v.toLowerCase();
+    if (/^#[0-9a-f]{8}$/i.test(v)) return ('#' + v.slice(1, 7)).toLowerCase();
+    if (/^#[0-9a-f]{3}$/i.test(v)) return '#' + v.slice(1).replace(/(.)/g, '$1$1').toLowerCase();
+    const rgb = cpParseRgb(v);
+    if (rgb) return '#' + [rgb.r, rgb.g, rgb.b].map(function(n) {
+        return ('0' + Math.min(255, n).toString(16)).slice(-2);
+    }).join('');
+    return '#000000';
+}
+
+// Build the new token value from a color-box #hex, preserving the alpha of the
+// value being replaced: a translucent rgba() stays rgba() (same alpha); an
+// opaque value becomes a plain rgb(). Keeps the file's "rgb(86, 58, 255)" spacing.
+function cpColorFromHex(hex, currentValue) {
     let h = (hex || '').replace('#', '');
     if (h.length === 3) h = h.replace(/(.)/g, '$1$1');
     const n = parseInt(h, 16);
     if (isNaN(n) || h.length !== 6) return null;
-    return 'rgb(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ')';
-}
-
-// A token is "solid" (gets a native color picker) when its value is a #hex or a
-// plain rgb() with no alpha. rgba()/hsl()/shadow strings are text-only.
-function cpClassify(value) {
-    const v = (value || '').trim();
-    if (/^#[0-9a-f]{3}$/i.test(v) || /^#[0-9a-f]{6}$/i.test(v)) return 'solid';
-    if (cpRgbToHex(v)) return 'solid';
-    return 'text';
-}
-
-// Normalize any solid form to the #hex an <input type="color"> needs.
-function cpToHex(value) {
-    const v = (value || '').trim();
-    if (/^#[0-9a-f]{6}$/i.test(v)) return v.toLowerCase();
-    if (/^#[0-9a-f]{3}$/i.test(v)) return '#' + v.slice(1).replace(/(.)/g, '$1$1').toLowerCase();
-    return cpRgbToHex(v) || '#000000';
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const cur = cpParseRgb(currentValue || '');
+    if (cur && cur.a < 1) return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + cur.a + ')';
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
 }
 
 // ---- Block extraction + parsing -------------------------------------------
@@ -212,43 +242,49 @@ function cpChangedCount() {
 }
 
 // ---- Editor UI ------------------------------------------------------------
+// Renders only the active theme's palette, grouped with dividers (main colors
+// first, shadows last). The other theme stays hidden; the toolbar's theme
+// button switches which one is shown (and previewed).
 function cpRenderEditors() {
     const body = document.getElementById('cp-editor');
     if (!body) return;
-    body.innerHTML = CP_THEMES.map(cpRenderSection).join('');
-}
-
-function cpRenderSection(themeKey) {
-    const title = themeKey === 'light' ? 'Light theme' : 'Dark theme';
-    const rows = CP_TOKENS.map(function(t) {
-        if (cpEdited[themeKey][t] === undefined) return '';   // token absent — skip row
-        return cpRenderRow(themeKey, t);
+    const theme = cpActiveTheme;
+    body.innerHTML = CP_GROUPS.map(function(group) {
+        const rows = group.tokens.map(function(t) {
+            if (cpEdited[theme][t] === undefined) return '';   // token absent — skip
+            return cpRenderRow(theme, t);
+        }).join('');
+        if (!rows) return '';
+        return '<div class="cp-group">'
+             + '<div class="cp-group-title">' + cpEsc(group.title) + '</div>'
+             + rows
+             + '</div>';
     }).join('');
-    return '<div class="cp-section">'
-         + '<div class="cp-section-title">' + title + '</div>'
-         + rows
-         + '</div>';
 }
 
 function cpRenderRow(themeKey, token) {
     const value = cpEdited[themeKey][token];
     const label = CP_LABELS[token] || token;
-    const solid = cpKind[token] === 'solid';
-    const colorInput = solid
+    const isColor = cpKind[token] === 'color';
+    // Every row uses the same 4-column grid so the text fields line up. Color
+    // tokens (incl. translucent rgba) get a native color box in column 3; shadow
+    // tokens get an empty spacer (a shadow isn't a single color a box can edit).
+    const colorCell = isColor
         ? '<input type="color" class="cp-color" value="' + cpEsc(cpToHex(value)) + '" title="Pick a color">'
-        : '';
-    return '<div class="cp-row' + (solid ? '' : ' cp-row-text-only') + '" '
+        : '<span class="cp-color-spacer" aria-hidden="true"></span>';
+    return '<div class="cp-row" '
          + 'data-theme-key="' + themeKey + '" data-token="' + cpEsc(token) + '">'
          + '<span class="cp-swatch" style="background:' + cpEsc(value) + '"></span>'
          + '<label class="cp-label">' + cpEsc(label) + ' <code>' + cpEsc(token) + '</code></label>'
-         + colorInput
+         + colorCell
          + '<input type="text" class="cp-text" value="' + cpEsc(value) + '" spellcheck="false" autocomplete="off">'
          + '</div>';
 }
 
 // Delegated input handler on #cp-editor for both the color and text inputs.
 // Keeps the pair in sync, updates the swatch immediately, and schedules a
-// (debounced) preview re-render.
+// (debounced) preview re-render. The color box preserves the value's alpha
+// (a translucent rgba stays rgba; an opaque value becomes a plain rgb()).
 function cpOnInput(e) {
     const row = e.target.closest('.cp-row');
     if (!row) return;
@@ -260,22 +296,57 @@ function cpOnInput(e) {
 
     if (e.target.classList.contains('cp-text')) {
         const val = textEl.value.trim();
+        cpCaptureUndo();
+        cpExitShowOriginal();
         cpEdited[themeKey][token] = val;
-        if (colorEl) {
-            const hex = cpRgbToHex(val) || (/^#[0-9a-f]{3,6}$/i.test(val) ? cpToHex(val) : null);
-            if (hex) colorEl.value = hex;
-        }
+        if (colorEl && cpIsColor(val)) colorEl.value = cpToHex(val);
         if (swatch) swatch.style.background = val;
         cpScheduleRender();
     } else if (e.target.classList.contains('cp-color')) {
-        const rgb = cpHexToRgb(colorEl.value);
-        if (rgb) {
-            cpEdited[themeKey][token] = rgb;
-            textEl.value = rgb;
-            if (swatch) swatch.style.background = rgb;
+        const val = cpColorFromHex(colorEl.value, cpEdited[themeKey][token]);
+        if (val) {
+            cpCaptureUndo();
+            cpExitShowOriginal();
+            cpEdited[themeKey][token] = val;
+            textEl.value = val;
+            if (swatch) swatch.style.background = val;
             cpScheduleRender();
         }
     }
+}
+
+// ---- Undo -----------------------------------------------------------------
+// Push the pre-edit snapshot captured on focusin — once per focus session, on
+// the first actual change. Called by cpOnInput before mutating cpEdited.
+function cpCaptureUndo() {
+    if (!cpFieldPushed && cpFieldSnapshot) {
+        cpUndoStack.push(cpFieldSnapshot);
+        cpFieldPushed = true;
+        cpUpdateUndoButton();
+    }
+}
+
+// Push the current state explicitly (for non-field edits: reset, load).
+function cpPushUndo() {
+    cpUndoStack.push(cpDeepCopy(cpEdited));
+    cpUpdateUndoButton();
+}
+
+function cpUndo() {
+    if (!cpUndoStack.length) return;
+    cpEdited = cpUndoStack.pop();
+    cpFieldSnapshot = null;
+    cpFieldPushed = false;
+    cpExitShowOriginal();
+    cpRenderEditors();
+    cpInjectIntoPreview();
+    cpUpdateCommitButton();
+    cpUpdateUndoButton();
+}
+
+function cpUpdateUndoButton() {
+    const btn = document.getElementById('cp-undo');
+    if (btn) btn.disabled = cpUndoStack.length === 0;
 }
 
 // ---- Live preview ---------------------------------------------------------
@@ -285,26 +356,29 @@ function cpOnInput(e) {
 // actual site — header, nav, cards and all.
 const CP_PREVIEW_URL = '../index.html';
 
-// CSS text (no <style> wrapper) re-declaring every edited token for both themes.
+// CSS text (no <style> wrapper) re-declaring every token for both themes. In
+// "show original" compare mode it emits the committed values instead of edits.
 function cpBuildOverrideCss() {
+    const src = cpShowingOriginal ? cpOriginal : cpEdited;
     function block(map) {
         return CP_TOKENS.map(function(t) {
             return map[t] !== undefined ? '  ' + t + ': ' + map[t] + ';' : '';
         }).filter(Boolean).join('\n');
     }
-    return ':root {\n' + block(cpEdited.light) + '\n}\n'
-         + '[data-theme="dark"] {\n' + block(cpEdited.dark) + '\n}\n';
+    return ':root {\n' + block(src.light) + '\n}\n'
+         + '[data-theme="dark"] {\n' + block(src.dark) + '\n}\n';
 }
 
-// Inject (or update) the edited-color overrides into the preview iframe's live
-// document and set its theme. Same-origin, so we reach into contentDocument.
-// Returns false if the document isn't ready/accessible yet — the iframe's load
-// handler re-applies once it is.
+// Inject (or update) the color overrides into the preview iframe's live
+// document and set its theme to the active one. Same-origin, so we reach into
+// contentDocument. The override re-declares both :root and [data-theme="dark"];
+// setting data-theme picks which the preview shows. Returns false if the
+// document isn't ready/accessible yet — the iframe's load handler re-applies.
 function cpInjectIntoPreview() {
     const iframe = document.getElementById('cp-preview-iframe');
     let doc = null;
     try { doc = iframe && iframe.contentDocument; } catch (e) { doc = null; }
-    if (!doc || !doc.head || !doc.documentElement) return false;
+    if (!doc || !doc.head) return false;
     let style = doc.getElementById('cp-theme-override');
     if (!style) {
         style = doc.createElement('style');
@@ -312,8 +386,22 @@ function cpInjectIntoPreview() {
         doc.head.appendChild(style);   // last in <head> → wins the custom-property cascade
     }
     style.textContent = cpBuildOverrideCss();
-    doc.documentElement.setAttribute('data-theme', cpPreviewTheme);
+    if (doc.documentElement) doc.documentElement.setAttribute('data-theme', cpActiveTheme);
     return true;
+}
+
+// ---- Active theme toggle --------------------------------------------------
+// Switches which theme's palette is shown in the editor AND previewed.
+function cpToggleTheme() {
+    cpActiveTheme = cpActiveTheme === 'dark' ? 'light' : 'dark';
+    cpUpdateThemeButton();
+    cpRenderEditors();
+    cpInjectIntoPreview();
+}
+
+function cpUpdateThemeButton() {
+    const btn = document.getElementById('cp-theme-toggle');
+    if (btn) btn.textContent = cpActiveTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
 }
 
 function cpRenderPreview() {
@@ -322,8 +410,6 @@ function cpRenderPreview() {
         iframe.setAttribute('src', CP_PREVIEW_URL);   // load the real homepage once
     }
     cpInjectIntoPreview();                            // applies now if the doc is ready
-    const toggle = document.getElementById('cp-preview-theme-toggle');
-    if (toggle) toggle.innerHTML = cpPreviewTheme === 'dark' ? '🌓 Dark' : '🌞 Light';
 }
 
 // Debounced: push the edited colors into the live preview document + refresh
@@ -338,11 +424,84 @@ function cpScheduleRender() {
     }, 150);
 }
 
+// ---- Show original (compare) ----------------------------------------------
+// Toggle the preview between the edited palette and the committed baseline so
+// the user can A/B compare. Any edit cancels it (cpExitShowOriginal).
+function cpToggleShowOriginal() {
+    cpShowingOriginal = !cpShowingOriginal;
+    cpUpdateShowOriginalButton();
+    cpInjectIntoPreview();
+}
+
+function cpExitShowOriginal() {
+    if (!cpShowingOriginal) return;
+    cpShowingOriginal = false;
+    cpUpdateShowOriginalButton();
+}
+
+function cpUpdateShowOriginalButton() {
+    const btn = document.getElementById('cp-show-original');
+    if (!btn) return;
+    btn.classList.toggle('cp-btn-active', cpShowingOriginal);
+    btn.textContent = cpShowingOriginal ? '👁 Showing original' : '👁 Show original';
+}
+
 function cpReset() {
+    cpPushUndo();
     cpEdited = cpDeepCopy(cpOriginal);
+    cpExitShowOriginal();
     cpRenderEditors();
     cpRenderPreview();
     cpUpdateCommitButton();
+}
+
+// ---- Save / load palette file ---------------------------------------------
+function cpSaveFile() {
+    const data = { version: 1, savedAt: new Date().toISOString(), light: {}, dark: {} };
+    CP_THEMES.forEach(function(themeKey) {
+        CP_TOKENS.forEach(function(t) {
+            if (cpEdited[themeKey][t] !== undefined) data[themeKey][t] = cpEdited[themeKey][t];
+        });
+    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cadre-theme-colors.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function cpLoadFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+        let data;
+        try { data = JSON.parse(reader.result); }
+        catch (e) { alert('Could not read that file — it is not valid JSON.'); return; }
+        if (!data || (typeof data.light !== 'object' && typeof data.dark !== 'object')) {
+            alert('That file does not look like a saved palette.');
+            return;
+        }
+        cpPushUndo();
+        CP_THEMES.forEach(function(themeKey) {
+            const src = data[themeKey];
+            if (!src || typeof src !== 'object') return;
+            CP_TOKENS.forEach(function(t) {
+                // Only apply known tokens that exist in the current palette.
+                if (cpEdited[themeKey][t] !== undefined && typeof src[t] === 'string') {
+                    cpEdited[themeKey][t] = src[t].trim();
+                }
+            });
+        });
+        cpExitShowOriginal();
+        cpRenderEditors();
+        cpInjectIntoPreview();
+        cpUpdateCommitButton();
+    };
+    reader.readAsText(file);
 }
 
 // ---- Export / copy-CSS modal ----------------------------------------------
@@ -487,10 +646,15 @@ async function cpLoadAndRender() {
         cpRenderPreview();
         cpUpdateCommitButton();
     } catch (err) {
-        editor.innerHTML = '<div class="cp-placeholder cp-error">'
-                         + cpEsc(err.message || String(err))
-                         + '<br><br><button class="cp-btn" id="cp-retry">Retry</button>'
-                         + '</div>';
+        // Signed-out + read failed (e.g. a private repo or anonymous rate limit):
+        // nudge them to the top-right sign-in rather than dumping a raw error.
+        const signedOut = (typeof isAuthenticated === 'function') && !isAuthenticated();
+        editor.innerHTML = signedOut
+            ? '<div class="cp-placeholder">Sign in (top right) to load and edit the palette.</div>'
+            : '<div class="cp-placeholder cp-error">'
+                + cpEsc(err.message || String(err))
+                + '<br><br><button class="cp-btn" id="cp-retry">Retry</button>'
+                + '</div>';
         const r = document.getElementById('cp-retry');
         if (r) r.addEventListener('click', function() { cpLoaded = false; cpLoadAndRender(); });
     } finally {
@@ -498,46 +662,62 @@ async function cpLoadAndRender() {
     }
 }
 
-// ---- Auth gate ------------------------------------------------------------
-// Show the editor only when signed in. Re-evaluated whenever auth.js re-renders
-// the #auth-chip (sign in / out) via a MutationObserver — no auth.js changes.
-function cpApplyAuthGate() {
-    const authed = isAuthenticated();
-    const gate = document.getElementById('cp-signin-gate');
-    const app  = document.getElementById('cp-app');
-    if (gate) gate.style.display = authed ? 'none' : 'flex';
-    if (app)  app.style.display  = authed ? 'flex' : 'none';
-    if (authed && !cpLoaded && !cpLoading) cpLoadAndRender();
+// ---- Load lifecycle -------------------------------------------------------
+// The page is usable without signing in (browse + preview + export). Sign-in
+// lives in the top-right navbar chip; committing prompts it. We just make sure
+// the colors load, retrying after sign-in if an early anonymous fetch failed.
+function cpEnsureLoaded() {
+    if (!cpLoaded && !cpLoading) cpLoadAndRender();
 }
 
 // ---- Bootstrap ------------------------------------------------------------
 function cpInit() {
-    cpApplyAuthGate();
+    cpEnsureLoaded();
 
-    // Re-run the gate when the auth chip changes (sign in / out happen via the
-    // shared auth modal, which re-renders #auth-chip on success).
+    // If sign-in happens after an early load failed (e.g. a private repo or a
+    // rate-limited anonymous read), retry once the auth chip re-renders.
     const chip = document.getElementById('auth-chip');
     if (chip && typeof MutationObserver !== 'undefined') {
-        new MutationObserver(cpApplyAuthGate).observe(chip, { childList: true, subtree: true });
+        new MutationObserver(cpEnsureLoaded).observe(chip, { childList: true, subtree: true });
     }
 
     // Once the preview homepage finishes loading (including any header/footer
-    // partials it injects), apply the current edits + theme to its document.
+    // partials it injects), apply the current color edits to its document.
     const previewIframe = document.getElementById('cp-preview-iframe');
     if (previewIframe) previewIframe.addEventListener('load', cpInjectIntoPreview);
 
-    bindClick('cp-signin-btn', function() { if (typeof openAuthModal === 'function') openAuthModal(); });
+    bindClick('cp-theme-toggle', cpToggleTheme);
     bindClick('cp-reload', function() { if (!cpLoading) { cpLoaded = false; cpLoadAndRender(); } });
+    bindClick('cp-undo',   cpUndo);
     bindClick('cp-reset',  cpReset);
+    bindClick('cp-save',   cpSaveFile);
+    bindClick('cp-load',   function() { const i = document.getElementById('cp-load-input'); if (i) i.click(); });
     bindClick('cp-export', cpOpenExport);
     bindClick('cp-commit', cpOpenCommit);
-    bindClick('cp-preview-theme-toggle', function() {
-        cpPreviewTheme = cpPreviewTheme === 'dark' ? 'light' : 'dark';
-        cpRenderPreview();
+    bindClick('cp-show-original', cpToggleShowOriginal);
+
+    const loadInput = document.getElementById('cp-load-input');
+    if (loadInput) loadInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) cpLoadFile(this.files[0]);
+        this.value = '';   // allow re-loading the same file name
     });
 
+    cpUpdateUndoButton();
+    cpUpdateShowOriginalButton();
+    cpUpdateThemeButton();
+
     const editor = document.getElementById('cp-editor');
-    if (editor) editor.addEventListener('input', cpOnInput);
+    if (editor) {
+        editor.addEventListener('input', cpOnInput);
+        // Snapshot the palette when a field gains focus; cpCaptureUndo() commits
+        // that snapshot to the undo stack on the field's first actual change.
+        editor.addEventListener('focusin', function(e) {
+            if (e.target.matches('.cp-text, .cp-color')) {
+                cpFieldSnapshot = cpDeepCopy(cpEdited);
+                cpFieldPushed = false;
+            }
+        });
+    }
 
     // Commit-modal wiring
     bindClick('cp-commit-cancel',  cpCloseCommit);
@@ -552,7 +732,14 @@ function cpInit() {
     if (eOverlay) eOverlay.addEventListener('click', function(e) { if (e.target === eOverlay) cpCloseExport(); });
 
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { cpCloseExport(); cpCloseCommit(); }
+        if (e.key === 'Escape') { cpCloseExport(); cpCloseCommit(); return; }
+        // Ctrl/Cmd+Z → undo a color change. Skip when focus is in a modal field
+        // (commit name, export textarea) so native text-undo still works there.
+        if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
+            if (e.target.closest && e.target.closest('.modal-overlay')) return;
+            e.preventDefault();
+            cpUndo();
+        }
     });
 }
 

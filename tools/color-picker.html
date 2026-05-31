@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="AdminTools/color-picker/color-picker.css">
 </head>
 <!-- No data-page-role: this page is NOT part of the basic/admin redirect gate.
-     It gates inline via isAuthenticated() (see color-picker.js cpApplyAuthGate). -->
+     It's usable signed-out (browse + preview + export); sign-in is the top-right
+     navbar chip, and committing prompts it. -->
 <body>
 
 <header class="site-header">
@@ -20,6 +21,9 @@
     <div class="subtitle">— Theme Colors</div>
     <div class="header-actions">
         <a class="btn-header-action" href="index.html" title="Back to the editor home">🏠 Editor Home</a>
+        <button class="btn-header-action" id="cp-save" title="Save this palette to a file">⬇ Save</button>
+        <button class="btn-header-action" id="cp-load" title="Load a palette from a file">📂 Load</button>
+        <input type="file" id="cp-load-input" accept="application/json,.json" hidden>
         <div id="auth-chip"></div>
     </div>
 </header>
@@ -30,21 +34,16 @@
 
 <div class="cp-page">
 
-    <!-- Sign-in gate — shown until the user is authenticated. -->
-    <div class="cp-signin-gate" id="cp-signin-gate" style="display:none">
-        <div class="cp-gate-icon">🔒</div>
-        <div class="cp-gate-title">Sign in to edit theme colors</div>
-        <div>Editing the site palette commits to the repository, so you need to be signed in.</div>
-        <button class="cp-commit-btn" id="cp-signin-btn">🔑 Sign in</button>
-    </div>
-
-    <!-- Editor + live preview — shown once authenticated. -->
-    <div class="cp-app" id="cp-app" style="display:none">
+    <!-- Editor + live preview. The page is usable without signing in; sign-in
+         is the top-right navbar chip, and committing prompts it. -->
+    <div class="cp-app" id="cp-app">
         <div class="cp-editor-col">
             <div class="cp-toolbar">
                 <div class="cp-toolbar-title">🎨 Theme Colors</div>
-                <button class="cp-btn cp-btn-icon" id="cp-export" title="Copy CSS for these colors">⧉</button>
+                <button class="cp-btn cp-theme-toggle" id="cp-theme-toggle" title="Switch which theme you're editing">🌙 Dark</button>
+                <button class="cp-btn cp-btn-icon" id="cp-undo"   title="Undo (Ctrl+Z)" disabled>↶</button>
                 <button class="cp-btn cp-btn-icon" id="cp-reset"  title="Reset to committed values">⟲</button>
+                <button class="cp-btn cp-btn-icon" id="cp-export" title="Copy CSS for these colors">⧉</button>
                 <button class="cp-btn cp-btn-icon" id="cp-reload" title="Re-fetch css/style.css">↻</button>
             </div>
             <div class="cp-editor" id="cp-editor">
@@ -57,8 +56,8 @@
         </div>
         <div class="cp-preview-col">
             <div class="cp-preview-bar">
+                <button class="cp-btn" id="cp-show-original" title="Compare against the committed colors">👁 Show original</button>
                 <span>Live preview</span>
-                <button class="cp-btn cp-btn-icon" id="cp-preview-theme-toggle" title="Toggle preview light/dark">🌓 Dark</button>
             </div>
             <iframe class="cp-preview-iframe" id="cp-preview-iframe" title="Theme preview"></iframe>
         </div>

@@ -2,9 +2,9 @@
    Loaded alongside tools/css/postGen-style.css, which provides the page chrome
    (.site-header, modals, buttons) and the admin design tokens used here
    (--surface, --surface2, --border, --text, --text-muted, --accent, --radius…).
-   This file styles the editor/preview layout, the per-token rows, and the
-   sign-in gate — NONE of it uses the public site's --color-* tokens, so the
-   chrome is unaffected by whatever colors are being edited. */
+   This file styles the editor/preview layout and the per-token rows — NONE of
+   it uses the public site's --color-* tokens, so the chrome is unaffected by
+   whatever colors are being edited. */
 
 /* Fill the viewport below the sticky 61px header so the editor scrolls
    internally and the preview iframe gets real height. body is NOT a flex
@@ -16,21 +16,6 @@
     flex-direction: column;
     min-height: 0;
 }
-
-/* Sign-in gate (shown when signed out) */
-.cp-signin-gate {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 60px 20px;
-    text-align: center;
-    color: var(--text-muted);
-}
-.cp-signin-gate .cp-gate-icon { font-size: 48px; }
-.cp-signin-gate .cp-gate-title { font-size: 18px; font-weight: 700; color: var(--text); }
 
 /* App shell: editor column + preview column */
 .cp-app {
@@ -79,15 +64,17 @@
 }
 .cp-error { color: var(--danger); }
 
-/* Theme section (Light / Dark) */
-.cp-section { margin-bottom: 16px; }
-.cp-section-title {
+/* Color group + divider (Main colors, Text & borders, …, Shadows) */
+.cp-group { margin-bottom: 14px; }
+.cp-group-title {
     font-size: 11px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    padding: 6px 2px;
+    padding: 6px 2px 5px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: -10px;
     background: var(--surface);
@@ -102,10 +89,9 @@
     gap: 10px;
     padding: 5px 2px;
 }
-/* rgba()/shadow rows have no color input — give the text field that space. */
-.cp-row-text-only {
-    grid-template-columns: 24px 1fr 192px;
-}
+/* rgba()/shadow rows have no color input — an empty spacer fills column 3 so
+   their text fields stay aligned with the solid rows (uniform 4-column grid). */
+.cp-color-spacer { width: 32px; }
 
 .cp-swatch {
     width: 24px;
@@ -218,12 +204,19 @@
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
+    text-transform: none;       /* don't inherit the preview bar's uppercase */
+    letter-spacing: 0;
     padding: 7px 12px;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
 }
-.cp-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.cp-btn:hover:not(:disabled) { background: var(--accent-dim); border-color: var(--accent); }
+.cp-btn:disabled { opacity: 0.4; cursor: default; }
 .cp-btn-icon { padding: 7px 10px; }
+/* Theme switch — fixed width so the label (Dark/Light) doesn't shift the row. */
+.cp-theme-toggle { min-width: 92px; text-align: center; }
+/* Active/toggled state (e.g. "Showing original"). */
+.cp-btn-active, .cp-btn-active:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 .cp-commit-btn {
     background: var(--accent);
