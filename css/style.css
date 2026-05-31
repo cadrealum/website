@@ -6,6 +6,7 @@
     --color-accent: rgb(76, 169, 203);
     --color-complimentary: rgb(255, 81, 77);
     --color-logo: rgb(86, 58, 255);                    /* header/footer brand logo (CADRE mark) */
+    --color-logo-highlight: rgb(255, 81, 77);          /* logo hover color */
 
     --color-muted: rgba(20, 20, 28, 0.6);
     --color-border: rgba(20, 20, 28, 0.12);
@@ -49,6 +50,7 @@
     --color-accent: rgb(110, 196, 226);
     --color-complimentary: rgb(255, 120, 117);
     --color-logo: rgb(140, 119, 255);                  /* header/footer brand logo (CADRE mark) */
+    --color-logo-highlight: rgb(255, 120, 117);        /* logo hover color */
 
     --color-muted: rgba(232, 233, 240, 0.6);
     --color-border: rgba(232, 233, 240, 0.14);
@@ -240,7 +242,7 @@ h1 {
 }
 
 .site-title:hover {
-    color: var(--color-complimentary);
+    color: var(--color-logo-highlight);
     text-decoration: none;
 }
 

@@ -26,7 +26,7 @@ const CP_BRANCH = 'main';
 // here too (and give it a label below) to expose it in the editor.
 const CP_TOKENS = [
     '--color-bg', '--color-surface', '--color-fg',
-    '--color-primary', '--color-accent', '--color-complimentary', '--color-logo',
+    '--color-primary', '--color-accent', '--color-complimentary', '--color-logo', '--color-logo-highlight',
     '--color-muted', '--color-border',
     '--shadow-soft', '--shadow-faq',
     '--color-on-primary', '--color-scrollbar-thumb', '--color-scrollbar-track',
@@ -44,6 +44,7 @@ const CP_LABELS = {
     '--color-accent': 'Accent',
     '--color-complimentary': 'Complimentary',
     '--color-logo': 'Logo',
+    '--color-logo-highlight': 'Logo hover',
     '--color-muted': 'Muted text',
     '--color-border': 'Border',
     '--shadow-soft': 'Soft shadow',
@@ -69,6 +70,7 @@ const CP_DESC = {
     '--color-accent': 'Secondary accent — accent badges and gradients.',
     '--color-complimentary': 'Highlight color: heading underlines plus hover / active states.',
     '--color-logo': 'The CADRE brand logo in the header and footer.',
+    '--color-logo-highlight': 'The logo color when hovered (header / footer link).',
     '--color-muted': 'Secondary, de-emphasized text.',
     '--color-border': 'Borders, dividers and card outlines.',
     '--shadow-soft': 'Drop shadow on cards and modals (e.g. on hover).',
@@ -90,7 +92,7 @@ const CP_THEMES = ['light', 'dark'];
 // Editor grouping (dividers). Main colors first; the shadow "other items" last.
 // Every CP_TOKENS entry must appear in exactly one group.
 const CP_GROUPS = [
-    { title: 'Main colors',       tokens: ['--color-bg', '--color-surface', '--color-fg', '--color-primary', '--color-accent', '--color-complimentary', '--color-logo'] },
+    { title: 'Main colors',       tokens: ['--color-bg', '--color-surface', '--color-fg', '--color-primary', '--color-accent', '--color-complimentary', '--color-logo', '--color-logo-highlight'] },
     { title: 'Text & borders',    tokens: ['--color-muted', '--color-border', '--color-on-primary', '--color-focus-ring'] },
     { title: 'Overlays & badges', tokens: ['--color-overlay', '--color-badge-bg', '--color-on-overlay', '--color-on-overlay-soft', '--color-on-overlay-muted', '--color-primary-tint'] },
     { title: 'Scrollbar',         tokens: ['--color-scrollbar-thumb', '--color-scrollbar-track'] },
