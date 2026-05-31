@@ -1,13 +1,27 @@
 {
     "version": 1,
-    "name": "Default",
+    "savedAt": "2026-05-31T08:37:26.266Z",
     "light": {
         "--color-bg": "rgb(244, 245, 250)",
         "--color-surface": "rgb(255, 255, 255)",
         "--color-fg": "rgb(20, 20, 28)",
         "--color-primary": "rgb(86, 58, 255)",
         "--color-accent": "rgb(76, 169, 203)",
-        "--color-complimentary": "rgb(255, 81, 77)"
+        "--color-complimentary": "rgb(255, 81, 77)",
+        "--color-muted": "rgba(20, 20, 28, 0.6)",
+        "--color-border": "rgba(20, 20, 28, 0.12)",
+        "--shadow-soft": "0 6px 24px rgba(0, 0, 0, 0.12)",
+        "--shadow-faq": "0 4px 16px rgba(86, 58, 255, 0.08)",
+        "--color-on-primary": "rgb(255, 255, 255)",
+        "--color-scrollbar-thumb": "rgb(208, 208, 208)",
+        "--color-scrollbar-track": "rgb(21, 23, 42)",
+        "--color-focus-ring": "rgba(86, 58, 255, 0.15)",
+        "--color-overlay": "rgba(0, 0, 0, 0.85)",
+        "--color-badge-bg": "rgba(20, 20, 28, 0.75)",
+        "--color-primary-tint": "rgba(86, 58, 255, 0.08)",
+        "--color-on-overlay": "rgb(255, 255, 255)",
+        "--color-on-overlay-soft": "rgba(255, 255, 255, 0.12)",
+        "--color-on-overlay-muted": "rgba(255, 255, 255, 0.7)"
     },
     "dark": {
         "--color-bg": "rgb(16, 17, 24)",
@@ -15,6 +29,21 @@
         "--color-fg": "rgb(232, 233, 240)",
         "--color-primary": "rgb(140, 119, 255)",
         "--color-accent": "rgb(110, 196, 226)",
-        "--color-complimentary": "rgb(255, 120, 117)"
-    }
+        "--color-complimentary": "rgb(255, 120, 117)",
+        "--color-muted": "rgba(232, 233, 240, 0.6)",
+        "--color-border": "rgba(232, 233, 240, 0.14)",
+        "--shadow-soft": "0 6px 24px rgba(0, 0, 0, 0.45)",
+        "--shadow-faq": "0 4px 16px rgba(140, 119, 255, 0.18)",
+        "--color-on-primary": "rgb(255, 255, 255)",
+        "--color-scrollbar-thumb": "rgb(208, 208, 208)",
+        "--color-scrollbar-track": "rgb(21, 23, 42)",
+        "--color-focus-ring": "rgba(140, 119, 255, 0.25)",
+        "--color-overlay": "rgba(0, 0, 0, 0.85)",
+        "--color-badge-bg": "rgba(20, 20, 28, 0.75)",
+        "--color-primary-tint": "rgba(140, 119, 255, 0.12)",
+        "--color-on-overlay": "rgb(255, 255, 255)",
+        "--color-on-overlay-soft": "rgba(255, 255, 255, 0.12)",
+        "--color-on-overlay-muted": "rgba(255, 255, 255, 0.7)"
+    },
+    "name": "Default"
 }
