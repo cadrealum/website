@@ -50,6 +50,7 @@
 
 /* Templates sidebar (right column) — base list + collapsible category groups */
 .cp-templates-sidebar {
+    position: relative;          /* positioning context for the loading overlay */
     width: 220px;
     flex-shrink: 0;
     border-left: 1px solid var(--border);
@@ -61,8 +62,9 @@
     gap: 10px;
     min-height: 0;
 }
-.cp-templates-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cp-templates-head { display: flex; align-items: center; gap: 6px; }
 .cp-templates-title {
+    flex: 1;
     font-size: 11px;
     font-weight: 700;
     color: var(--text-muted);
@@ -119,6 +121,28 @@
 .cp-templates-toggle:hover { color: var(--text); }
 .cp-templates-caret { display: inline-block; transition: transform 0.15s ease; }
 .cp-templates-toggle-open .cp-templates-caret { transform: rotate(90deg); }
+
+/* "Waiting for GitHub" overlay — covers the templates sidebar only */
+.cp-loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 6, 18, 0.82);
+    backdrop-filter: blur(2px);
+}
+.cp-loading-box { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.cp-loading-text { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.02em; }
+.cp-loading-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: cp-spin 0.8s linear infinite;
+}
+@keyframes cp-spin { to { transform: rotate(360deg); } }
 
 /* Right-click context menu (new category / delete) */
 .cp-context-menu {
@@ -339,6 +363,23 @@ select.cp-commit-name { cursor: pointer; }
 }
 .cp-commit-btn:hover:not(:disabled) { background: var(--accent-hover); }
 .cp-commit-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Big "this changes the whole site" warning in the commit modal */
+.cp-commit-danger {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    background: rgba(224, 82, 82, 0.12);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.45;
+}
+.cp-commit-danger-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+.cp-commit-danger strong { color: var(--danger); }
 
 .cp-export-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .cp-export-hint { color: var(--text-muted); font-size: 12px; margin: 0 0 8px; }

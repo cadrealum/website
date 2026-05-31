@@ -21,7 +21,7 @@
     <div class="subtitle">— Theme Colors</div>
     <div class="header-actions">
         <a class="btn-header-action" href="index.html" title="Back to the editor home">🏠 Editor Home</a>
-        <button class="btn-header-action" id="cp-save" title="Save this palette to a file">⬇ Save</button>
+        <button class="btn-header-action" id="cp-save" title="Download this palette as a file">⬇ Save to Computer</button>
         <button class="btn-header-action" id="cp-load" title="Load a palette from a file">📂 Load</button>
         <input type="file" id="cp-load-input" accept="application/json,.json" hidden>
         <div id="auth-chip"></div>
@@ -69,13 +69,22 @@
         <aside class="cp-templates-sidebar" id="cp-templates">
             <div class="cp-templates-head">
                 <div class="cp-templates-title">Templates</div>
-                <button class="cp-btn cp-btn-icon" id="cp-template-save" title="Save current colors as a template">💾</button>
+                <button class="cp-btn cp-btn-icon" id="cp-template-reload" title="Reload the template list">↻</button>
+                <button class="cp-btn" id="cp-template-save" title="Save current colors as a template">💾 Save</button>
             </div>
             <div class="cp-templates-list" id="cp-templates-list">
                 <span class="cp-templates-empty">Loading…</span>
             </div>
             <div class="cp-categories" id="cp-categories"></div>
             <div class="cp-templates-hint">Right-click for new category / delete.</div>
+
+            <!-- Shown while a GitHub API call for templates is in flight. -->
+            <div class="cp-loading-overlay" id="cp-loading-overlay" style="display:none">
+                <div class="cp-loading-box">
+                    <div class="cp-loading-spinner" aria-hidden="true"></div>
+                    <div class="cp-loading-text">Reloading…</div>
+                </div>
+            </div>
         </aside>
     </div>
 
@@ -86,6 +95,13 @@
     <div class="modal-box">
         <div class="modal-title">Commit <span id="cp-commit-count"></span>?</div>
         <div class="modal-body">
+            <div class="cp-commit-danger">
+                <span class="cp-commit-danger-icon">⚠️</span>
+                <div>
+                    <strong>This changes the color scheme for the ENTIRE website.</strong>
+                    Every page and every visitor will see these colors as soon as you commit.
+                </div>
+            </div>
             <p>This commits <code>css/style.css</code> directly to <code>main</code> in a single commit.</p>
             <label class="cp-commit-label" for="cp-commit-name">Commit name <span class="cp-commit-label-hint">(optional)</span></label>
             <input type="text" id="cp-commit-name" class="cp-commit-name" autocomplete="off" spellcheck="false">

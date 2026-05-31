@@ -806,11 +806,35 @@ function cpSlug(s) {
     return (s || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+// Full-tab "please wait" overlay while a GitHub API call is in flight.
+// Reference-counted so nested show/hide (commit → re-fetch) behaves.
+let cpLoadingCount = 0;
+function cpShowLoading(msg) {
+    cpLoadingCount++;
+    const o = document.getElementById('cp-loading-overlay');
+    if (!o) return;
+    const t = o.querySelector('.cp-loading-text');
+    if (t && msg) t.textContent = msg;
+    o.style.display = 'flex';
+}
+function cpHideLoading() {
+    cpLoadingCount = Math.max(0, cpLoadingCount - 1);
+    if (cpLoadingCount === 0) {
+        const o = document.getElementById('cp-loading-overlay');
+        if (o) o.style.display = 'none';
+    }
+}
+
 // Commit template file changes in one commit, then refresh the sidebar.
 async function cpCommitTemplateChanges(message, changes) {
-    await ghBatchCommit({ message: 'Browser: ' + message, changes: changes, branch: CP_BRANCH });
-    cpTemplatesLoaded = false;
-    await cpFetchTemplates();
+    cpShowLoading('Saving…');
+    try {
+        await ghBatchCommit({ message: 'Browser: ' + message, changes: changes, branch: CP_BRANCH });
+        cpTemplatesLoaded = false;
+        await cpFetchTemplates();
+    } finally {
+        cpHideLoading();
+    }
 }
 
 // Save popup ----------------------------------------------------------------
@@ -1184,6 +1208,11 @@ function cpInit() {
         tBar.addEventListener('contextmenu', cpShowContextMenu);
     }
     bindClick('cp-template-save', cpOpenSaveTemplate);
+    bindClick('cp-template-reload', async function() {
+        cpShowLoading('Reloading…');
+        cpTemplatesLoaded = false;
+        try { await cpFetchTemplates(); } finally { cpHideLoading(); }
+    });
     document.addEventListener('click', function(e) {
         if (cpCtxMenuEl && !cpCtxMenuEl.contains(e.target)) cpHideContextMenu();
     });
