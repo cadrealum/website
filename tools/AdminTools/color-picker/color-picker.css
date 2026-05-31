@@ -81,17 +81,26 @@
     z-index: 1;
 }
 
-/* One editable token: swatch | label | [color] | text */
+/* One editable token: swatch | label | color | alpha | text */
 .cp-row {
     display: grid;
-    grid-template-columns: 24px 1fr 32px 150px;
+    grid-template-columns: 24px 1fr 32px 52px 140px;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 5px 2px;
 }
-/* rgba()/shadow rows have no color input — an empty spacer fills column 3 so
-   their text fields stay aligned with the solid rows (uniform 4-column grid). */
-.cp-color-spacer { width: 32px; }
+/* Shadow rows have no color box / slider — empty spacers fill columns 3-4 so
+   their text fields stay aligned with the color rows (uniform 5-column grid). */
+.cp-color-spacer, .cp-alpha-spacer { display: block; }
+
+/* Opacity slider */
+.cp-alpha {
+    width: 100%;
+    height: 4px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
 
 .cp-swatch {
     width: 24px;
@@ -213,8 +222,8 @@
 .cp-btn:hover:not(:disabled) { background: var(--accent-dim); border-color: var(--accent); }
 .cp-btn:disabled { opacity: 0.4; cursor: default; }
 .cp-btn-icon { padding: 7px 10px; }
-/* Theme switch — fixed width so the label (Dark/Light) doesn't shift the row. */
-.cp-theme-toggle { min-width: 92px; text-align: center; }
+/* Fixed-width toolbar toggles so the changing label doesn't shift the row. */
+.cp-theme-toggle, .cp-btn-wide { min-width: 92px; text-align: center; }
 /* Active/toggled state (e.g. "Showing original"). */
 .cp-btn-active, .cp-btn-active:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 

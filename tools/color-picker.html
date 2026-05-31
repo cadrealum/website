@@ -41,16 +41,17 @@
             <div class="cp-toolbar">
                 <div class="cp-toolbar-title">🎨 Theme Colors</div>
                 <button class="cp-btn cp-theme-toggle" id="cp-theme-toggle" title="Switch which theme you're editing">🌙 Dark</button>
-                <button class="cp-btn cp-btn-icon" id="cp-undo"   title="Undo (Ctrl+Z)" disabled>↶</button>
-                <button class="cp-btn cp-btn-icon" id="cp-reset"  title="Reset to committed values">⟲</button>
-                <button class="cp-btn cp-btn-icon" id="cp-export" title="Copy CSS for these colors">⧉</button>
-                <button class="cp-btn cp-btn-icon" id="cp-reload" title="Re-fetch css/style.css">↻</button>
+                <button class="cp-btn cp-btn-wide" id="cp-convert" title="Convert all color codes between RGB and Hex">⇄ Hex</button>
             </div>
             <div class="cp-editor" id="cp-editor">
                 <div class="cp-placeholder">Loading…</div>
             </div>
             <div class="cp-commit-bar">
                 <span class="cp-commit-status" id="cp-commit-status"></span>
+                <button class="cp-btn cp-btn-icon" id="cp-undo"   title="Undo (Ctrl+Z)" disabled>↶</button>
+                <button class="cp-btn cp-btn-icon" id="cp-reset"  title="Reset to committed values">⟲</button>
+                <button class="cp-btn cp-btn-icon" id="cp-export" title="Copy CSS for these colors">⧉</button>
+                <button class="cp-btn cp-btn-icon" id="cp-reload" title="Re-fetch css/style.css">↻</button>
                 <button class="cp-commit-btn" id="cp-commit" disabled>💾 Commit</button>
             </div>
         </div>

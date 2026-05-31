@@ -59,6 +59,30 @@ const CP_LABELS = {
     '--color-on-overlay-muted': 'Muted on overlay'
 };
 
+// Hover text: what each token actually affects on the live site.
+const CP_DESC = {
+    '--color-bg': 'The page background behind all content.',
+    '--color-surface': 'Cards, the header bar, panels and input backgrounds.',
+    '--color-fg': 'The main body and heading text color.',
+    '--color-primary': 'Brand color: links, primary buttons, headings and the active nav item.',
+    '--color-accent': 'Secondary accent — accent badges and gradients.',
+    '--color-complimentary': 'Highlight color: heading underlines plus hover / active states.',
+    '--color-muted': 'Secondary, de-emphasized text.',
+    '--color-border': 'Borders, dividers and card outlines.',
+    '--shadow-soft': 'Drop shadow on cards and modals (e.g. on hover).',
+    '--shadow-faq': 'Softer shadow on cards / FAQ boxes.',
+    '--color-on-primary': 'Text and icons sitting on a primary-colored fill (e.g. button labels).',
+    '--color-scrollbar-thumb': 'The draggable scrollbar handle.',
+    '--color-scrollbar-track': 'The scrollbar track and arrow buttons.',
+    '--color-focus-ring': 'The glow ring around a focused input.',
+    '--color-overlay': 'The dark backdrop behind the image lightbox / modals.',
+    '--color-badge-bg': 'Translucent pill over imagery (e.g. the date on news cards).',
+    '--color-primary-tint': 'Faint primary wash (e.g. slideshow arrow hover).',
+    '--color-on-overlay': 'Text and icons on a dark overlay (lightbox caption, buttons).',
+    '--color-on-overlay-soft': 'Translucent control background on a dark overlay (modal buttons).',
+    '--color-on-overlay-muted': 'De-emphasized text on a dark overlay (image counter).'
+};
+
 const CP_THEMES = ['light', 'dark'];
 
 // Editor grouping (dividers). Main colors first; the shadow "other items" last.
@@ -81,6 +105,7 @@ let cpOriginal = { light: {}, dark: {} };  // token -> committed value string (d
 let cpEdited   = { light: {}, dark: {} };  // token -> current edited value string
 let cpKind = {};                           // token -> 'color' | 'text' (classified at load)
 let cpActiveTheme = 'dark';                // which theme's palette is shown/previewed
+let cpConvertTarget = 'hex';               // what the RGB⇄Hex button will convert to next
 let cpRenderTimer = null;                  // debounce handle for preview re-render
 let cpShowingOriginal = false;             // preview is showing committed colors (compare mode)
 
@@ -144,9 +169,37 @@ function cpColorFromHex(hex, currentValue) {
     const n = parseInt(h, 16);
     if (isNaN(n) || h.length !== 6) return null;
     const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-    const cur = cpParseRgb(currentValue || '');
-    if (cur && cur.a < 1) return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + cur.a + ')';
+    const a = cpAlphaOf(currentValue || '');   // handles rgba() and #rrggbbaa
+    if (a < 1) return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + cpFmtAlpha(a) + ')';
     return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+}
+
+// Current alpha (0..1) of a color value: rgba()'s alpha, #rrggbbaa's, else 1.
+function cpAlphaOf(value) {
+    const v = (value || '').trim();
+    if (/^#[0-9a-f]{8}$/i.test(v)) return parseInt(v.slice(7, 9), 16) / 255;
+    const rgb = cpParseRgb(v);
+    return rgb ? rgb.a : 1;
+}
+
+// Trim alpha to at most 2 decimals without trailing zeros (0.6, 0.12, 1).
+function cpFmtAlpha(a) { return parseFloat(Math.max(0, Math.min(1, a)).toFixed(2)); }
+
+// Re-apply an alpha (0..1) to a color value, keeping its RGB *and* its notation:
+// a hex value stays hex (#rrggbb opaque / #rrggbbaa translucent); an rgb()/rgba()
+// value stays rgb()/rgba() (matching the file's "rgb(86, 58, 255)" spacing).
+function cpWithAlpha(currentValue, alpha) {
+    const hex6 = cpToHex(currentValue);         // #rrggbb of the current RGB
+    const a = cpFmtAlpha(alpha);
+    const isHex = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test((currentValue || '').trim());
+    if (isHex) {
+        if (a >= 1) return hex6;
+        return hex6 + ('0' + Math.round(a * 255).toString(16)).slice(-2);   // #rrggbbaa
+    }
+    const n = parseInt(hex6.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    if (a >= 1) return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
 }
 
 // ---- Block extraction + parsing -------------------------------------------
@@ -190,7 +243,32 @@ function cpParse() {
         // same format across themes in practice.
         cpKind[t] = cpClassify(lv !== null ? lv : dv);
     });
+    // Show every color in the notation the file predominantly uses, so the
+    // inputs start consistent (the "current set value system") instead of a mix
+    // of hex / rgb / rgba. Applied to the baseline too → no spurious diff; the
+    // convert button is set to offer the opposite notation.
+    cpNormalizeToCurrentSystem();
     cpEdited = cpDeepCopy(cpOriginal);
+}
+
+// Pick the value system (hex vs rgb-family) most color tokens use, normalize
+// cpOriginal to it, and point the convert button at the other one.
+function cpNormalizeToCurrentSystem() {
+    let hex = 0, rgb = 0;
+    CP_THEMES.forEach(function(themeKey) {
+        Object.keys(cpOriginal[themeKey]).forEach(function(t) {
+            const v = cpOriginal[themeKey][t];
+            if (!cpIsColor(v)) return;
+            if (/^#/.test(v.trim())) hex++; else rgb++;
+        });
+    });
+    const fmt = hex > rgb ? 'hex' : 'rgb';
+    CP_THEMES.forEach(function(themeKey) {
+        Object.keys(cpOriginal[themeKey]).forEach(function(t) {
+            cpOriginal[themeKey][t] = cpConvertValue(cpOriginal[themeKey][t], fmt);
+        });
+    });
+    cpConvertTarget = fmt === 'hex' ? 'rgb' : 'hex';
 }
 
 // ---- In-place rewrite (only changed, recognized tokens) -------------------
@@ -266,17 +344,24 @@ function cpRenderRow(themeKey, token) {
     const value = cpEdited[themeKey][token];
     const label = CP_LABELS[token] || token;
     const isColor = cpKind[token] === 'color';
-    // Every row uses the same 4-column grid so the text fields line up. Color
-    // tokens (incl. translucent rgba) get a native color box in column 3; shadow
-    // tokens get an empty spacer (a shadow isn't a single color a box can edit).
+    // Every row uses the same 5-column grid so the text fields line up: color
+    // tokens (incl. translucent rgba) get a native color box + an opacity slider
+    // in columns 3-4; shadow tokens get empty spacers there (a shadow isn't a
+    // single color a box/slider can edit).
     const colorCell = isColor
         ? '<input type="color" class="cp-color" value="' + cpEsc(cpToHex(value)) + '" title="Pick a color">'
         : '<span class="cp-color-spacer" aria-hidden="true"></span>';
+    const alphaCell = isColor
+        ? '<input type="range" class="cp-alpha" min="0" max="1" step="0.01" value="' + cpAlphaOf(value) + '" title="Opacity">'
+        : '<span class="cp-alpha-spacer" aria-hidden="true"></span>';
+    const desc = CP_DESC[token] || '';
     return '<div class="cp-row" '
-         + 'data-theme-key="' + themeKey + '" data-token="' + cpEsc(token) + '">'
+         + 'data-theme-key="' + themeKey + '" data-token="' + cpEsc(token) + '"'
+         + (desc ? ' title="' + cpEsc(desc) + '"' : '') + '>'
          + '<span class="cp-swatch" style="background:' + cpEsc(value) + '"></span>'
          + '<label class="cp-label">' + cpEsc(label) + ' <code>' + cpEsc(token) + '</code></label>'
          + colorCell
+         + alphaCell
          + '<input type="text" class="cp-text" value="' + cpEsc(value) + '" spellcheck="false" autocomplete="off">'
          + '</div>';
 }
@@ -293,13 +378,17 @@ function cpOnInput(e) {
     const swatch = row.querySelector('.cp-swatch');
     const textEl = row.querySelector('.cp-text');
     const colorEl = row.querySelector('.cp-color');
+    const alphaEl = row.querySelector('.cp-alpha');
 
     if (e.target.classList.contains('cp-text')) {
         const val = textEl.value.trim();
         cpCaptureUndo();
         cpExitShowOriginal();
         cpEdited[themeKey][token] = val;
-        if (colorEl && cpIsColor(val)) colorEl.value = cpToHex(val);
+        if (cpIsColor(val)) {
+            if (colorEl) colorEl.value = cpToHex(val);
+            if (alphaEl) alphaEl.value = cpAlphaOf(val);
+        }
         if (swatch) swatch.style.background = val;
         cpScheduleRender();
     } else if (e.target.classList.contains('cp-color')) {
@@ -312,6 +401,14 @@ function cpOnInput(e) {
             if (swatch) swatch.style.background = val;
             cpScheduleRender();
         }
+    } else if (e.target.classList.contains('cp-alpha')) {
+        const val = cpWithAlpha(cpEdited[themeKey][token], parseFloat(alphaEl.value));
+        cpCaptureUndo();
+        cpExitShowOriginal();
+        cpEdited[themeKey][token] = val;
+        textEl.value = val;
+        if (swatch) swatch.style.background = val;
+        cpScheduleRender();
     }
 }
 
@@ -402,6 +499,47 @@ function cpToggleTheme() {
 function cpUpdateThemeButton() {
     const btn = document.getElementById('cp-theme-toggle');
     if (btn) btn.textContent = cpActiveTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+}
+
+// ---- RGB ⇄ Hex conversion -------------------------------------------------
+// Convert one color value to the target notation, preserving alpha (rgba <->
+// #rrggbbaa). Non-colors (shadows) pass through untouched.
+function cpConvertValue(value, fmt) {
+    if (!cpIsColor(value)) return value;
+    const hex6 = cpToHex(value);             // #rrggbb of the RGB channels
+    const a = cpAlphaOf(value);              // 0..1
+    if (fmt === 'hex') {
+        if (a >= 1) return hex6;
+        return hex6 + ('0' + Math.round(a * 255).toString(16)).slice(-2);   // #rrggbbaa
+    }
+    const n = parseInt(hex6.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return a >= 1 ? 'rgb(' + r + ', ' + g + ', ' + b + ')'
+                  : 'rgba(' + r + ', ' + g + ', ' + b + ', ' + cpFmtAlpha(a) + ')';
+}
+
+// Convert every color token (both themes) to the current target notation, then
+// flip the target. Undoable as a single step; the preview is visually identical.
+function cpConvertAll() {
+    cpPushUndo();
+    const fmt = cpConvertTarget;
+    CP_THEMES.forEach(function(themeKey) {
+        Object.keys(cpEdited[themeKey]).forEach(function(t) {
+            cpEdited[themeKey][t] = cpConvertValue(cpEdited[themeKey][t], fmt);
+        });
+    });
+    cpConvertTarget = fmt === 'hex' ? 'rgb' : 'hex';
+    cpExitShowOriginal();
+    cpUpdateConvertButton();
+    cpRenderEditors();
+    cpInjectIntoPreview();
+    cpUpdateCommitButton();
+    cpUpdateUndoButton();
+}
+
+function cpUpdateConvertButton() {
+    const btn = document.getElementById('cp-convert');
+    if (btn) btn.textContent = cpConvertTarget === 'hex' ? '⇄ Hex' : '⇄ RGB';
 }
 
 function cpRenderPreview() {
@@ -645,6 +783,7 @@ async function cpLoadAndRender() {
         cpRenderEditors();
         cpRenderPreview();
         cpUpdateCommitButton();
+        cpUpdateConvertButton();   // label reflects the system chosen at parse time
     } catch (err) {
         // Signed-out + read failed (e.g. a private repo or anonymous rate limit):
         // nudge them to the top-right sign-in rather than dumping a raw error.
@@ -687,6 +826,7 @@ function cpInit() {
     if (previewIframe) previewIframe.addEventListener('load', cpInjectIntoPreview);
 
     bindClick('cp-theme-toggle', cpToggleTheme);
+    bindClick('cp-convert', cpConvertAll);
     bindClick('cp-reload', function() { if (!cpLoading) { cpLoaded = false; cpLoadAndRender(); } });
     bindClick('cp-undo',   cpUndo);
     bindClick('cp-reset',  cpReset);
@@ -705,6 +845,7 @@ function cpInit() {
     cpUpdateUndoButton();
     cpUpdateShowOriginalButton();
     cpUpdateThemeButton();
+    cpUpdateConvertButton();
 
     const editor = document.getElementById('cp-editor');
     if (editor) {
