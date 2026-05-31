@@ -603,13 +603,20 @@ function cpReset() {
 }
 
 // ---- Save / load palette file ---------------------------------------------
-function cpSaveFile() {
+// Build the palette object written by Save-to-file and the template saver.
+function cpBuildPaletteData(name) {
     const data = { version: 1, savedAt: new Date().toISOString(), light: {}, dark: {} };
+    if (name) data.name = name;
     CP_THEMES.forEach(function(themeKey) {
         CP_TOKENS.forEach(function(t) {
             if (cpEdited[themeKey][t] !== undefined) data[themeKey][t] = cpEdited[themeKey][t];
         });
     });
+    return data;
+}
+
+function cpSaveFile() {
+    const data = cpBuildPaletteData();
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -659,16 +666,21 @@ function cpLoadFile(file) {
     reader.readAsText(file);
 }
 
-// ---- Color templates (tools/color-templates/*.json) -----------------------
+// ---- Color templates (tools/color-templates/) -----------------------------
+// Root *.json = base templates; each subfolder = a category (collapsible).
 const CP_TEMPLATES_DIR = 'tools/color-templates';
 let cpTemplatesLoaded = false;
-let cpPendingTemplate = null;              // {path, name} awaiting the discard-changes confirm
+let cpTemplateTree = { root: [], categories: [] };   // categories: [{name, path, templates:[]}]
+let cpOpenCategories = {};                            // category name -> expanded?
+let cpPendingTemplate = null;                         // {path, name} awaiting discard-changes confirm
 
 // "ocean-breeze.json" -> "Ocean Breeze"
 function cpTemplateLabel(name) {
     return (name || '').replace(/\.json$/i, '').replace(/[-_]+/g, ' ')
         .replace(/\b\w/g, function(c) { return c.toUpperCase(); });
 }
+// "AI-Generated" -> "AI Generated" (preserve case)
+function cpCategoryLabel(name) { return (name || '').replace(/[-_]+/g, ' ').trim(); }
 
 function cpIsJsonFile(it) { return it && it.type === 'file' && /\.json$/i.test(it.name); }
 function cpByName(a, b) { return a.name.localeCompare(b.name); }
@@ -687,58 +699,61 @@ async function cpFetchTemplates() {
     try {
         const items = await ghFetch('GET', '/contents/' + CP_TEMPLATES_DIR);
         const arr = Array.isArray(items) ? items : [];
-        cpTemplatesLoaded = true;
-        cpRenderTemplateButtons(arr.filter(cpIsJsonFile).sort(cpByName));
-
-        // Templates in the AI-Generated subfolder get their own collapsible group.
-        const aiDir = arr.find(function(it) { return it.type === 'dir' && /^ai-generated$/i.test(it.name); });
-        if (aiDir) {
+        const dirs = arr.filter(function(it) { return it.type === 'dir'; }).sort(cpByName);
+        const categories = [];
+        for (let i = 0; i < dirs.length; i++) {
+            let templates = [];
             try {
-                const aiItems = await ghFetch('GET', '/contents/' + aiDir.path);
-                cpRenderAITemplates((Array.isArray(aiItems) ? aiItems : []).filter(cpIsJsonFile).sort(cpByName));
-            } catch (e) { cpRenderAITemplates([]); }
-        } else {
-            cpRenderAITemplates([]);
+                const sub = await ghFetch('GET', '/contents/' + dirs[i].path);
+                templates = (Array.isArray(sub) ? sub : []).filter(cpIsJsonFile).sort(cpByName);
+            } catch (e) { /* unreadable subfolder — show it empty */ }
+            categories.push({ name: dirs[i].name, path: dirs[i].path, templates: templates });
         }
+        cpTemplateTree = { root: arr.filter(cpIsJsonFile).sort(cpByName), categories: categories };
+        cpTemplatesLoaded = true;
+        cpRenderTemplates();
     } catch (err) {
-        // 404 → the folder doesn't exist yet; stop. Other errors (e.g. a private
-        // repo read while signed out) → leave unloaded so sign-in retries.
+        // 404 → folder doesn't exist yet; other errors (private repo / rate limit
+        // while signed out) → leave unloaded so sign-in retries.
         if (err && err.status === 404) {
             cpTemplatesLoaded = true;
-            list.innerHTML = '<span class="cp-templates-empty">No templates yet.</span>';
+            cpTemplateTree = { root: [], categories: [] };
+            cpRenderTemplates();
         } else {
             list.innerHTML = '<span class="cp-templates-empty">Sign in to load templates.</span>';
         }
     }
 }
 
-function cpRenderTemplateButtons(templates) {
+function cpRenderTemplates() {
     const list = document.getElementById('cp-templates-list');
-    if (!list) return;
-    list.innerHTML = templates.length
-        ? templates.map(cpTemplateButtonHtml).join('')
-        : '<span class="cp-templates-empty">No templates yet.</span>';
+    if (list) {
+        list.innerHTML = cpTemplateTree.root.length
+            ? cpTemplateTree.root.map(cpTemplateButtonHtml).join('')
+            : '<span class="cp-templates-empty">No templates yet.</span>';
+    }
+    const cats = document.getElementById('cp-categories');
+    if (cats) {
+        cats.innerHTML = cpTemplateTree.categories.map(function(cat) {
+            const open = !!cpOpenCategories[cat.name];
+            const body = cat.templates.length
+                ? cat.templates.map(cpTemplateButtonHtml).join('')
+                : '<span class="cp-templates-empty">Empty — right-click to delete.</span>';
+            return '<div class="cp-templates-group" data-category="' + cpEsc(cat.name) + '">'
+                 + '<button class="cp-templates-toggle' + (open ? ' cp-templates-toggle-open' : '') + '" '
+                 +   'data-category="' + cpEsc(cat.name) + '" type="button" aria-expanded="' + open + '">'
+                 +   '<span class="cp-templates-caret">▸</span> ' + cpEsc(cpCategoryLabel(cat.name))
+                 + '</button>'
+                 + '<div class="cp-templates-list cp-cat-list" style="display:' + (open ? 'flex' : 'none') + '">'
+                 +   body
+                 + '</div></div>';
+        }).join('');
+    }
 }
 
-// AI-Generated subfolder: hidden entirely when empty; otherwise its collapsible
-// "AI Generated Templates" header reveals the buttons.
-function cpRenderAITemplates(templates) {
-    const group = document.getElementById('cp-ai-templates-group');
-    const list = document.getElementById('cp-ai-templates-list');
-    if (!group || !list) return;
-    if (!templates.length) { group.style.display = 'none'; return; }
-    group.style.display = '';
-    list.innerHTML = templates.map(cpTemplateButtonHtml).join('');
-}
-
-function cpToggleAITemplates() {
-    const list = document.getElementById('cp-ai-templates-list');
-    const toggle = document.getElementById('cp-ai-toggle');
-    if (!list || !toggle) return;
-    const open = list.style.display !== 'none';
-    list.style.display = open ? 'none' : 'flex';
-    toggle.setAttribute('aria-expanded', String(!open));
-    toggle.classList.toggle('cp-templates-toggle-open', !open);
+function cpToggleCategory(name) {
+    cpOpenCategories[name] = !cpOpenCategories[name];
+    cpRenderTemplates();
 }
 
 // Clicking a template: warn first if there are uncommitted changes.
@@ -777,6 +792,151 @@ function cpConfirmTemplate() {
     const t = cpPendingTemplate;
     cpCloseTemplateModal();
     if (t) cpLoadTemplate(t.path, t.name);
+}
+
+// ---- Template management (save / new category / delete) -------------------
+// All of these commit directly to the repo, so they require sign-in.
+function cpRequireAuth() {
+    if (typeof isAuthenticated === 'function' && isAuthenticated()) return true;
+    if (typeof openAuthModal === 'function') openAuthModal();
+    return false;
+}
+
+function cpSlug(s) {
+    return (s || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+// Commit template file changes in one commit, then refresh the sidebar.
+async function cpCommitTemplateChanges(message, changes) {
+    await ghBatchCommit({ message: 'Browser: ' + message, changes: changes, branch: CP_BRANCH });
+    cpTemplatesLoaded = false;
+    await cpFetchTemplates();
+}
+
+// Save popup ----------------------------------------------------------------
+function cpOpenSaveTemplate() {
+    if (!cpRequireAuth()) return;
+    const overlay = document.getElementById('cp-save-modal-overlay');
+    const nameEl = document.getElementById('cp-save-name');
+    const catEl = document.getElementById('cp-save-category');
+    if (!overlay || !nameEl || !catEl) return;
+    nameEl.value = '';
+    catEl.innerHTML = '<option value="">Templates (top level)</option>'
+        + cpTemplateTree.categories.map(function(c) {
+            return '<option value="' + cpEsc(c.name) + '">' + cpEsc(cpCategoryLabel(c.name)) + '</option>';
+        }).join('');
+    overlay.style.display = 'flex';
+    setTimeout(function() { nameEl.focus(); }, 30);
+}
+
+function cpCloseSaveTemplate() {
+    const o = document.getElementById('cp-save-modal-overlay');
+    if (o) o.style.display = 'none';
+}
+
+async function cpConfirmSaveTemplate() {
+    const nameEl = document.getElementById('cp-save-name');
+    const catEl = document.getElementById('cp-save-category');
+    if (!nameEl || !catEl) return;
+    const name = nameEl.value.trim();
+    const slug = cpSlug(name);
+    if (!slug) { alert('Please enter a template name.'); return; }
+    const category = catEl.value;                 // '' = top level
+    const dir = category ? (CP_TEMPLATES_DIR + '/' + category) : CP_TEMPLATES_DIR;
+    const path = dir + '/' + slug + '.json';
+    const content = JSON.stringify(cpBuildPaletteData(name), null, 4) + '\n';
+    cpCloseSaveTemplate();
+    try {
+        if (category) cpOpenCategories[category] = true;
+        await cpCommitTemplateChanges('add color template ' + path, [{ op: 'put', path: path, content: content }]);
+    } catch (err) {
+        alert('Could not save template: ' + (err.message || err));
+    }
+}
+
+// New category (prompt → commit a .gitkeep so the empty folder persists) ------
+async function cpNewCategory() {
+    if (!cpRequireAuth()) return;
+    const raw = (window.prompt('New category name:') || '').trim();
+    if (!raw) return;
+    const folder = raw.replace(/[^a-zA-Z0-9 _-]+/g, '').trim().replace(/\s+/g, '-');
+    if (!folder) { alert('That name has no usable characters.'); return; }
+    try {
+        cpOpenCategories[folder] = true;
+        await cpCommitTemplateChanges('add color template category ' + folder,
+            [{ op: 'put', path: CP_TEMPLATES_DIR + '/' + folder + '/.gitkeep', content: '' }]);
+    } catch (err) {
+        alert('Could not create category: ' + (err.message || err));
+    }
+}
+
+// Delete a single template ---------------------------------------------------
+async function cpDeleteTemplate(path, name) {
+    if (!cpRequireAuth()) return;
+    if (!window.confirm('Delete template "' + cpTemplateLabel(name) + '"?\nThis commits the deletion to the repository.')) return;
+    try {
+        await cpCommitTemplateChanges('delete color template ' + path, [{ op: 'delete', path: path }]);
+    } catch (err) {
+        alert('Could not delete template: ' + (err.message || err));
+    }
+}
+
+// Delete a whole category (every file inside it) -----------------------------
+async function cpDeleteCategory(name) {
+    if (!cpRequireAuth()) return;
+    const cat = cpTemplateTree.categories.find(function(c) { return c.name === name; });
+    if (!cat) return;
+    if (!window.confirm('Delete category "' + cpCategoryLabel(name) + '" and everything in it?\nThis commits the deletion to the repository.')) return;
+    try {
+        // Re-list so we delete every file (templates + .gitkeep, etc.).
+        let files = [];
+        try {
+            const sub = await ghFetch('GET', '/contents/' + cat.path);
+            files = (Array.isArray(sub) ? sub : []).filter(function(it) { return it.type === 'file'; });
+        } catch (e) { /* ignore — handled below */ }
+        delete cpOpenCategories[name];
+        if (!files.length) { cpTemplatesLoaded = false; await cpFetchTemplates(); return; }
+        await cpCommitTemplateChanges('delete color template category ' + name,
+            files.map(function(it) { return { op: 'delete', path: it.path }; }));
+    } catch (err) {
+        alert('Could not delete category: ' + (err.message || err));
+    }
+}
+
+// Right-click context menu on the sidebar -----------------------------------
+let cpCtxMenuEl = null;
+function cpHideContextMenu() { if (cpCtxMenuEl) { cpCtxMenuEl.remove(); cpCtxMenuEl = null; } }
+
+function cpShowContextMenu(e) {
+    e.preventDefault();
+    cpHideContextMenu();
+    const items = [];
+    const tplBtn = e.target.closest('.cp-template-btn');
+    const catEl = e.target.closest('[data-category]');
+    if (tplBtn) {
+        items.push({ label: '🗑 Delete template', fn: function() { cpDeleteTemplate(tplBtn.dataset.path, tplBtn.dataset.name); } });
+    } else if (catEl) {
+        const cat = catEl.dataset.category;
+        items.push({ label: '🗑 Delete category', fn: function() { cpDeleteCategory(cat); } });
+    }
+    items.push({ label: '＋ New category', fn: cpNewCategory });
+
+    const menu = document.createElement('div');
+    menu.className = 'cp-context-menu';
+    items.forEach(function(it) {
+        const el = document.createElement('div');
+        el.className = 'cp-context-menu-item';
+        el.textContent = it.label;
+        el.addEventListener('click', function() { cpHideContextMenu(); it.fn(); });
+        menu.appendChild(el);
+    });
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+    document.body.appendChild(menu);
+    cpCtxMenuEl = menu;
+    const r = menu.getBoundingClientRect();
+    if (r.right > window.innerWidth) menu.style.left = (window.innerWidth - r.width - 4) + 'px';
+    if (r.bottom > window.innerHeight) menu.style.top = (window.innerHeight - r.height - 4) + 'px';
 }
 
 // ---- Export / copy-CSS modal ----------------------------------------------
@@ -1011,21 +1171,41 @@ function cpInit() {
     const eOverlay = document.getElementById('cp-export-modal-overlay');
     if (eOverlay) eOverlay.addEventListener('click', function(e) { if (e.target === eOverlay) cpCloseExport(); });
 
-    // Templates bar + discard-changes confirm modal. Delegate on the whole bar
-    // so both the base list and the AI-Generated list are covered.
+    // Templates sidebar: click delegation (category toggles + template buttons),
+    // right-click menu, save button, and the two confirm/save modals.
     const tBar = document.getElementById('cp-templates');
-    if (tBar) tBar.addEventListener('click', function(e) {
-        const btn = e.target.closest('.cp-template-btn');
-        if (btn) cpRequestTemplate(btn.dataset.path, btn.dataset.name);
+    if (tBar) {
+        tBar.addEventListener('click', function(e) {
+            const toggle = e.target.closest('.cp-templates-toggle');
+            if (toggle) { cpToggleCategory(toggle.dataset.category); return; }
+            const btn = e.target.closest('.cp-template-btn');
+            if (btn) cpRequestTemplate(btn.dataset.path, btn.dataset.name);
+        });
+        tBar.addEventListener('contextmenu', cpShowContextMenu);
+    }
+    bindClick('cp-template-save', cpOpenSaveTemplate);
+    document.addEventListener('click', function(e) {
+        if (cpCtxMenuEl && !cpCtxMenuEl.contains(e.target)) cpHideContextMenu();
     });
-    bindClick('cp-ai-toggle', cpToggleAITemplates);
+
+    // Discard-changes confirm modal (loading a template over edits)
     bindClick('cp-template-cancel',  cpCloseTemplateModal);
     bindClick('cp-template-confirm', cpConfirmTemplate);
     const tOverlay = document.getElementById('cp-template-modal-overlay');
     if (tOverlay) tOverlay.addEventListener('click', function(e) { if (e.target === tOverlay) cpCloseTemplateModal(); });
 
+    // Save-as-template modal
+    bindClick('cp-save-cancel',  cpCloseSaveTemplate);
+    bindClick('cp-save-confirm', cpConfirmSaveTemplate);
+    const sOverlay = document.getElementById('cp-save-modal-overlay');
+    if (sOverlay) sOverlay.addEventListener('click', function(e) { if (e.target === sOverlay) cpCloseSaveTemplate(); });
+    const saveName = document.getElementById('cp-save-name');
+    if (saveName) saveName.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); cpConfirmSaveTemplate(); }
+    });
+
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { cpCloseExport(); cpCloseCommit(); cpCloseTemplateModal(); return; }
+        if (e.key === 'Escape') { cpCloseExport(); cpCloseCommit(); cpCloseTemplateModal(); cpCloseSaveTemplate(); cpHideContextMenu(); return; }
         // Ctrl/Cmd+Z → undo a color change. Skip when focus is in a modal field
         // (commit name, export textarea) so native text-undo still works there.
         if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {

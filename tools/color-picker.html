@@ -63,19 +63,19 @@
             <iframe class="cp-preview-iframe" id="cp-preview-iframe" title="Theme preview"></iframe>
         </div>
 
-        <!-- Templates sidebar — one button per JSON file in tools/color-templates.
-             Files in the AI-Generated subfolder get a collapsible group. -->
+        <!-- Templates sidebar. Top-level tools/color-templates/*.json are the base
+             templates; each subfolder is a collapsible category, built into
+             #cp-categories. Right-click for new category / delete. -->
         <aside class="cp-templates-sidebar" id="cp-templates">
-            <div class="cp-templates-title">Templates</div>
+            <div class="cp-templates-head">
+                <div class="cp-templates-title">Templates</div>
+                <button class="cp-btn cp-btn-icon" id="cp-template-save" title="Save current colors as a template">💾</button>
+            </div>
             <div class="cp-templates-list" id="cp-templates-list">
                 <span class="cp-templates-empty">Loading…</span>
             </div>
-            <div class="cp-templates-group" id="cp-ai-templates-group" style="display:none">
-                <button class="cp-templates-toggle" id="cp-ai-toggle" type="button" aria-expanded="false">
-                    <span class="cp-templates-caret">▸</span> AI Generated Templates
-                </button>
-                <div class="cp-templates-list cp-ai-list" id="cp-ai-templates-list" style="display:none"></div>
-            </div>
+            <div class="cp-categories" id="cp-categories"></div>
+            <div class="cp-templates-hint">Right-click for new category / delete.</div>
         </aside>
     </div>
 
@@ -94,6 +94,24 @@
         <div class="modal-actions">
             <button class="btn-modal-cancel" id="cp-commit-cancel">Cancel</button>
             <button class="btn-modal-confirm" id="cp-commit-confirm">Commit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Save current colors as a template (name + category) -->
+<div class="modal-overlay" id="cp-save-modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title">Save as template</div>
+        <div class="modal-body">
+            <label class="cp-commit-label" for="cp-save-name">Template name</label>
+            <input type="text" id="cp-save-name" class="cp-commit-name" autocomplete="off" spellcheck="false" placeholder="e.g. Ocean Breeze">
+            <label class="cp-commit-label" for="cp-save-category">Category</label>
+            <select id="cp-save-category" class="cp-commit-name"></select>
+            <p class="cp-commit-help">Saves the current colors as a JSON file under <code>tools/color-templates/</code> and commits it to <code>main</code>.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="cp-save-cancel">Cancel</button>
+            <button class="btn-modal-confirm" id="cp-save-confirm">Save template</button>
         </div>
     </div>
 </div>

@@ -48,7 +48,7 @@
     flex: 1;
 }
 
-/* Templates sidebar (right column) — base list + collapsible AI-Generated group */
+/* Templates sidebar (right column) — base list + collapsible category groups */
 .cp-templates-sidebar {
     width: 220px;
     flex-shrink: 0;
@@ -61,6 +61,7 @@
     gap: 10px;
     min-height: 0;
 }
+.cp-templates-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cp-templates-title {
     font-size: 11px;
     font-weight: 700;
@@ -68,6 +69,8 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
+.cp-categories { display: flex; flex-direction: column; gap: 10px; }
+.cp-templates-hint { margin-top: auto; padding-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 .cp-templates-list { display: flex; flex-direction: column; gap: 6px; }
 .cp-templates-empty { font-size: 12px; color: var(--text-muted); }
 .cp-template-btn {
@@ -116,6 +119,30 @@
 .cp-templates-toggle:hover { color: var(--text); }
 .cp-templates-caret { display: inline-block; transition: transform 0.15s ease; }
 .cp-templates-toggle-open .cp-templates-caret { transform: rotate(90deg); }
+
+/* Right-click context menu (new category / delete) */
+.cp-context-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 160px;
+    padding: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.cp-context-menu-item {
+    padding: 7px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.cp-context-menu-item:hover { background: var(--accent-dim); }
+
+/* Save-template modal: the category <select> reuses .cp-commit-name's box */
+select.cp-commit-name { cursor: pointer; }
 
 .cp-editor {
     flex: 1;
