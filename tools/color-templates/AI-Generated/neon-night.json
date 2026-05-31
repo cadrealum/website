@@ -1,0 +1,20 @@
+{
+    "version": 1,
+    "name": "Neon Night",
+    "light": {
+        "--color-bg": "rgb(245, 245, 255)",
+        "--color-surface": "rgb(255, 255, 255)",
+        "--color-fg": "rgb(23, 18, 38)",
+        "--color-primary": "rgb(124, 58, 237)",
+        "--color-accent": "rgb(6, 182, 212)",
+        "--color-complimentary": "rgb(236, 72, 153)"
+    },
+    "dark": {
+        "--color-bg": "rgb(12, 10, 24)",
+        "--color-surface": "rgb(22, 18, 40)",
+        "--color-fg": "rgb(232, 228, 248)",
+        "--color-primary": "rgb(167, 139, 250)",
+        "--color-accent": "rgb(34, 211, 238)",
+        "--color-complimentary": "rgb(244, 114, 182)"
+    }
+}

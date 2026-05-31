@@ -1,0 +1,20 @@
+{
+    "version": 1,
+    "name": "Sunset",
+    "light": {
+        "--color-bg": "rgb(255, 251, 245)",
+        "--color-surface": "rgb(255, 255, 255)",
+        "--color-fg": "rgb(40, 24, 16)",
+        "--color-primary": "rgb(234, 88, 12)",
+        "--color-accent": "rgb(245, 158, 11)",
+        "--color-complimentary": "rgb(219, 39, 119)"
+    },
+    "dark": {
+        "--color-bg": "rgb(28, 18, 14)",
+        "--color-surface": "rgb(40, 28, 22)",
+        "--color-fg": "rgb(245, 235, 228)",
+        "--color-primary": "rgb(251, 146, 60)",
+        "--color-accent": "rgb(252, 211, 77)",
+        "--color-complimentary": "rgb(244, 114, 182)"
+    }
+}

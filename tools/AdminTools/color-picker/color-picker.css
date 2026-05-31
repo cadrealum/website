@@ -48,6 +48,75 @@
     flex: 1;
 }
 
+/* Templates sidebar (right column) — base list + collapsible AI-Generated group */
+.cp-templates-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+}
+.cp-templates-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.cp-templates-list { display: flex; flex-direction: column; gap: 6px; }
+.cp-templates-empty { font-size: 12px; color: var(--text-muted); }
+.cp-template-btn {
+    width: 100%;
+    text-align: left;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cp-template-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+/* AI-Generated collapsible group */
+.cp-templates-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+}
+.cp-templates-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    text-align: left;
+}
+.cp-templates-toggle:hover { color: var(--text); }
+.cp-templates-caret { display: inline-block; transition: transform 0.15s ease; }
+.cp-templates-toggle-open .cp-templates-caret { transform: rotate(90deg); }
+
 .cp-editor {
     flex: 1;
     overflow-y: auto;
@@ -197,9 +266,12 @@
 .cp-preview-bar span { flex: 1; }
 .cp-preview-iframe {
     flex: 1;
-    width: 100%;
-    border: 0;
+    width: auto;                 /* stretch to fill the column minus the margin */
+    margin: 12px;                /* padding between the preview and the tool UI */
+    border: 2px solid #fff;      /* white frame around the live preview */
+    border-radius: 8px;
     background: #fff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
     min-height: 0;
 }
 
@@ -266,6 +338,7 @@
     .cp-app { flex-direction: column; }
     .cp-editor-col { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
     .cp-preview-col { min-height: 420px; }
+    .cp-templates-sidebar { width: 100%; border-left: none; border-top: 1px solid var(--border); }
 }
 
 /* postGen-style.css applies body { zoom: 0.64 } on short viewports, so a child

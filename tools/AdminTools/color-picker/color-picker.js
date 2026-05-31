@@ -621,6 +621,32 @@ function cpSaveFile() {
     setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 }
 
+// Apply a parsed palette object ({light:{token:val}, dark:{…}}) over the current
+// edited palette. Only known tokens are touched; the rest are left as-is.
+// Shared by Load-file and the template buttons. Returns true on success.
+function cpApplyPaletteData(data, sourceLabel) {
+    if (!data || (typeof data.light !== 'object' && typeof data.dark !== 'object')) {
+        alert((sourceLabel || 'That file') + " doesn't look like a saved palette.");
+        return false;
+    }
+    cpPushUndo();
+    CP_THEMES.forEach(function(themeKey) {
+        const src = data[themeKey];
+        if (!src || typeof src !== 'object') return;
+        CP_TOKENS.forEach(function(t) {
+            // Only apply known tokens that exist in the current palette.
+            if (cpEdited[themeKey][t] !== undefined && typeof src[t] === 'string') {
+                cpEdited[themeKey][t] = src[t].trim();
+            }
+        });
+    });
+    cpExitShowOriginal();
+    cpRenderEditors();
+    cpInjectIntoPreview();
+    cpUpdateCommitButton();
+    return true;
+}
+
 function cpLoadFile(file) {
     if (!file) return;
     const reader = new FileReader();
@@ -628,27 +654,129 @@ function cpLoadFile(file) {
         let data;
         try { data = JSON.parse(reader.result); }
         catch (e) { alert('Could not read that file — it is not valid JSON.'); return; }
-        if (!data || (typeof data.light !== 'object' && typeof data.dark !== 'object')) {
-            alert('That file does not look like a saved palette.');
-            return;
-        }
-        cpPushUndo();
-        CP_THEMES.forEach(function(themeKey) {
-            const src = data[themeKey];
-            if (!src || typeof src !== 'object') return;
-            CP_TOKENS.forEach(function(t) {
-                // Only apply known tokens that exist in the current palette.
-                if (cpEdited[themeKey][t] !== undefined && typeof src[t] === 'string') {
-                    cpEdited[themeKey][t] = src[t].trim();
-                }
-            });
-        });
-        cpExitShowOriginal();
-        cpRenderEditors();
-        cpInjectIntoPreview();
-        cpUpdateCommitButton();
+        cpApplyPaletteData(data, 'That file');
     };
     reader.readAsText(file);
+}
+
+// ---- Color templates (tools/color-templates/*.json) -----------------------
+const CP_TEMPLATES_DIR = 'tools/color-templates';
+let cpTemplatesLoaded = false;
+let cpPendingTemplate = null;              // {path, name} awaiting the discard-changes confirm
+
+// "ocean-breeze.json" -> "Ocean Breeze"
+function cpTemplateLabel(name) {
+    return (name || '').replace(/\.json$/i, '').replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+}
+
+function cpIsJsonFile(it) { return it && it.type === 'file' && /\.json$/i.test(it.name); }
+function cpByName(a, b) { return a.name.localeCompare(b.name); }
+
+function cpTemplateButtonHtml(it) {
+    return '<button class="cp-template-btn" data-path="' + cpEsc(it.path)
+         + '" data-name="' + cpEsc(it.name) + '" title="Load the '
+         + cpEsc(cpTemplateLabel(it.name)) + ' color scheme">'
+         + cpEsc(cpTemplateLabel(it.name)) + '</button>';
+}
+
+async function cpFetchTemplates() {
+    if (cpTemplatesLoaded) return;
+    const list = document.getElementById('cp-templates-list');
+    if (!list) return;
+    try {
+        const items = await ghFetch('GET', '/contents/' + CP_TEMPLATES_DIR);
+        const arr = Array.isArray(items) ? items : [];
+        cpTemplatesLoaded = true;
+        cpRenderTemplateButtons(arr.filter(cpIsJsonFile).sort(cpByName));
+
+        // Templates in the AI-Generated subfolder get their own collapsible group.
+        const aiDir = arr.find(function(it) { return it.type === 'dir' && /^ai-generated$/i.test(it.name); });
+        if (aiDir) {
+            try {
+                const aiItems = await ghFetch('GET', '/contents/' + aiDir.path);
+                cpRenderAITemplates((Array.isArray(aiItems) ? aiItems : []).filter(cpIsJsonFile).sort(cpByName));
+            } catch (e) { cpRenderAITemplates([]); }
+        } else {
+            cpRenderAITemplates([]);
+        }
+    } catch (err) {
+        // 404 → the folder doesn't exist yet; stop. Other errors (e.g. a private
+        // repo read while signed out) → leave unloaded so sign-in retries.
+        if (err && err.status === 404) {
+            cpTemplatesLoaded = true;
+            list.innerHTML = '<span class="cp-templates-empty">No templates yet.</span>';
+        } else {
+            list.innerHTML = '<span class="cp-templates-empty">Sign in to load templates.</span>';
+        }
+    }
+}
+
+function cpRenderTemplateButtons(templates) {
+    const list = document.getElementById('cp-templates-list');
+    if (!list) return;
+    list.innerHTML = templates.length
+        ? templates.map(cpTemplateButtonHtml).join('')
+        : '<span class="cp-templates-empty">No templates yet.</span>';
+}
+
+// AI-Generated subfolder: hidden entirely when empty; otherwise its collapsible
+// "AI Generated Templates" header reveals the buttons.
+function cpRenderAITemplates(templates) {
+    const group = document.getElementById('cp-ai-templates-group');
+    const list = document.getElementById('cp-ai-templates-list');
+    if (!group || !list) return;
+    if (!templates.length) { group.style.display = 'none'; return; }
+    group.style.display = '';
+    list.innerHTML = templates.map(cpTemplateButtonHtml).join('');
+}
+
+function cpToggleAITemplates() {
+    const list = document.getElementById('cp-ai-templates-list');
+    const toggle = document.getElementById('cp-ai-toggle');
+    if (!list || !toggle) return;
+    const open = list.style.display !== 'none';
+    list.style.display = open ? 'none' : 'flex';
+    toggle.setAttribute('aria-expanded', String(!open));
+    toggle.classList.toggle('cp-templates-toggle-open', !open);
+}
+
+// Clicking a template: warn first if there are uncommitted changes.
+function cpRequestTemplate(path, name) {
+    if (cpChangedCount() > 0) {
+        cpPendingTemplate = { path: path, name: name };
+        const nameEl = document.getElementById('cp-template-name');
+        if (nameEl) nameEl.textContent = cpTemplateLabel(name);
+        const overlay = document.getElementById('cp-template-modal-overlay');
+        if (overlay) overlay.style.display = 'flex';
+    } else {
+        cpLoadTemplate(path, name);
+    }
+}
+
+async function cpLoadTemplate(path, name) {
+    try {
+        const resp = await ghFetch('GET', '/contents/' + path);
+        const text = decodeBase64Utf8(resp.content);
+        let data;
+        try { data = JSON.parse(text); }
+        catch (e) { alert('Template "' + cpTemplateLabel(name) + '" is not valid JSON.'); return; }
+        cpApplyPaletteData(data, 'Template "' + cpTemplateLabel(name) + '"');
+    } catch (err) {
+        alert('Could not load template: ' + (err.message || err));
+    }
+}
+
+function cpCloseTemplateModal() {
+    const o = document.getElementById('cp-template-modal-overlay');
+    if (o) o.style.display = 'none';
+    cpPendingTemplate = null;
+}
+
+function cpConfirmTemplate() {
+    const t = cpPendingTemplate;
+    cpCloseTemplateModal();
+    if (t) cpLoadTemplate(t.path, t.name);
 }
 
 // ---- Export / copy-CSS modal ----------------------------------------------
@@ -821,12 +949,14 @@ function cpEnsureLoaded() {
 // ---- Bootstrap ------------------------------------------------------------
 function cpInit() {
     cpEnsureLoaded();
+    cpFetchTemplates();
 
     // If sign-in happens after an early load failed (e.g. a private repo or a
     // rate-limited anonymous read), retry once the auth chip re-renders.
     const chip = document.getElementById('auth-chip');
     if (chip && typeof MutationObserver !== 'undefined') {
-        new MutationObserver(cpEnsureLoaded).observe(chip, { childList: true, subtree: true });
+        new MutationObserver(function() { cpEnsureLoaded(); cpFetchTemplates(); })
+            .observe(chip, { childList: true, subtree: true });
     }
 
     // Once the preview homepage finishes loading (including any header/footer
@@ -881,8 +1011,21 @@ function cpInit() {
     const eOverlay = document.getElementById('cp-export-modal-overlay');
     if (eOverlay) eOverlay.addEventListener('click', function(e) { if (e.target === eOverlay) cpCloseExport(); });
 
+    // Templates bar + discard-changes confirm modal. Delegate on the whole bar
+    // so both the base list and the AI-Generated list are covered.
+    const tBar = document.getElementById('cp-templates');
+    if (tBar) tBar.addEventListener('click', function(e) {
+        const btn = e.target.closest('.cp-template-btn');
+        if (btn) cpRequestTemplate(btn.dataset.path, btn.dataset.name);
+    });
+    bindClick('cp-ai-toggle', cpToggleAITemplates);
+    bindClick('cp-template-cancel',  cpCloseTemplateModal);
+    bindClick('cp-template-confirm', cpConfirmTemplate);
+    const tOverlay = document.getElementById('cp-template-modal-overlay');
+    if (tOverlay) tOverlay.addEventListener('click', function(e) { if (e.target === tOverlay) cpCloseTemplateModal(); });
+
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { cpCloseExport(); cpCloseCommit(); return; }
+        if (e.key === 'Escape') { cpCloseExport(); cpCloseCommit(); cpCloseTemplateModal(); return; }
         // Ctrl/Cmd+Z → undo a color change. Skip when focus is in a modal field
         // (commit name, export textarea) so native text-undo still works there.
         if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
