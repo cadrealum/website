@@ -32,8 +32,23 @@ const CP_TOKENS = [
     '--color-on-primary', '--color-scrollbar-thumb', '--color-scrollbar-track',
     '--color-focus-ring', '--color-overlay', '--color-badge-bg',
     '--color-primary-tint', '--color-on-overlay', '--color-on-overlay-soft',
-    '--color-on-overlay-muted'
+    '--color-on-overlay-muted',
+    '--color-slideshow-arrow', '--color-slideshow-arrow-hover'
 ];
+
+// Fallback source for tokens that aren't in the committed css/style.css yet
+// (newly introduced in this tool but not yet committed). When a token is absent
+// from the fetched file, its row is SEEDED from this source token so it still
+// shows + previews with a sensible value; committing then INSERTS the real
+// declaration into style.css (next to the source). Once committed, the token is
+// found normally and this no longer applies. Keep these pointing at a token
+// that always exists in the file.
+const CP_SEED_FROM = {
+    '--color-logo': '--color-primary',
+    '--color-logo-highlight': '--color-complimentary',
+    '--color-slideshow-arrow': '--color-fg',
+    '--color-slideshow-arrow-hover': '--color-primary'
+};
 
 // Human labels for the rows (fallback = the token name itself).
 const CP_LABELS = {
@@ -58,7 +73,9 @@ const CP_LABELS = {
     '--color-primary-tint': 'Primary tint',
     '--color-on-overlay': 'Text on overlay',
     '--color-on-overlay-soft': 'Control on overlay',
-    '--color-on-overlay-muted': 'Muted on overlay'
+    '--color-on-overlay-muted': 'Muted on overlay',
+    '--color-slideshow-arrow': 'Arrow',
+    '--color-slideshow-arrow-hover': 'Arrow hover'
 };
 
 // Hover text: what each token actually affects on the live site.
@@ -84,7 +101,9 @@ const CP_DESC = {
     '--color-primary-tint': 'Faint primary wash (e.g. slideshow arrow hover).',
     '--color-on-overlay': 'Text and icons on a dark overlay (lightbox caption, buttons).',
     '--color-on-overlay-soft': 'Translucent control background on a dark overlay (modal buttons).',
-    '--color-on-overlay-muted': 'De-emphasized text on a dark overlay (image counter).'
+    '--color-on-overlay-muted': 'De-emphasized text on a dark overlay (image counter).',
+    '--color-slideshow-arrow': 'The prev / next arrow glyphs on the slideshow.',
+    '--color-slideshow-arrow-hover': 'The slideshow arrow color when hovered.'
 };
 
 const CP_THEMES = ['light', 'dark'];
@@ -95,6 +114,7 @@ const CP_GROUPS = [
     { title: 'Main colors',       tokens: ['--color-bg', '--color-surface', '--color-fg', '--color-primary', '--color-logo', '--color-accent', '--color-complimentary', '--color-logo-highlight'] },
     { title: 'Text & borders',    tokens: ['--color-muted', '--color-border', '--color-on-primary', '--color-focus-ring'] },
     { title: 'Overlays & badges', tokens: ['--color-overlay', '--color-badge-bg', '--color-on-overlay', '--color-on-overlay-soft', '--color-on-overlay-muted', '--color-primary-tint'] },
+    { title: 'Slideshow arrows',  tokens: ['--color-slideshow-arrow', '--color-slideshow-arrow-hover'] },
     { title: 'Scrollbar',         tokens: ['--color-scrollbar-thumb', '--color-scrollbar-track'] },
     { title: 'Shadows',           tokens: ['--shadow-soft', '--shadow-faq'] }
 ];
@@ -253,13 +273,30 @@ function cpParse() {
     CP_TOKENS.forEach(function(t) {
         const lv = cpReadToken(light.inner, t);
         const dv = cpReadToken(dark.inner, t);
-        if (lv === null) console.warn('color-picker: token not found in :root —', t);
-        if (dv === null) console.warn('color-picker: token not found in [data-theme="dark"] —', t);
         if (lv !== null) cpOriginal.light[t] = lv;
         if (dv !== null) cpOriginal.dark[t] = dv;
         // Classify from whichever value we have (light preferred). Same token,
         // same format across themes in practice.
         cpKind[t] = cpClassify(lv !== null ? lv : dv);
+    });
+    // Seed any token still missing from the file (a new token not yet committed)
+    // from its CP_SEED_FROM source so its row renders + previews. Committing
+    // inserts the real declaration (see cpReplaceTokenInBlock). Tokens with no
+    // seed source and no value are simply skipped (their row won't render).
+    CP_TOKENS.forEach(function(t) {
+        const src = CP_SEED_FROM[t];
+        if (!src) {
+            if (cpOriginal.light[t] === undefined && cpOriginal.dark[t] === undefined) {
+                console.warn('color-picker: token not found and has no seed source —', t);
+            }
+            return;
+        }
+        CP_THEMES.forEach(function(themeKey) {
+            if (cpOriginal[themeKey][t] === undefined && cpOriginal[themeKey][src] !== undefined) {
+                cpOriginal[themeKey][t] = cpOriginal[themeKey][src];
+                cpKind[t] = cpClassify(cpOriginal[themeKey][t]);
+            }
+        });
     });
     // Show every color in the notation the file predominantly uses, so the
     // inputs start consistent (the "current set value system") instead of a mix
@@ -289,15 +326,35 @@ function cpNormalizeToCurrentSystem() {
     cpConvertTarget = fmt === 'hex' ? 'rgb' : 'hex';
 }
 
-// ---- In-place rewrite (only changed, recognized tokens) -------------------
+// ---- In-place rewrite (changed tokens) ------------------------------------
+// Replace the token's value if it exists in the block; otherwise INSERT it
+// (a seeded new token being committed for the first time) after its seed source.
 function cpReplaceTokenInBlock(inner, token, val) {
     const re = new RegExp('(' + cpEscRe(token) + '\\s*:\\s*)[^;]+(;)');
-    if (!re.test(inner)) {
-        console.warn('color-picker: cannot rewrite missing token —', token);
-        return inner;
-    }
+    if (!re.test(inner)) return cpInsertTokenInBlock(inner, token, val);
     // Escape '$' in the replacement value so it can't be read as a $1 backref.
     return inner.replace(re, '$1' + val.replace(/\$/g, '$$$$') + '$2');
+}
+
+// Insert a brand-new token declaration into a block, matching the indentation
+// and placement of its CP_SEED_FROM source line when available, else appending
+// at the end of the block.
+function cpInsertTokenInBlock(inner, token, val, _depth) {
+    const src = CP_SEED_FROM[token];
+    if (src) {
+        // Place the new line right after the source token's full line.
+        const re = new RegExp('([ \\t]*)' + cpEscRe(src) + '\\s*:[^;]+;[^\\n]*');
+        const m = re.exec(inner);
+        if (m) {
+            const indent = m[1] || '    ';
+            const decl = '\n' + indent + token + ': ' + val + ';';
+            const at = m.index + m[0].length;
+            return inner.slice(0, at) + decl + inner.slice(at);
+        }
+    }
+    // Fallback: append before the block's trailing whitespace.
+    const tail = inner.match(/\s*$/)[0];
+    return inner.slice(0, inner.length - tail.length) + '\n    ' + token + ': ' + val + ';' + tail;
 }
 
 function cpBuildModifiedCss() {
@@ -886,6 +943,37 @@ function cpConfirmTemplate() {
     if (t) cpLoadTemplate(t.path, t.name);
 }
 
+// ---- Auth-gated "restricted" vs "unrestricted" view -----------------------
+// Restricted = signed out: browse, edit locally, preview, load templates, and
+// SAVE TO COMPUTER are all allowed; anything that writes to the repo (commit,
+// save-as-template, new category, delete) is locked behind sign-in.
+function cpIsAuthed() {
+    return (typeof isAuthenticated !== 'function') || isAuthenticated();
+}
+
+// Reflect the current auth state across the UI (lock icons on write controls,
+// the sidebar hint text). Functional gating still lives in cpRequireAuth /
+// cpOpenCommit; this is the visible half. Called on load and whenever the
+// auth chip changes.
+function cpApplyAuthState() {
+    const authed = cpIsAuthed();
+    document.body.classList.toggle('cp-restricted', !authed);
+    cpUpdateCommitButton();
+
+    const saveBtn = document.getElementById('cp-template-save');
+    if (saveBtn) {
+        saveBtn.classList.toggle('cp-locked', !authed);
+        saveBtn.title = authed ? 'Save current colors as a template'
+                               : 'Sign in to save templates to the repo';
+    }
+    const hint = document.getElementById('cp-templates-hint');
+    if (hint) {
+        hint.textContent = authed
+            ? 'Right-click for new category / delete.'
+            : 'Sign in to add, save, or delete templates.';
+    }
+}
+
 // ---- Template management (save / new category / delete) -------------------
 // All of these commit directly to the repo, so they require sign-in.
 function cpRequireAuth() {
@@ -1027,15 +1115,21 @@ function cpShowContextMenu(e) {
     e.preventDefault();
     cpHideContextMenu();
     const items = [];
-    const tplBtn = e.target.closest('.cp-template-btn');
-    const catEl = e.target.closest('[data-category]');
-    if (tplBtn) {
-        items.push({ label: '🗑 Delete template', fn: function() { cpDeleteTemplate(tplBtn.dataset.path, tplBtn.dataset.name); } });
-    } else if (catEl) {
-        const cat = catEl.dataset.category;
-        items.push({ label: '🗑 Delete category', fn: function() { cpDeleteCategory(cat); } });
+    // Restricted view: template management writes to the repo — offer sign-in only.
+    if (!cpIsAuthed()) {
+        items.push({ label: '🔒 Sign in to manage templates',
+            fn: function() { if (typeof openAuthModal === 'function') openAuthModal(); } });
+    } else {
+        const tplBtn = e.target.closest('.cp-template-btn');
+        const catEl = e.target.closest('[data-category]');
+        if (tplBtn) {
+            items.push({ label: '🗑 Delete template', fn: function() { cpDeleteTemplate(tplBtn.dataset.path, tplBtn.dataset.name); } });
+        } else if (catEl) {
+            const cat = catEl.dataset.category;
+            items.push({ label: '🗑 Delete category', fn: function() { cpDeleteCategory(cat); } });
+        }
+        items.push({ label: '＋ New category', fn: cpNewCategory });
     }
-    items.push({ label: '＋ New category', fn: cpNewCategory });
 
     const menu = document.createElement('div');
     menu.className = 'cp-context-menu';
@@ -1170,6 +1264,15 @@ function cpSetCommitStatus(text, isError) {
 function cpUpdateCommitButton() {
     const btn = document.getElementById('cp-commit');
     if (!btn) return;
+    // Restricted (signed-out) view: committing uploads to the repo, so it's
+    // locked. Keep the button clickable — clicking opens the sign-in modal.
+    if (!cpIsAuthed()) {
+        btn.disabled = false;
+        btn.classList.add('cp-locked');
+        btn.innerHTML = '🔒 Sign in to commit';
+        return;
+    }
+    btn.classList.remove('cp-locked');
     const n = cpChangedCount();
     btn.disabled = cpCommitting || n === 0;
     btn.innerHTML = cpCommitting
@@ -1231,7 +1334,7 @@ function cpInit() {
     // rate-limited anonymous read), retry once the auth chip re-renders.
     const chip = document.getElementById('auth-chip');
     if (chip && typeof MutationObserver !== 'undefined') {
-        new MutationObserver(function() { cpEnsureLoaded(); cpFetchTemplates(); })
+        new MutationObserver(function() { cpEnsureLoaded(); cpFetchTemplates(); cpApplyAuthState(); })
             .observe(chip, { childList: true, subtree: true });
     }
 
@@ -1340,6 +1443,9 @@ function cpInit() {
             cpUndo();
         }
     });
+
+    // Set the initial restricted/unrestricted view (lock icons + hint text).
+    cpApplyAuthState();
 }
 
 if (document.readyState === 'loading') {

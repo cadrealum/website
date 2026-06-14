@@ -91,10 +91,11 @@
         <p>Choose a tool to get started.</p>
     </div>
 
-    <!-- Both cards are always visible. Blog Post works without signing in
-         (editor-home.js points it at the basic or admin generator depending on
-         auth). Theme Colors is grayed until signed in (it commits to the repo);
-         clicking it signed-out opens the sign-in modal. Sign-in itself lives in
+    <!-- Both cards are always visible and usable without signing in. Blog Post
+         points at the basic or admin generator depending on auth. Theme Colors
+         opens the color picker for everyone (it has a restricted, view + edit +
+         save-to-computer mode when signed out and locks only the repo writes);
+         the lock chip is just a "sign in to save changes" hint. Sign-in lives in
          the navbar (#auth-chip, top right). -->
     <div class="eh-cards" id="eh-cards">
         <a class="eh-card" id="eh-card-blog" href="post-generator.html">
@@ -106,7 +107,7 @@
             <div class="eh-card-icon">🎨</div>
             <div class="eh-card-title">Theme Colors</div>
             <div class="eh-card-desc">Edit the site's light &amp; dark color palette with a live preview, then commit.</div>
-            <div class="eh-card-lock" id="eh-color-lock">🔒 Sign in to use</div>
+            <div class="eh-card-lock" id="eh-color-lock">🔓 Sign in to save changes</div>
         </a>
     </div>
 </main>

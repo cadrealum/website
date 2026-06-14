@@ -420,6 +420,24 @@ select.cp-commit-name { cursor: pointer; }
 .cp-commit-btn:hover:not(:disabled) { background: var(--accent-hover); }
 .cp-commit-btn:disabled { opacity: 0.5; cursor: default; }
 
+/* Restricted (signed-out) view: write controls (commit, save-as-template) show
+   as locked but stay clickable so the click can open the sign-in modal. The
+   accent fill is dropped so they read as unavailable, not primary actions. */
+.cp-btn.cp-locked,
+.cp-commit-btn.cp-locked {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    opacity: 1;
+    cursor: pointer;
+}
+.cp-btn.cp-locked:hover,
+.cp-commit-btn.cp-locked:hover {
+    background: var(--surface2);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
 /* Big "this changes the whole site" warning in the commit modal */
 .cp-commit-danger {
     display: flex;

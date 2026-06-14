@@ -30,6 +30,9 @@
     --color-on-overlay-soft: #ffffff;/* translucent control bg on a dark overlay */
     --color-on-overlay-muted: #563aff;/* de-emphasized text on a dark overlay */
 
+    --color-slideshow-arrow: rgb(20, 20, 28);          /* slideshow prev/next arrow glyph */
+    --color-slideshow-arrow-hover: rgb(86, 58, 255);   /* slideshow arrow on hover */
+
     --max-width: 1200px;
     --space-2xs: 0.15rem;
     --space-xs: 0.25rem;
@@ -58,6 +61,7 @@
     --shadow-faq: 0 4px 16px rgba(140, 119, 255, 0.18);
 
     /* Secondary palette (see :root for notes on what's intentionally excluded). */
+<<<<<<< Updated upstream
     --color-on-primary: #0e0a2a;
     --color-scrollbar-thumb: #563aff;
     --color-scrollbar-track: #2A2840;
@@ -68,6 +72,21 @@
     --color-on-overlay: #f5f5f5;
     --color-on-overlay-soft: #563aff;
     --color-on-overlay-muted: #563aff;
+=======
+    --color-on-primary: #fff;
+    --color-scrollbar-thumb: #d0d0d0;
+    --color-scrollbar-track: #15172a;
+    --color-focus-ring: rgba(140, 119, 255, 0.25);
+    --color-overlay: rgba(0, 0, 0, 0.85);
+    --color-badge-bg: rgba(20, 20, 28, 0.75);
+    --color-primary-tint: rgba(140, 119, 255, 0.12);
+    --color-on-overlay: #fff;
+    --color-on-overlay-soft: rgba(255, 255, 255, 0.12);
+    --color-on-overlay-muted: rgba(255, 255, 255, 0.7);
+
+    --color-slideshow-arrow: rgb(232, 233, 240);
+    --color-slideshow-arrow-hover: rgb(140, 119, 255);
+>>>>>>> Stashed changes
 }
 
 /* ---- Custom scrollbars (applied to every scrollable element) ----
