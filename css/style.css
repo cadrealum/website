@@ -1,15 +1,15 @@
 :root {
-    --color-bg: rgb(244, 245, 250);
-    --color-surface: rgb(255, 255, 255);
-    --color-fg: rgb(20, 20, 28);
-    --color-primary: rgb(86, 58, 255);
-    --color-accent: rgb(76, 169, 203);
-    --color-complimentary: rgb(255, 81, 77);
-    --color-logo: rgb(86, 58, 255);                    /* header/footer brand logo (CADRE mark) */
-    --color-logo-highlight: rgb(255, 81, 77);          /* logo hover color */
+    --color-bg: #F5F5F5;
+    --color-surface: #ffffff;
+    --color-fg: #070314;
+    --color-primary: #100f1f;
+    --color-accent: #563aff;
+    --color-complimentary: #563aff;
+    --color-logo: #563aff;                    /* header/footer brand logo (CADRE mark) */
+    --color-logo-highlight: #000000;          /* logo hover color */
 
-    --color-muted: rgba(20, 20, 28, 0.6);
-    --color-border: rgba(20, 20, 28, 0.12);
+    --color-muted: #070314;
+    --color-border: #e5e7eb;
     --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.12);
     --shadow-faq: 0 4px 16px rgba(86, 58, 255, 0.08);
 
@@ -19,16 +19,16 @@
        letterboxing (.blog-video-frame / .video / .slideshow / .image-modal-image),
        the calendar iframe's #fff backing, the about-link black/white pair, and the
        slideshow's 3D bevel inset highlights/shadows. */
-    --color-on-primary: #fff;                          /* text/icons on primary or complimentary fills */
-    --color-scrollbar-thumb: #d0d0d0;                  /* same in both themes by design (dark UI scrollbars) */
-    --color-scrollbar-track: #15172a;
-    --color-focus-ring: rgba(86, 58, 255, 0.15);       /* focus glow (derived from --color-primary) */
-    --color-overlay: rgba(0, 0, 0, 0.85);              /* full-screen modal/lightbox backdrop */
-    --color-badge-bg: rgba(20, 20, 28, 0.75);          /* translucent pill over imagery (news-card date) */
-    --color-primary-tint: rgba(86, 58, 255, 0.08);     /* faint primary wash (slideshow arrow hover) */
-    --color-on-overlay: #fff;                          /* text/icons sitting on a dark overlay */
-    --color-on-overlay-soft: rgba(255, 255, 255, 0.12);/* translucent control bg on a dark overlay */
-    --color-on-overlay-muted: rgba(255, 255, 255, 0.7);/* de-emphasized text on a dark overlay */
+    --color-on-primary: #e5e7eb;                          /* text/icons on primary or complimentary fills */
+    --color-scrollbar-thumb: #563aff;                  /* same in both themes by design (dark UI scrollbars) */
+    --color-scrollbar-track: #e5e7eb;
+    --color-focus-ring: #563aff;       /* focus glow (derived from --color-primary) */
+    --color-overlay: #e5e7eb;              /* full-screen modal/lightbox backdrop */
+    --color-badge-bg: #070314;          /* translucent pill over imagery (news-card date) */
+    --color-primary-tint: #563aff;     /* faint primary wash (slideshow arrow hover) */
+    --color-on-overlay: #100f1f;                          /* text/icons sitting on a dark overlay */
+    --color-on-overlay-soft: #ffffff;/* translucent control bg on a dark overlay */
+    --color-on-overlay-muted: #563aff;/* de-emphasized text on a dark overlay */
 
     --max-width: 1200px;
     --space-2xs: 0.15rem;
@@ -43,31 +43,31 @@
 }
 
 [data-theme="dark"] {
-    --color-bg: rgb(16, 17, 24);
-    --color-surface: rgb(26, 28, 38);
-    --color-fg: rgb(232, 233, 240);
-    --color-primary: rgb(140, 119, 255);
-    --color-accent: rgb(110, 196, 226);
-    --color-complimentary: rgb(255, 120, 117);
-    --color-logo: rgb(140, 119, 255);                  /* header/footer brand logo (CADRE mark) */
-    --color-logo-highlight: rgb(255, 120, 117);        /* logo hover color */
+    --color-bg: #100f1f;
+    --color-surface: #070314;
+    --color-fg: #f5f5f5;
+    --color-primary: #ffffff;
+    --color-accent: #563aff;
+    --color-complimentary: #563aff;
+    --color-logo: #563aff;                  /* header/footer brand logo (CADRE mark) */
+    --color-logo-highlight: #ffffff;        /* logo hover color */
 
-    --color-muted: rgba(232, 233, 240, 0.6);
-    --color-border: rgba(232, 233, 240, 0.14);
+    --color-muted: #f5f5f5;
+    --color-border: #563aff;
     --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.45);
     --shadow-faq: 0 4px 16px rgba(140, 119, 255, 0.18);
 
     /* Secondary palette (see :root for notes on what's intentionally excluded). */
-    --color-on-primary: #fff;
-    --color-scrollbar-thumb: #d0d0d0;
-    --color-scrollbar-track: #15172a;
-    --color-focus-ring: rgba(140, 119, 255, 0.25);
-    --color-overlay: rgba(0, 0, 0, 0.85);
-    --color-badge-bg: rgba(20, 20, 28, 0.75);
-    --color-primary-tint: rgba(140, 119, 255, 0.12);
-    --color-on-overlay: #fff;
-    --color-on-overlay-soft: rgba(255, 255, 255, 0.12);
-    --color-on-overlay-muted: rgba(255, 255, 255, 0.7);
+    --color-on-primary: #0e0a2a;
+    --color-scrollbar-thumb: #563aff;
+    --color-scrollbar-track: #2A2840;
+    --color-focus-ring: #f5f5f5;
+    --color-overlay: #0e0a2a;
+    --color-badge-bg: #0e0a2a;
+    --color-primary-tint: #563aff;
+    --color-on-overlay: #f5f5f5;
+    --color-on-overlay-soft: #563aff;
+    --color-on-overlay-muted: #563aff;
 }
 
 /* ---- Custom scrollbars (applied to every scrollable element) ----
