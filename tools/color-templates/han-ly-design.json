@@ -1,8 +1,8 @@
 {
     "version": 1,
-    "savedAt": "2026-06-14T18:22:27.281Z",
+    "savedAt": "2026-06-14T21:25:28.959Z",
     "light": {
-        "--color-bg": "#F5F5F5",
+        "--color-bg": "#f5f5f5",
         "--color-surface": "#ffffff",
         "--color-fg": "#070314",
         "--color-primary": "#100f1f",
@@ -23,7 +23,9 @@
         "--color-primary-tint": "#563aff",
         "--color-on-overlay": "#100f1f",
         "--color-on-overlay-soft": "#ffffff",
-        "--color-on-overlay-muted": "#563aff"
+        "--color-on-overlay-muted": "#563aff",
+        "--color-slideshow-arrow": "#14141c",
+        "--color-slideshow-arrow-hover": "rgb(255, 255, 255)"
     },
     "dark": {
         "--color-bg": "#100f1f",
@@ -40,14 +42,16 @@
         "--shadow-faq": "0 4px 16px rgba(140, 119, 255, 0.18)",
         "--color-on-primary": "#0e0a2a",
         "--color-scrollbar-thumb": "#563aff",
-        "--color-scrollbar-track": "#2A2840",
+        "--color-scrollbar-track": "#2a2840",
         "--color-focus-ring": "#f5f5f5",
         "--color-overlay": "#0e0a2a",
         "--color-badge-bg": "#0e0a2a",
         "--color-primary-tint": "#563aff",
         "--color-on-overlay": "#f5f5f5",
         "--color-on-overlay-soft": "#563aff",
-        "--color-on-overlay-muted": "#563aff"
+        "--color-on-overlay-muted": "#563aff",
+        "--color-slideshow-arrow": "#ffffff",
+        "--color-slideshow-arrow-hover": "#ffffff"
     },
     "name": "Han Ly Design"
 }
