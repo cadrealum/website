@@ -31,7 +31,7 @@
     --color-on-overlay-muted: #563aff;/* de-emphasized text on a dark overlay */
 
     --color-slideshow-arrow: rgb(20, 20, 28);          /* slideshow prev/next arrow glyph */
-    --color-slideshow-arrow-hover: rgb(86, 58, 255);   /* slideshow arrow on hover */
+    --color-slideshow-arrow-hover: rgb(255, 255, 255);   /* slideshow arrow on hover */
 
     --max-width: 1200px;
     --space-2xs: 0.15rem;
@@ -84,8 +84,8 @@
     --color-on-overlay-soft: rgba(255, 255, 255, 0.12);
     --color-on-overlay-muted: rgba(255, 255, 255, 0.7);
 
-    --color-slideshow-arrow: rgb(232, 233, 240);
-    --color-slideshow-arrow-hover: rgb(140, 119, 255);
+    --color-slideshow-arrow: #ffffff;
+    --color-slideshow-arrow-hover: #ffffff;
 >>>>>>> Stashed changes
 }
 
