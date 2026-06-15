@@ -14,11 +14,139 @@
     --danger: #e05252;
     --success: #3ecf6e;
     --warn: #f0a050;
+    --scrollbar-thumb: #d0d0d0;
+    --scrollbar-track: #15172a;
     --radius: 8px;
     --radius-lg: 12px;
     --sidebar-w: 230px;
     --contrib-w: 280px;
     --header-h: 61px;
+}
+
+/* ---- Editor color themes ----
+   The whole tool is painted from the color tokens above. A theme is just an
+   override of those tokens, scoped to [data-editor-theme="<name>"]. The setting
+   is applied by setting that attribute on <html> (see applySettings() in
+   post-gen.js, plus a no-flash inline script in each page's <head>). Because the
+   selector matches ANY element with the attribute — not just :root — a theme can
+   also be previewed in place: a nested element carrying data-editor-theme="x"
+   re-declares the tokens for its own subtree (used by the theme-picker swatches).
+   Layout tokens (--radius, --sidebar-w, --header-h) are intentionally NOT themed.
+
+   "default" duplicates the :root values so it works as a nestable preview and as
+   the first-time default. Adding a theme? Add a block here AND a card in the
+   theme modal (post-gen-modals.js) — the card's data-theme must match. */
+[data-editor-theme="default"] {
+    --bg: #0e0f18;
+    --surface: #15172a;
+    --surface2: #1e2038;
+    --border: #2a2d52;
+    --border-light: #353868;
+    --text: #dde0f5;
+    --text-muted: #7880b0;
+    --accent: #6272f8;
+    --accent-hover: #7d8dff;
+    --accent-dim: rgba(98, 114, 248, 0.15);
+    --danger: #e05252;
+    --success: #3ecf6e;
+    --warn: #f0a050;
+    --scrollbar-thumb: #d0d0d0;
+    --scrollbar-track: #15172a;
+}
+
+/* Light — mostly white surfaces, dark ink text. */
+[data-editor-theme="light"] {
+    --bg: #f4f5fa;
+    --surface: #ffffff;
+    --surface2: #eef0f7;
+    --border: #d9dceb;
+    --border-light: #c3c8de;
+    --text: #1b1d2e;
+    --text-muted: #696e8a;
+    --accent: #4654d8;
+    --accent-hover: #5664ef;
+    --accent-dim: rgba(70, 84, 216, 0.12);
+    --danger: #d23b3b;
+    --success: #1ea35a;
+    --warn: #d6831f;
+    --scrollbar-thumb: #b6bace;
+    --scrollbar-track: #e3e6f1;
+}
+
+/* Dark — mostly dark dark-grey, neutral (no purple cast). */
+[data-editor-theme="dark"] {
+    --bg: #121212;
+    --surface: #1c1c1c;
+    --surface2: #262626;
+    --border: #383838;
+    --border-light: #4a4a4a;
+    --text: #e7e7e7;
+    --text-muted: #9a9a9a;
+    --accent: #7d8dff;
+    --accent-hover: #97a4ff;
+    --accent-dim: rgba(125, 141, 255, 0.16);
+    --danger: #e86a6a;
+    --success: #4cd07e;
+    --warn: #f0a64f;
+    --scrollbar-thumb: #4d4d4d;
+    --scrollbar-track: #1c1c1c;
+}
+
+/* Ocean — deep navy + teal. */
+[data-editor-theme="ocean"] {
+    --bg: #081722;
+    --surface: #0e2233;
+    --surface2: #143247;
+    --border: #1d445e;
+    --border-light: #2a597a;
+    --text: #d8ecf6;
+    --text-muted: #6f93ad;
+    --accent: #21b6c4;
+    --accent-hover: #38d2df;
+    --accent-dim: rgba(33, 182, 196, 0.16);
+    --danger: #e2685f;
+    --success: #34c98f;
+    --warn: #e7a94a;
+    --scrollbar-thumb: #2a597a;
+    --scrollbar-track: #0e2233;
+}
+
+/* Forest — pine greens. */
+[data-editor-theme="forest"] {
+    --bg: #0c130f;
+    --surface: #14201a;
+    --surface2: #1d2f25;
+    --border: #2b4234;
+    --border-light: #395444;
+    --text: #dcecdf;
+    --text-muted: #7d9885;
+    --accent: #4caf6e;
+    --accent-hover: #63c885;
+    --accent-dim: rgba(76, 175, 110, 0.16);
+    --danger: #d76a5a;
+    --success: #58c87a;
+    --warn: #d6a24a;
+    --scrollbar-thumb: #395444;
+    --scrollbar-track: #14201a;
+}
+
+/* Rosé — warm plum + pink. */
+[data-editor-theme="rose"] {
+    --bg: #1a0f15;
+    --surface: #261820;
+    --surface2: #34212c;
+    --border: #4a2f3d;
+    --border-light: #623f51;
+    --text: #f5dde7;
+    --text-muted: #b18793;
+    --accent: #e8638c;
+    --accent-hover: #ff7ea4;
+    --accent-dim: rgba(232, 99, 140, 0.16);
+    --danger: #e25f5f;
+    --success: #4cc88b;
+    --warn: #e6a44a;
+    --scrollbar-thumb: #623f51;
+    --scrollbar-track: #261820;
 }
 
 body {
@@ -34,20 +162,20 @@ body {
    Dark track, light-gray thumb that brightens to white on hover, and white
    directional arrows on the buttons (where the platform paints them). */
 html {
-    scrollbar-color: #d0d0d0 #15172a;   /* Firefox: thumb track */
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);   /* Firefox: thumb track */
     scrollbar-width: thin;
 }
 ::-webkit-scrollbar         { width: 12px; height: 12px; }
-::-webkit-scrollbar-track   { background: #15172a; }
-::-webkit-scrollbar-corner  { background: #15172a; }
+::-webkit-scrollbar-track   { background: var(--scrollbar-track); }
+::-webkit-scrollbar-corner  { background: var(--scrollbar-track); }
 ::-webkit-scrollbar-thumb {
-    background: #d0d0d0;
-    border: 2px solid #15172a;          /* inset gap so the thumb reads as a pill */
+    background: var(--scrollbar-thumb);
+    border: 2px solid var(--scrollbar-track);   /* inset gap so the thumb reads as a pill */
     border-radius: 6px;
 }
-::-webkit-scrollbar-thumb:hover { background: #ffffff; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 ::-webkit-scrollbar-button {
-    background-color: #15172a;
+    background-color: var(--scrollbar-track);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 8px 8px;
@@ -930,6 +1058,101 @@ body[data-page-role="admin"].admin-panel-open .generate-bar {
     transition: opacity 0.15s;
 }
 .btn-modal-confirm:hover { opacity: 0.85; }
+
+/* ---- Editor theme picker modal ---- */
+/* Wider box so three preview cards fit per row. */
+.modal-box-theme { max-width: 560px; }
+
+/* A button row inside the Settings modal that opens the theme picker. */
+.settings-row-action {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    transition: border-color 0.15s, background 0.15s;
+}
+.settings-row-action:hover { border-color: var(--accent); background: var(--accent-dim); }
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 4px;
+}
+/* One selectable theme: a mini editor mock + its name. The mock carries its own
+   data-editor-theme, so its parts resolve that theme's tokens (live preview). */
+.theme-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+    background: none;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, transform 0.1s;
+}
+.theme-card:hover { border-color: var(--border-light); transform: translateY(-1px); }
+.theme-card.is-active { border-color: var(--accent); }
+
+.theme-card-preview {
+    display: flex;
+    flex-direction: column;
+    height: 88px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+    background: var(--bg);
+}
+.tcp-header {
+    height: 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.tcp-main { flex: 1; display: flex; min-height: 0; }
+.tcp-sidebar {
+    width: 30%;
+    background: var(--surface2);
+    border-right: 1px solid var(--border);
+}
+.tcp-content {
+    flex: 1;
+    background: var(--bg);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+}
+.tcp-line { height: 5px; border-radius: 3px; background: var(--text-muted); }
+.tcp-line.is-strong { background: var(--text); width: 80%; }
+.tcp-line.is-short { width: 55%; }
+.tcp-btn {
+    margin-top: 3px;
+    height: 11px;
+    width: 45%;
+    border-radius: 3px;
+    background: var(--accent);
+}
+.theme-card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+}
+.theme-card.is-active .theme-card-name { color: var(--accent); }
+
+@media (max-width: 560px) {
+    .theme-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* ---- Preview overlay ---- */
 .preview-overlay {

@@ -82,6 +82,13 @@ const POST_GEN_SHARED_MODALS_HTML = `
     <div class="modal-box">
         <div class="modal-title">Settings</div>
         <div class="modal-body">
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <div class="settings-row-label">Editor Color Theme</div>
+                    <div class="settings-row-hint">Recolor the editor — pick from preset themes.</div>
+                </div>
+                <button type="button" id="setting-open-theme" class="settings-row-action">🎨 Choose Theme</button>
+            </div>
             <label class="settings-row">
                 <div class="settings-row-text">
                     <div class="settings-row-label">Show Image Folder Thumbnails</div>
@@ -103,6 +110,64 @@ const POST_GEN_SHARED_MODALS_HTML = `
         </div>
         <div class="modal-actions">
             <button class="btn-modal-confirm" id="settings-modal-close">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Editor Color Theme picker — opened from the Settings modal. Each card's
+     preview carries data-editor-theme so it paints in its own theme's colors;
+     data-theme is the value written to settings. Keep these in sync with the
+     [data-editor-theme="…"] blocks in postGen-style.css. -->
+<div class="modal-overlay" id="theme-modal-overlay" style="display:none">
+    <div class="modal-box modal-box-theme">
+        <div class="modal-title">Editor Color Theme</div>
+        <div class="modal-body">Pick a color scheme for the editor. Applies instantly and is remembered on this device.</div>
+        <div class="theme-grid" id="theme-grid">
+            <button type="button" class="theme-card" data-theme="default">
+                <span class="theme-card-preview" data-editor-theme="default">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Default</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="light">
+                <span class="theme-card-preview" data-editor-theme="light">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Light</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="dark">
+                <span class="theme-card-preview" data-editor-theme="dark">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Dark</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="ocean">
+                <span class="theme-card-preview" data-editor-theme="ocean">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Ocean</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="forest">
+                <span class="theme-card-preview" data-editor-theme="forest">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Forest</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="rose">
+                <span class="theme-card-preview" data-editor-theme="rose">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Rosé</span>
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="theme-modal-close">Done</button>
         </div>
     </div>
 </div>

@@ -10,6 +10,19 @@
     <link rel="stylesheet" href="css/postGen-style.css">
     <link rel="stylesheet" href="AuthManager/auth.css">
     <link rel="stylesheet" href="AdminTools/color-picker/color-picker.css">
+    <script>
+        /* Apply the saved editor color theme before first paint (no flash).
+           Mirrors DEFAULT_SETTINGS.editorTheme in editor-settings.js; falls back
+           to 'default' (the original scheme) for first-time visitors / errors. */
+        (function () {
+            var t = 'default';
+            try {
+                var s = JSON.parse(localStorage.getItem('cadre.postgen.settings.v1') || '{}');
+                if (s && s.editorTheme) t = s.editorTheme;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-editor-theme', t);
+        })();
+    </script>
 </head>
 <!-- No data-page-role: this page is NOT part of the basic/admin redirect gate.
      It's usable signed-out (browse + preview + export); sign-in is the top-right
@@ -17,6 +30,7 @@
 <body>
 
 <header class="site-header">
+    <button class="btn-settings" id="btn-open-settings" title="Settings" aria-label="Open settings"><span class="btn-settings-icon">⚙</span></button>
     <div class="logo"><span>CADRE</span> Alumni</div>
     <div class="subtitle">— Theme Colors</div>
     <div class="header-actions">
@@ -172,6 +186,7 @@
 <script src="AuthManager/auth.js"></script>
 <script src="AuthManager/github-api.js"></script>
 <script src="js/admin-utils.js"></script>
+<script src="js/editor-settings.js"></script>
 <script src="AdminTools/color-picker/color-picker.js"></script>
 </body>
 </html>

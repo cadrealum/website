@@ -11,6 +11,19 @@
     <link rel="stylesheet" href="css/post-gen-tutorial.css">
     <link rel="stylesheet" href="AuthManager/auth.css">
     <link rel="stylesheet" href="BasicTools/image-picker/image-picker.css">
+    <script>
+        /* Apply the saved editor color theme before first paint (no flash).
+           Mirrors DEFAULT_SETTINGS.editorTheme in post-gen.js; falls back to
+           'default' (the original scheme) for first-time visitors / read errors. */
+        (function () {
+            var t = 'default';
+            try {
+                var s = JSON.parse(localStorage.getItem('cadre.postgen.settings.v1') || '{}');
+                if (s && s.editorTheme) t = s.editorTheme;
+            } catch (e) {}
+            document.documentElement.setAttribute('data-editor-theme', t);
+        })();
+    </script>
 </head>
 <body data-page-role="basic">
 
@@ -194,6 +207,7 @@
 <script src="AuthManager/github-api.js"></script>
 <script src="js/post-gen-data.js"></script>
 <script src="js/post-gen-output.js"></script>
+<script src="js/editor-settings.js"></script>
 <script src="js/post-gen.js"></script>
 <script src="js/post-gen-tutorial.js"></script>
 <script src="js/image-drag-target.js"></script>

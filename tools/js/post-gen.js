@@ -1123,101 +1123,16 @@ function initSidebarToggles() {
     });
 }
 
-// ─── Settings (persisted in localStorage) ─────────────────────────────────────
-// Single source of truth for tool-wide preferences. Currently:
-//   - showImageThumbnails: render preview thumbnails in the image folder tab
-// New settings: add to DEFAULT_SETTINGS, render a new row in the modal HTML
-// (post-gen-modals.js), and apply via applySettings().
-
-const SETTINGS_KEY = 'cadre.postgen.settings.v1';
-const DEFAULT_SETTINGS = { showImageThumbnails: true };
-
-function loadSettings() {
-    try {
-        const raw = localStorage.getItem(SETTINGS_KEY);
-        return Object.assign({}, DEFAULT_SETTINGS, raw ? JSON.parse(raw) : {});
-    } catch (_) { return Object.assign({}, DEFAULT_SETTINGS); }
-}
-function saveSettings(s) {
-    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch (_) {}
-}
-function applySettings(s) {
-    document.body.classList.toggle('hide-thumbnails', !s.showImageThumbnails);
-}
-
-window.PostGenSettings = {
-    get: loadSettings,
-    set: function(patch) {
-        const next = Object.assign(loadSettings(), patch);
-        saveSettings(next);
-        applySettings(next);
-        return next;
-    }
-};
-
-function initSettingsModal() {
-    const overlay     = document.getElementById('settings-modal-overlay');
-    const openBtn     = document.getElementById('btn-open-settings');
-    const closeBtn    = document.getElementById('settings-modal-close');
-    const thumbsTog   = document.getElementById('setting-show-thumbnails');
-    const keepRow     = document.getElementById('settings-row-keep-logged-in');
-    const keepTog     = document.getElementById('setting-keep-logged-in');
-    const replayBtn   = document.getElementById('setting-replay-tutorial');
-    if (!overlay || !openBtn || !thumbsTog) return;
-
-    function syncKeepLoggedInRow() {
-        // "Keep Me Logged In" is only meaningful when a token is actually stored.
-        // Hide the row when nobody is signed in. The checkbox itself reads from
-        // the SAME localStorage preference key (pg_keep_logged_in_pref) that the
-        // sign-in modal uses, so both surfaces stay in sync.
-        const authed = typeof isAuthenticated === 'function' && isAuthenticated();
-        if (keepRow) keepRow.style.display = authed ? '' : 'none';
-        if (keepTog) {
-            keepTog.checked = typeof readKeepLoggedInPref === 'function'
-                ? readKeepLoggedInPref()
-                : authed;
-        }
-    }
-
-    function open() {
-        const s = loadSettings();
-        thumbsTog.checked = !!s.showImageThumbnails;
-        syncKeepLoggedInRow();
-        overlay.style.display = 'flex';
-    }
-    function close() { overlay.style.display = 'none'; }
-
-    openBtn.addEventListener('click', open);
-    if (closeBtn) closeBtn.addEventListener('click', close);
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && overlay.style.display === 'flex') close();
-    });
-    thumbsTog.addEventListener('change', function() {
-        window.PostGenSettings.set({ showImageThumbnails: thumbsTog.checked });
-    });
-    if (replayBtn) replayBtn.addEventListener('click', function() {
-        close();
-        if (window.PostGenTutorial) window.PostGenTutorial.start();
-    });
-    if (keepTog) keepTog.addEventListener('change', function() {
-        // Toggle just moves credentials between localStorage and sessionStorage.
-        // The user stays logged in for the current tab either way; turning OFF
-        // just means the token is dropped automatically when the browser closes.
-        if (keepTog.checked) {
-            if (typeof makePersistent === 'function') makePersistent();
-        } else {
-            if (typeof makeSessionOnly === 'function') makeSessionOnly();
-        }
-        // Persist the choice so the sign-in modal pre-fills with it next time.
-        if (typeof writeKeepLoggedInPref === 'function') writeKeepLoggedInPref(keepTog.checked);
-    });
-}
+// ─── Settings ─────────────────────────────────────────────────────────────────
+// Tool-wide preferences (incl. the editor color theme) and the ⚙ Settings /
+// theme-picker modals now live in the shared js/editor-settings.js, loaded on
+// every tool page BEFORE this script. It self-initializes and exposes
+// window.PostGenSettings; applySettings() there has already toggled the
+// `hide-thumbnails` body class and the active theme by the time we render.
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 initElementCache();
-applySettings(loadSettings());     // apply persisted prefs BEFORE the trees render
 initEvents();
 initEndDateToggle();
 initStepHeaderButtonAliases();
@@ -1233,7 +1148,6 @@ initOutputButtons();
 initFilenameSync();
 initImagePickerButtons();
 initSidebarToggles();
-initSettingsModal();
 initAutosave();
 loadTemplates();
 loadBaseTemplate();
