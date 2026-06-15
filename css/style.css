@@ -71,6 +71,9 @@
     --color-on-overlay: #f5f5f5;
     --color-on-overlay-soft: #563aff;
     --color-on-overlay-muted: #563aff;
+
+    --color-slideshow-arrow: #ffffff;            /* slideshow prev/next arrow glyph */
+    --color-slideshow-arrow-hover: #ffffff;      /* slideshow arrow on hover */
 }
 
 /* ---- Custom scrollbars (applied to every scrollable element) ----
