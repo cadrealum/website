@@ -996,6 +996,16 @@ h1 {
     margin: 0;
 }
 
+.faq-answer a {
+    color: var(--color-complimentary);
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.faq-answer a:hover {
+    color: var(--color-primary);
+}
+
 
 /* Footer */
 .site-footer {

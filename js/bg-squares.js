@@ -5,6 +5,7 @@ const BG_SQUARES = {
     maxOpacity: 0.30,
     perPanel: 12,
     gutterMinWidth: 100,
+    contentPadding: 60,
     colorVars: ['--color-primary', '--color-accent', '--color-complimentary']
 };
 
@@ -16,9 +17,19 @@ function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function buildSquare(panelWidth, panelHeight, palette) {
+function buildSquare(panelWidth, panelHeight, palette, contentSide) {
     const size = randomBetween(BG_SQUARES.minSize, BG_SQUARES.maxSize);
-    const x = randomBetween(-size * 0.3, panelWidth - size * 0.7);
+    // Keep squares clear of the inner (content-facing) edge of the gutter.
+    const pad = BG_SQUARES.contentPadding;
+    let minX = -size * 0.3;
+    let maxX = panelWidth - size * 0.7;
+    if (contentSide === 'right') {
+        maxX = panelWidth - size - pad;
+    } else if (contentSide === 'left') {
+        minX = pad;
+    }
+    if (maxX < minX) maxX = minX;
+    const x = randomBetween(minX, maxX);
     const y = randomBetween(0, Math.max(0, panelHeight - size));
     const color = pick(palette);
     const opacity = randomBetween(BG_SQUARES.minOpacity, BG_SQUARES.maxOpacity);
@@ -44,9 +55,14 @@ function populatePanel(panel) {
     const palette = getPalette();
     if (palette.length === 0) return;
 
+    // Content sits in the middle: left panel's inner edge is its right side, and vice versa.
+    const contentSide = panel.classList.contains('bg-squares-left') ? 'right'
+        : panel.classList.contains('bg-squares-right') ? 'left'
+        : null;
+
     const frag = document.createDocumentFragment();
     for (let i = 0; i < BG_SQUARES.perPanel; i++) {
-        frag.appendChild(buildSquare(width, height, palette));
+        frag.appendChild(buildSquare(width, height, palette, contentSide));
     }
     panel.appendChild(frag);
 }
