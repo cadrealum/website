@@ -29,7 +29,7 @@ const SETTINGS_KEY = 'cadre.postgen.settings.v1';
 // visitors see the current look. Valid values match the [data-editor-theme="…"]
 // blocks in postGen-style.css and the cards in post-gen-modals.js.
 const DEFAULT_SETTINGS = { showImageThumbnails: true, editorTheme: 'default' };
-const EDITOR_THEMES = ['default', 'light', 'dark', 'ocean', 'forest', 'rose'];
+const EDITOR_THEMES = ['default', 'light', 'lightgrey', 'grey', 'dark', 'black', 'ocean', 'forest', 'rose'];
 
 function loadSettings() {
     try {

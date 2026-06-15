@@ -137,12 +137,33 @@ const POST_GEN_SHARED_MODALS_HTML = `
                 </span>
                 <span class="theme-card-name">Light</span>
             </button>
+            <button type="button" class="theme-card" data-theme="lightgrey">
+                <span class="theme-card-preview" data-editor-theme="lightgrey">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Light Grey</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="grey">
+                <span class="theme-card-preview" data-editor-theme="grey">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Grey</span>
+            </button>
             <button type="button" class="theme-card" data-theme="dark">
                 <span class="theme-card-preview" data-editor-theme="dark">
                     <span class="tcp-header"></span>
                     <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
                 </span>
                 <span class="theme-card-name">Dark</span>
+            </button>
+            <button type="button" class="theme-card" data-theme="black">
+                <span class="theme-card-preview" data-editor-theme="black">
+                    <span class="tcp-header"></span>
+                    <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
+                </span>
+                <span class="theme-card-name">Black</span>
             </button>
             <button type="button" class="theme-card" data-theme="ocean">
                 <span class="theme-card-preview" data-editor-theme="ocean">
