@@ -52,7 +52,7 @@ const FOOTER_HTML = `
         <div class="footer-inner">
             <a href="{{root}}index.html" class="site-title">${LOGO_SVG}</a>
             <div class="footer-socials">
-                <a href="https://www.instagram.com/cadrealum?igsh=MzRlODBiNWFlZA==" class="social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true"><use href="{{root}}images/misc/social-icons.svg#icon-instagram"/></svg></a>
+                <a href="https://www.instagram.com/cadrealum" class="social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true"><use href="{{root}}images/misc/social-icons.svg#icon-instagram"/></svg></a>
                 <a href="https://linktr.ee/cadrealum" class="social-icon" aria-label="Linktree" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true"><use href="{{root}}images/misc/social-icons.svg#icon-linktree"/></svg></a>
             </div>
         </div>
