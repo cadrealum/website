@@ -122,6 +122,21 @@ const POST_GEN_SHARED_MODALS_HTML = `
     <div class="modal-box modal-box-theme">
         <div class="modal-title">Editor Color Theme</div>
         <div class="modal-body">Pick a color scheme for the editor. Applies instantly and is remembered on this device.</div>
+        <div class="theme-tint-row">
+            <div class="theme-tint-text">
+                <div class="theme-tint-title">Primary Color</div>
+                <div class="theme-tint-hint">Tints buttons, links &amp; accents. Pick a preset, or use the template's own.</div>
+            </div>
+            <div class="theme-tint-swatches" id="theme-tint-swatches">
+                <button type="button" class="theme-tint-swatch theme-tint-swatch-auto" data-tint="" title="Use this template's own color">Theme</button>
+                <button type="button" class="theme-tint-swatch" data-tint="#6272f8" style="--sw:#6272f8" title="Blue"></button>
+                <button type="button" class="theme-tint-swatch" data-tint="#8b5cf6" style="--sw:#8b5cf6" title="Violet"></button>
+                <button type="button" class="theme-tint-swatch" data-tint="#0ea5b7" style="--sw:#0ea5b7" title="Teal"></button>
+                <button type="button" class="theme-tint-swatch" data-tint="#16a34a" style="--sw:#16a34a" title="Green"></button>
+                <button type="button" class="theme-tint-swatch" data-tint="#e0723a" style="--sw:#e0723a" title="Orange"></button>
+                <button type="button" class="theme-tint-swatch" data-tint="#e8638c" style="--sw:#e8638c" title="Pink"></button>
+            </div>
+        </div>
         <div class="theme-grid" id="theme-grid">
             <button type="button" class="theme-card" data-theme="default">
                 <span class="theme-card-preview" data-editor-theme="default">
@@ -165,19 +180,19 @@ const POST_GEN_SHARED_MODALS_HTML = `
                 </span>
                 <span class="theme-card-name">Black</span>
             </button>
-            <button type="button" class="theme-card" data-theme="ocean">
-                <span class="theme-card-preview" data-editor-theme="ocean">
+            <button type="button" class="theme-card" data-theme="winxp">
+                <span class="theme-card-preview" data-editor-theme="winxp">
                     <span class="tcp-header"></span>
                     <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
                 </span>
-                <span class="theme-card-name">Ocean</span>
+                <span class="theme-card-name">Windows XP</span>
             </button>
-            <button type="button" class="theme-card" data-theme="forest">
-                <span class="theme-card-preview" data-editor-theme="forest">
+            <button type="button" class="theme-card" data-theme="sjsu">
+                <span class="theme-card-preview" data-editor-theme="sjsu">
                     <span class="tcp-header"></span>
                     <span class="tcp-main"><span class="tcp-sidebar"></span><span class="tcp-content"><span class="tcp-line is-strong"></span><span class="tcp-line is-short"></span><span class="tcp-btn"></span></span></span>
                 </span>
-                <span class="theme-card-name">Forest</span>
+                <span class="theme-card-name">San Jose State</span>
             </button>
             <button type="button" class="theme-card" data-theme="rose">
                 <span class="theme-card-preview" data-editor-theme="rose">

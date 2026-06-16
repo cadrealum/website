@@ -73,42 +73,42 @@
     --scrollbar-track: #e3e6f1;
 }
 
-/* Light Grey — neutral grey surfaces, dark ink. (monochrome) */
+/* Light Grey — cool blue-tinted light grey, blue accent (same family as Light). */
 [data-editor-theme="lightgrey"] {
-    --bg: #dcdcdc;
-    --surface: #e9e9e9;
-    --surface2: #cfcfcf;
-    --border: #bcbcbc;
-    --border-light: #a8a8a8;
-    --text: #1a1a1a;
-    --text-muted: #5e5e5e;
-    --accent: #525252;
-    --accent-hover: #666666;
-    --accent-dim: rgba(82, 82, 82, 0.14);
-    --danger: #c23b3b;
-    --success: #2c8a52;
-    --warn: #b8741c;
-    --scrollbar-thumb: #9a9a9a;
-    --scrollbar-track: #cfcfcf;
+    --bg: #d9dbe3;
+    --surface: #e7e9f0;
+    --surface2: #cccfdb;
+    --border: #b8bccd;
+    --border-light: #a4a9bf;
+    --text: #1a1c28;
+    --text-muted: #5d6178;
+    --accent: #4654d8;
+    --accent-hover: #5664ef;
+    --accent-dim: rgba(70, 84, 216, 0.12);
+    --danger: #d23b3b;
+    --success: #1ea35a;
+    --warn: #d6831f;
+    --scrollbar-thumb: #9a9eb2;
+    --scrollbar-track: #cccfdb;
 }
 
-/* Grey — medium concrete grey, light ink. (monochrome) */
+/* Grey — cool blue-tinted dark grey, light ink, blue accent. */
 [data-editor-theme="grey"] {
-    --bg: #707070;
-    --surface: #7c7c7c;
-    --surface2: #888888;
-    --border: #969696;
-    --border-light: #a6a6a6;
-    --text: #f7f7f7;
-    --text-muted: #dadada;
-    --accent: #363636;
-    --accent-hover: #474747;
-    --accent-dim: rgba(54, 54, 54, 0.20);
+    --bg: #44464f;
+    --surface: #4e505b;
+    --surface2: #595c68;
+    --border: #686b78;
+    --border-light: #7a7e8c;
+    --text: #f0f1f7;
+    --text-muted: #b6b9c8;
+    --accent: #6272f8;
+    --accent-hover: #7d8dff;
+    --accent-dim: rgba(98, 114, 248, 0.20);
     --danger: #e76a6a;
     --success: #57c97c;
     --warn: #e6a64a;
-    --scrollbar-thumb: #4a4a4a;
-    --scrollbar-track: #7c7c7c;
+    --scrollbar-thumb: #686b78;
+    --scrollbar-track: #4e505b;
 }
 
 /* Dark — mostly dark dark-grey, neutral (no purple cast). */
@@ -130,61 +130,61 @@
     --scrollbar-track: #1c1c1c;
 }
 
-/* Black — true black, light ink. (monochrome, darkest) */
+/* Black — true black, faint cool tint, periwinkle accent (same family as Dark). */
 [data-editor-theme="black"] {
     --bg: #000000;
-    --surface: #0b0b0b;
-    --surface2: #161616;
-    --border: #282828;
-    --border-light: #3a3a3a;
-    --text: #eaeaea;
-    --text-muted: #8c8c8c;
-    --accent: #585858;
-    --accent-hover: #6e6e6e;
-    --accent-dim: rgba(255, 255, 255, 0.10);
+    --surface: #0a0b10;
+    --surface2: #14151e;
+    --border: #262833;
+    --border-light: #383b48;
+    --text: #e8e9f1;
+    --text-muted: #8a8fa4;
+    --accent: #7d8dff;
+    --accent-hover: #97a4ff;
+    --accent-dim: rgba(125, 141, 255, 0.16);
     --danger: #e86a6a;
     --success: #4cd07e;
     --warn: #f0a64f;
-    --scrollbar-thumb: #3a3a3a;
-    --scrollbar-track: #0b0b0b;
+    --scrollbar-thumb: #383b48;
+    --scrollbar-track: #0a0b10;
 }
 
-/* Ocean — deep navy + teal. */
-[data-editor-theme="ocean"] {
-    --bg: #081722;
-    --surface: #0e2233;
-    --surface2: #143247;
-    --border: #1d445e;
-    --border-light: #2a597a;
-    --text: #d8ecf6;
-    --text-muted: #6f93ad;
-    --accent: #21b6c4;
-    --accent-hover: #38d2df;
-    --accent-dim: rgba(33, 182, 196, 0.16);
+/* Windows XP — Luna: beige windows, title-bar blue accent, Start-button green. */
+[data-editor-theme="winxp"] {
+    --bg: #ece9d8;
+    --surface: #ffffff;
+    --surface2: #e3dfca;
+    --border: #aca899;
+    --border-light: #c8c4b4;
+    --text: #1b1b17;
+    --text-muted: #6b6857;
+    --accent: #1c5fd8;
+    --accent-hover: #2f78ef;
+    --accent-dim: rgba(28, 95, 216, 0.14);
+    --danger: #c4291f;
+    --success: #3c9311;
+    --warn: #e08000;
+    --scrollbar-thumb: #b9b5a1;
+    --scrollbar-track: #e3dfca;
+}
+
+/* San Jose State University — Spartan navy + gold. */
+[data-editor-theme="sjsu"] {
+    --bg: #0a2645;
+    --surface: #0e2f54;
+    --surface2: #143a66;
+    --border: #1d4a7d;
+    --border-light: #2a5f9c;
+    --text: #eef4fb;
+    --text-muted: #93b2d6;
+    --accent: #e5a823;
+    --accent-hover: #f4ba3a;
+    --accent-dim: rgba(229, 168, 35, 0.16);
     --danger: #e2685f;
-    --success: #34c98f;
-    --warn: #e7a94a;
-    --scrollbar-thumb: #2a597a;
-    --scrollbar-track: #0e2233;
-}
-
-/* Forest — pine greens. */
-[data-editor-theme="forest"] {
-    --bg: #0c130f;
-    --surface: #14201a;
-    --surface2: #1d2f25;
-    --border: #2b4234;
-    --border-light: #395444;
-    --text: #dcecdf;
-    --text-muted: #7d9885;
-    --accent: #4caf6e;
-    --accent-hover: #63c885;
-    --accent-dim: rgba(76, 175, 110, 0.16);
-    --danger: #d76a5a;
-    --success: #58c87a;
-    --warn: #d6a24a;
-    --scrollbar-thumb: #395444;
-    --scrollbar-track: #14201a;
+    --success: #4cc88b;
+    --warn: #e5a823;
+    --scrollbar-thumb: #2a5f9c;
+    --scrollbar-track: #0e2f54;
 }
 
 /* Rosé — warm plum + pink. */
@@ -1134,6 +1134,58 @@ body[data-page-role="admin"].admin-panel-open .generate-bar {
     transition: border-color 0.15s, background 0.15s;
 }
 .settings-row-action:hover { border-color: var(--accent); background: var(--accent-dim); }
+
+/* Primary Color (tint) control above the grid: preset accent swatches plus a
+   "Theme" chip (use the template's own accent). The chosen tint overrides the
+   active theme's accent; the "Theme" chip clears the override. */
+.theme-tint-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.theme-tint-text { min-width: 0; }
+.theme-tint-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.theme-tint-hint { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+.theme-tint-swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.theme-tint-swatch {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 7px;
+    border: 2px solid var(--border);
+    background: var(--sw, var(--accent));
+    cursor: pointer;
+    transition: transform 0.1s ease, border-color 0.15s ease;
+}
+.theme-tint-swatch:hover { transform: translateY(-1px); }
+/* Active swatch: high-contrast ring (a surface gap + an accent-colored halo). */
+.theme-tint-swatch.is-active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 2px var(--surface2), 0 0 0 4px var(--sw, var(--accent));
+}
+/* The "use the template's color" chip — text, auto width. */
+.theme-tint-swatch-auto {
+    width: auto;
+    height: 30px;
+    padding: 0 12px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+.theme-tint-swatch-auto.is-active {
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: none;
+}
 
 .theme-grid {
     display: grid;
