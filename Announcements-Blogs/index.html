@@ -7,7 +7,7 @@
     <title>Announcements - CADRE Alumni</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preload" as="fetch" href="../json/blog-data.json" crossorigin="anonymous">
     <link rel="stylesheet" href="../css/style.css">
     <script>
@@ -23,20 +23,20 @@
 
     <div id="site-header"></div>
 
-    <main>
+    <main id="main-content">
         <section class="news-section" data-blog-section="combined">
             <div class="news-inner">
                 <div class="news-header">
-                    <h2 class="news-title">Announcements</h2>
+                    <h1 class="news-title">Announcements</h1>
                 </div>
                 <div class="news-controls">
                     <div class="news-search">
                         <input type="search" placeholder="Search by title or date" aria-label="Search news and events">
                     </div>
-                    <div class="news-filter" role="tablist" aria-label="Filter by type">
-                        <button type="button" class="news-filter-btn is-active" data-filter="all" role="tab" aria-selected="true">All</button>
-                        <button type="button" class="news-filter-btn" data-filter="announcements" role="tab" aria-selected="false">Announcements</button>
-                        <button type="button" class="news-filter-btn" data-filter="events" role="tab" aria-selected="false">Events</button>
+                    <div class="news-filter" role="group" aria-label="Filter by type">
+                        <button type="button" class="news-filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+                        <button type="button" class="news-filter-btn" data-filter="announcements" aria-pressed="false">Announcements</button>
+                        <button type="button" class="news-filter-btn" data-filter="events" aria-pressed="false">Events</button>
                     </div>
                 </div>
                 <div class="news-grid news-grid-list"></div>

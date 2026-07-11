@@ -123,6 +123,47 @@ function buildFullHTML() {
         .replace('{{SLIDESHOW_JS}}',  slideshowJs);
 }
 
+// Collect accessibility problems in the current post. Returns { errors, warnings }.
+//   errors   — must be fixed before Generate / Publish (SJSU media standards:
+//              every image needs alt text unless decorative; every video needs
+//              a title). Blocks the action.
+//   warnings — advisory only (alt text far outside the ~8–50 char guidance).
+// Reads from `state` / BLOCK_TYPES (post-gen-data.js). Callers must have run
+// syncBlocksFromDOM() first so state reflects the editor.
+function collectA11yIssues() {
+    const errors = [];
+    const warnings = [];
+    if (typeof state === 'undefined') return { errors: errors, warnings: warnings };
+    const blocks = state.blocks || [];
+
+    let imgN = 0, ssN = 0, ytN = 0;
+    blocks.forEach(function(b) {
+        if (b.type === 'image') {
+            imgN++;
+            const alt = (b.alt || '').trim();
+            if (!b.decorative && !alt) {
+                errors.push('Image ' + imgN + ' is missing alt text — add a description or mark it decorative.');
+            } else if (!b.decorative && b.url && b.url.trim() && (alt.length < 8 || alt.length > 50)) {
+                warnings.push('Image ' + imgN + ' alt text is ' + alt.length + ' characters — aim for roughly 8–50.');
+            }
+        } else if (b.type === 'slideshow') {
+            ssN++;
+            (b.slides || []).forEach(function(s, si) {
+                if (!(s.alt && s.alt.trim())) {
+                    errors.push('Slideshow ' + ssN + ', slide ' + (si + 1) + ' is missing alt text.');
+                }
+            });
+        } else if (b.type === 'youtube-inline') {
+            ytN++;
+            if (!(b.title && b.title.trim())) {
+                errors.push('Video ' + ytN + ' is missing a title.');
+            }
+        }
+    });
+
+    return { errors: errors, warnings: warnings };
+}
+
 function buildJSONEntry() {
     const title     = getVal('f-title');
     const date      = getVal('f-date');

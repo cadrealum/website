@@ -477,6 +477,7 @@ function initBlockDragReorder(builder) {
 function initEvents() {
     initBlockToolbarEvents(els.contentBuilder);
     initBlockDragReorder(els.contentBuilder);
+    initRichTextEvents(els.contentBuilder);   // paragraph rich-text toolbar (post-gen-richtext.js)
 }
 
 // ─── End-date toggle ──────────────────────────────────────────────────────────
@@ -972,11 +973,51 @@ function initFileDropOverlay() {
 
 // ─── Generate button ──────────────────────────────────────────────────────────
 
+// Accessibility gate shared by Generate + Preview. Renders a blocking error
+// box above the generate bar when the post has missing alt text / video titles
+// (see collectA11yIssues in post-gen-output.js). Returns true when it's safe to
+// proceed. Assumes syncBlocksFromDOM() has already run.
+function a11yGatePasses() {
+    const a11y = collectA11yIssues();
+    if (a11y.errors.length) { showA11yErrorBox(a11y.errors); return false; }
+    clearA11yErrorBox();
+    return true;
+}
+
+function ensureA11yErrorBox() {
+    let box = document.getElementById('a11y-error-box');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'a11y-error-box';
+        box.className = 'a11y-error-box';
+        box.setAttribute('role', 'alert');
+        box.style.display = 'none';
+        const bar = document.querySelector('.generate-bar');
+        if (bar && bar.parentNode) bar.parentNode.insertBefore(box, bar);
+    }
+    return box;
+}
+
+function showA11yErrorBox(errors) {
+    const box = ensureA11yErrorBox();
+    box.innerHTML = '<p class="a11y-error-title">Fix these accessibility issues before publishing:</p><ul>'
+        + errors.map(function(e) { return '<li>' + escHtml(e) + '</li>'; }).join('')
+        + '</ul>';
+    box.style.display = '';
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearA11yErrorBox() {
+    const box = document.getElementById('a11y-error-box');
+    if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+}
+
 function initGenerateButton() {
     document.getElementById('btn-generate').addEventListener('click', function() {
         if (!state.templateId) { alert('Please choose a template first.'); return; }
         syncBlocksFromDOM();
         syncContributorsFromDOM();
+        if (!a11yGatePasses()) return;
         els.outHtml.value = buildFullHTML();
         els.outJson.value = buildJSONEntry();
         els.outputSection.classList.add('visible');
@@ -994,6 +1035,7 @@ function buildPreviewHtml() {
     if (!state.templateId) { alert('Please choose a template first.'); return null; }
     syncBlocksFromDOM();
     syncContributorsFromDOM();
+    if (!a11yGatePasses()) return null;
     const html = buildFullHTML();
     if (!html) return null;
     const baseHref = new URL('../Announcements-Blogs/', window.location.href).href;

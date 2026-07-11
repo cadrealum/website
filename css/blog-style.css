@@ -56,6 +56,20 @@
     margin-top: 0;
 }
 
+/* Lists emitted by the rich paragraph editor share paragraph typography. */
+.blog-body ul,
+.blog-body ol {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 0 0 var(--space-3) 0;
+    padding-left: 1.6em;
+    color: var(--color-fg);
+}
+
+.blog-body li + li {
+    margin-top: 0.35em;
+}
+
 .blog-section-heading {
     margin: var(--space-4) 0 var(--space-2) 0;
     font-size: 1.5rem;
@@ -63,6 +77,15 @@
     line-height: 1.3;
     color: var(--color-fg);
 }
+
+/* Per-level sizing so the H1–H6 chosen in the editor reads as a visual
+   hierarchy (shared weight/margin/color come from .blog-section-heading). */
+h1.blog-section-heading { font-size: 2rem; }
+h2.blog-section-heading { font-size: 1.5rem; }
+h3.blog-section-heading { font-size: 1.3rem; }
+h4.blog-section-heading { font-size: 1.15rem; }
+h5.blog-section-heading { font-size: 1rem; }
+h6.blog-section-heading { font-size: 0.9rem; }
 
 .blog-section-heading:first-child {
     margin-top: 0;

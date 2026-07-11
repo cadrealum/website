@@ -196,15 +196,30 @@ function pbCollectValidationIssues() {
     return issues;
 }
 
-function pbRenderValidationBlock(issues) {
+function pbRenderValidationBlock(errors, warnings) {
     const slot = document.getElementById('publish-modal-validation');
     if (!slot) return;
-    if (!issues.length) { slot.style.display = 'none'; slot.innerHTML = ''; return; }
+    errors = errors || [];
+    warnings = warnings || [];
+    if (!errors.length && !warnings.length) { slot.style.display = 'none'; slot.innerHTML = ''; return; }
     slot.style.display = '';
-    slot.innerHTML = '<p class="publish-modal-validation-title">Before you publish:</p><ul>'
-        + issues.map(function(i) { return '<li>' + escHtml(i) + '</li>'; }).join('')
-        + '</ul>'
-        + '<p class="publish-modal-validation-help">You can still publish — these are warnings, not errors.</p>';
+
+    let html = '';
+    // Accessibility errors block publishing (SJSU media standards).
+    if (errors.length) {
+        html += '<p class="publish-modal-validation-title publish-modal-validation-error">'
+            + 'Fix these accessibility issues to publish:</p><ul class="publish-modal-validation-errors">'
+            + errors.map(function(i) { return '<li>' + escHtml(i) + '</li>'; }).join('')
+            + '</ul>';
+    }
+    // Completeness warnings are advisory only.
+    if (warnings.length) {
+        html += '<p class="publish-modal-validation-title">Before you publish:</p><ul>'
+            + warnings.map(function(i) { return '<li>' + escHtml(i) + '</li>'; }).join('')
+            + '</ul>'
+            + '<p class="publish-modal-validation-help">These are warnings, not errors — you can still publish.</p>';
+    }
+    slot.innerHTML = html;
 }
 
 function pbOpenModal() {
@@ -232,7 +247,12 @@ function pbOpenModal() {
     const fnEl = document.getElementById('publish-modal-filename');
     if (fnEl) fnEl.textContent = filename;
 
-    pbRenderValidationBlock(pbCollectValidationIssues());
+    // Accessibility errors block publishing; completeness issues are warnings.
+    const a11y = (typeof collectA11yIssues === 'function')
+        ? collectA11yIssues() : { errors: [], warnings: [] };
+    const warnings = pbCollectValidationIssues().concat(a11y.warnings);
+    pbRenderValidationBlock(a11y.errors, warnings);
+    const hasA11yErrors = a11y.errors.length > 0;
 
     // Default the primary button to Event when an end-date is filled —
     // matches Phase 3.5 (auto-detect event vs announcement).
@@ -242,6 +262,9 @@ function pbOpenModal() {
     if (eventBtn && announceBtn) {
         eventBtn.classList.toggle('publish-modal-default', isEventish);
         announceBtn.classList.toggle('publish-modal-default', !isEventish);
+        // Can't publish inaccessible content — gate both target buttons.
+        eventBtn.disabled = hasA11yErrors;
+        announceBtn.disabled = hasA11yErrors;
     }
 
     const overlay = document.getElementById('publish-modal-overlay');

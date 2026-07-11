@@ -10,6 +10,7 @@
        { type: 'uploadFile',   path, base64, name?, size? }
        { type: 'deleteFile',   path, sha }
        { type: 'deleteFolder', path, containedFiles: [{path, sha}, …] }
+       { type: 'saveDraft',    path, content }   // text; draft layout JSON
 
    To add a new action type later: extend the switches in labelFor /
    summarize / toBatchChanges below. (If a third+ tool needs more types,
@@ -44,11 +45,12 @@ const ChangeQueue = (function () {
         if (a.type === 'publishHtml')     return 'Publish: ' + a.path;
         if (a.type === 'unpublishHtml')   return 'Unpublish: ' + a.path;
         if (a.type === 'updateBlogIndex') return 'Update blog index: ' + a.path;
+        if (a.type === 'saveDraft')       return 'Save draft: ' + a.path;
         return a.type + ': ' + (a.path || '?');
     }
 
     function summarize() {
-        let creates = 0, uploads = 0, deletes = 0, publishes = 0, unpublishes = 0;
+        let creates = 0, uploads = 0, deletes = 0, publishes = 0, unpublishes = 0, drafts = 0;
         items.forEach(function(a) {
             if      (a.type === 'createFolder')    creates++;
             else if (a.type === 'uploadFile')      uploads++;
@@ -59,11 +61,13 @@ const ChangeQueue = (function () {
             else if (a.type === 'deleteFolder')    deletes += Math.max(1, a.containedFiles.length);
             else if (a.type === 'publishHtml')     publishes++;
             else if (a.type === 'unpublishHtml')   unpublishes++;
+            else if (a.type === 'saveDraft')       drafts++;
             // updateBlogIndex is bundled with publishes/unpublishes — don't count separately
         });
         const parts = [];
         if (publishes)   parts.push('+' + publishes   + ' blog'    + (publishes   === 1 ? '' : 's'));
         if (unpublishes) parts.push('−' + unpublishes + ' blog'    + (unpublishes === 1 ? '' : 's'));
+        if (drafts)      parts.push('+' + drafts      + ' draft'   + (drafts      === 1 ? '' : 's'));
         if (uploads)     parts.push('+' + uploads     + ' upload'  + (uploads     === 1 ? '' : 's'));
         if (creates)     parts.push('+' + creates     + ' folder'  + (creates     === 1 ? '' : 's'));
         if (deletes)     parts.push('−' + deletes     + ' deletion'+ (deletes     === 1 ? '' : 's'));
@@ -88,7 +92,7 @@ const ChangeQueue = (function () {
                 // delete the .gitkeep too — otherwise an empty folder produces
                 // ZERO delete ops and the folder is never actually removed.
                 out.push({ op: 'delete', path: a.path + '/.gitkeep' });
-            } else if (a.type === 'publishHtml' || a.type === 'updateBlogIndex') {
+            } else if (a.type === 'publishHtml' || a.type === 'updateBlogIndex' || a.type === 'saveDraft') {
                 out.push({ op: 'put', path: a.path, content: a.content });
             }
         });

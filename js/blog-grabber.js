@@ -265,7 +265,13 @@ function initListingSection({ posts, gridEl, searchEl, filterEl, paginationEl, p
             btn.type = 'button';
             btn.className = 'news-page-btn';
             btn.textContent = label;
-            if (opts.active) btn.classList.add('is-active');
+            // The glyph buttons («‹›») and bare page numbers aren't meaningful
+            // to screen readers on their own — give each an explicit name.
+            if (opts.ariaLabel) btn.setAttribute('aria-label', opts.ariaLabel);
+            if (opts.active) {
+                btn.classList.add('is-active');
+                btn.setAttribute('aria-current', 'page');
+            }
             if (opts.disabled) btn.disabled = true;
             btn.addEventListener('click', () => {
                 currentPage = page;
@@ -279,6 +285,7 @@ function initListingSection({ posts, gridEl, searchEl, filterEl, paginationEl, p
             const span = document.createElement('span');
             span.className = 'news-page-ellipsis';
             span.textContent = '…';
+            span.setAttribute('aria-hidden', 'true');
             return span;
         };
 
@@ -290,17 +297,17 @@ function initListingSection({ posts, gridEl, searchEl, filterEl, paginationEl, p
             start = Math.max(1, end - maxNumbers + 1);
         }
 
-        paginationEl.appendChild(makeBtn('«', 1, { disabled: currentPage === 1 }));
-        paginationEl.appendChild(makeBtn('‹', currentPage - 1, { disabled: currentPage === 1 }));
+        paginationEl.appendChild(makeBtn('«', 1, { disabled: currentPage === 1, ariaLabel: 'First page' }));
+        paginationEl.appendChild(makeBtn('‹', currentPage - 1, { disabled: currentPage === 1, ariaLabel: 'Previous page' }));
 
         if (start > 1) paginationEl.appendChild(makeEllipsis());
         for (let i = start; i <= end; i++) {
-            paginationEl.appendChild(makeBtn(String(i), i, { active: i === currentPage }));
+            paginationEl.appendChild(makeBtn(String(i), i, { active: i === currentPage, ariaLabel: `Page ${i}` }));
         }
         if (end < totalPages) paginationEl.appendChild(makeEllipsis());
 
-        paginationEl.appendChild(makeBtn('›', currentPage + 1, { disabled: currentPage === totalPages }));
-        paginationEl.appendChild(makeBtn('»', totalPages, { disabled: currentPage === totalPages }));
+        paginationEl.appendChild(makeBtn('›', currentPage + 1, { disabled: currentPage === totalPages, ariaLabel: 'Next page' }));
+        paginationEl.appendChild(makeBtn('»', totalPages, { disabled: currentPage === totalPages, ariaLabel: 'Last page' }));
     }
 
     if (searchEl) {
@@ -320,7 +327,7 @@ function initListingSection({ posts, gridEl, searchEl, filterEl, paginationEl, p
             filterButtons.forEach(b => {
                 const active = b === btn;
                 b.classList.toggle('is-active', active);
-                b.setAttribute('aria-selected', active ? 'true' : 'false');
+                b.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
             currentPage = 1;
             renderGrid();

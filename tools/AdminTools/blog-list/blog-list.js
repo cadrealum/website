@@ -362,11 +362,13 @@ function blParseBlocks(container) {
 }
 
 function blParseSingleBlock(el) {
-    if (el.matches('p')) {
-        return { type: 'paragraph', text: el.textContent || '' };
+    // Paragraphs and lists both round-trip into the rich paragraph block;
+    // richSanitize (post-gen-richtext.js) keeps inline formatting and links.
+    if (el.matches('p, ul, ol')) {
+        return { type: 'paragraph', text: el.textContent || '', html: richSanitize(el.outerHTML) };
     }
-    if (el.matches('h2.blog-section-heading')) {
-        return { type: 'section-heading', text: el.textContent || '' };
+    if (el.matches('h1.blog-section-heading, h2.blog-section-heading, h3.blog-section-heading, h4.blog-section-heading, h5.blog-section-heading, h6.blog-section-heading')) {
+        return { type: 'section-heading', text: el.textContent || '', level: parseInt(el.tagName.slice(1), 10) || 2 };
     }
     if (el.matches('hr.blog-divider')) {
         return { type: 'divider' };
@@ -374,17 +376,21 @@ function blParseSingleBlock(el) {
     if (el.matches('figure.blog-figure')) {
         const img = el.querySelector('img');
         const cap = el.querySelector('figcaption');
+        const alt = img ? (img.getAttribute('alt') || '') : '';
         return {
             type: 'image',
             url:     blStripDotDot(img ? img.getAttribute('src') : ''),
-            alt:     img ? (img.getAttribute('alt') || '') : '',
-            caption: cap ? (cap.textContent || '').trim() : ''
+            alt:     alt,
+            caption: cap ? (cap.textContent || '').trim() : '',
+            // An empty alt on a published figure means it was marked decorative.
+            decorative: !alt
         };
     }
     if (el.matches('div.blog-video')) {
         const iframe = el.querySelector('iframe');
         const src = iframe ? (iframe.getAttribute('src') || '') : '';
-        return { type: 'youtube-inline', url: blWatchUrlFromEmbed(src) };
+        const title = iframe ? (iframe.getAttribute('title') || '') : '';
+        return { type: 'youtube-inline', url: blWatchUrlFromEmbed(src), title: title };
     }
     if (el.matches('div.blog-slideshow')) {
         const slides = Array.from(el.querySelectorAll('img.slideshow-slide')).map(function(img) {

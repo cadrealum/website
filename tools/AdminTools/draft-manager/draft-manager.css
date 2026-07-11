@@ -1,0 +1,133 @@
+/* Draft Manager panel — save / browse GitHub drafts (drafts/*.json).
+   Mirrors .blog-list-panel: sticky right-side column offset by --header-h with
+   the 720p body { zoom } height compensation. Reload / close buttons reuse the
+   .image-manager-tool-btn / .image-manager-close classes already loaded here. */
+
+.draft-manager-panel {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow: hidden;
+}
+
+.draft-manager-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.draft-manager-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Save-draft action in the panel header. */
+.draft-manager-save-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.draft-manager-save-btn:hover { opacity: 0.9; }
+
+.draft-manager-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.draft-manager-placeholder {
+    padding: 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+}
+.draft-manager-error { color: var(--danger); }
+
+.draft-manager-files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.draft-manager-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.draft-manager-item:hover { background: var(--surface2); }
+
+/* Row state when a deleteFile is staged for this draft. */
+.draft-manager-item-pending-delete {
+    background: rgba(245, 24, 24, 0.10);
+    text-decoration: line-through;
+    color: var(--text-muted);
+    cursor: default;
+}
+.draft-manager-item-pending-delete:hover { background: rgba(245, 24, 24, 0.16); }
+
+.draft-manager-tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    flex-shrink: 0;
+}
+.draft-manager-tag-delete { background: var(--danger); }
+.draft-manager-tag-save   { background: var(--success); }
+
+.draft-manager-icon { font-size: 14px; flex-shrink: 0; }
+
+.draft-manager-name {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.draft-manager-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-height: 800px) {
+    .draft-manager-panel {
+        height: calc(100vh / 0.64 - var(--header-h));
+    }
+}

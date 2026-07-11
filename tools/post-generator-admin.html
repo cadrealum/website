@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="AdminTools/publish-blog/publish-blog.css">
     <link rel="stylesheet" href="AdminTools/blog-list/blog-list.css">
     <link rel="stylesheet" href="AdminTools/blog-index-check/blog-index-check.css">
+    <link rel="stylesheet" href="AdminTools/draft-manager/draft-manager.css">
     <script>
         /* Apply the saved editor color theme before first paint (no flash).
            Mirrors DEFAULT_SETTINGS.editorTheme in post-gen.js; falls back to
@@ -46,6 +47,7 @@
     <div class="header-actions">
         <button class="btn-header-action" id="btn-open-image-picker" title="Browse images on the server and drag paths into the editor">📁 Browse Images</button>
         <button class="btn-header-action" id="btn-save-layout" disabled>💾 Save As</button>
+        <button class="btn-header-action" id="btn-save-draft" title="Save this post as a draft on GitHub (staged for commit, not published)">📝 Save Draft</button>
         <button class="btn-header-action" id="btn-load-layout">📂 Load</button>
         <button class="btn-header-action btn-header-danger" id="btn-clear-post" title="Wipe the current post and start fresh">🗑 Clear Post</button>
         <div id="auth-chip"></div>
@@ -219,6 +221,20 @@
         </div>
     </aside>
 
+    <!-- Draft Manager panel — save / browse GitHub drafts (drafts/*.json).
+         Registered from AdminTools/draft-manager/draft-manager.js. -->
+    <aside class="draft-manager-panel" id="draft-manager-panel" style="display:none">
+        <div class="draft-manager-header">
+            <div class="draft-manager-title">Drafts</div>
+            <button class="draft-manager-save-btn" id="draft-manager-save" title="Save the current post as a draft on GitHub">💾 Save Draft</button>
+            <button class="image-manager-tool-btn" id="draft-manager-reload" title="Reload from GitHub">↻</button>
+            <button class="image-manager-close"    id="draft-manager-close"  title="Close">✕</button>
+        </div>
+        <div class="draft-manager-body" id="draft-manager-body">
+            <div class="draft-manager-placeholder">Loading…</div>
+        </div>
+    </aside>
+
     <!-- Right-side admin tools sidebar (admin page only). Tools register with
          AdminToolManager at DOMContentLoaded; the manager renders the buttons. -->
     <aside class="admin-tools-sidebar" id="admin-tools-sidebar">
@@ -277,6 +293,33 @@
         <div class="modal-actions">
             <button class="btn-modal-cancel"  id="blog-edit-cancel">Cancel</button>
             <button class="btn-modal-confirm" id="blog-edit-confirm">Load &amp; replace</button>
+        </div>
+    </div>
+</div>
+
+<!-- Draft Manager: delete confirmation. Owned by draft-manager.js. -->
+<div class="modal-overlay" id="draft-delete-modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title">Delete draft?</div>
+        <div class="modal-body" id="draft-delete-body"></div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel"  id="draft-delete-cancel">Cancel</button>
+            <button class="btn-modal-confirm" id="draft-delete-confirm">Delete draft</button>
+        </div>
+    </div>
+</div>
+
+<!-- Draft Manager: confirm before replacing in-progress builder content with a
+     loaded draft. Skipped automatically when the builder is empty. -->
+<div class="modal-overlay" id="draft-load-modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title">Replace builder contents?</div>
+        <div class="modal-body">
+            Loading <code id="draft-load-name"></code> into the builder will replace anything you have in progress. Save your current draft first if you need it.
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel"  id="draft-load-cancel">Cancel</button>
+            <button class="btn-modal-confirm" id="draft-load-confirm">Load &amp; replace</button>
         </div>
     </div>
 </div>
@@ -412,6 +455,7 @@
 <script src="js/admin-utils.js"></script>
 <script src="AdminTools/admin-tool-manager.js"></script>
 <script src="AdminTools/change-queue.js"></script>
+<script src="js/post-gen-richtext.js"></script>
 <script src="js/post-gen-data.js"></script>
 <script src="js/post-gen-output.js"></script>
 <script src="js/editor-settings.js"></script>
@@ -423,5 +467,6 @@
 <script src="AdminTools/publish-blog/publish-blog.js"></script>
 <script src="AdminTools/blog-list/blog-list.js"></script>
 <script src="AdminTools/blog-index-check/blog-index-check.js"></script>
+<script src="AdminTools/draft-manager/draft-manager.js"></script>
 </body>
 </html>

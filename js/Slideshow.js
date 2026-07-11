@@ -13,6 +13,7 @@ class Slideshow {
         this.autoplayTimer = null;
 
         this.buildDots();
+        this.buildCaption();
         this.goTo(this.index);
         this.bindEvents();
         this.startAutoplay();
@@ -25,12 +26,22 @@ class Slideshow {
             dot.type = 'button';
             dot.className = 'slideshow-dot';
             dot.dataset.index = String(i);
-            dot.setAttribute('role', 'tab');
             dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
             frag.appendChild(dot);
             return dot;
         });
         this.dotsContainer.appendChild(frag);
+    }
+
+    // Caption showing the active slide's alt text, sits between the image and
+    // the controls row. aria-hidden because the alt is already on the <img>, so
+    // screen readers would otherwise announce it twice.
+    buildCaption() {
+        const cap = document.createElement('div');
+        cap.className = 'slideshow-caption';
+        cap.setAttribute('aria-hidden', 'true');
+        this.caption = cap;
+        this.root.appendChild(cap);
     }
 
     bindEvents() {
@@ -67,8 +78,12 @@ class Slideshow {
         if (this.dots) {
             this.dots.forEach((dot, idx) => {
                 dot.classList.toggle('is-active', idx === this.index);
-                dot.setAttribute('aria-selected', idx === this.index ? 'true' : 'false');
+                dot.setAttribute('aria-pressed', idx === this.index ? 'true' : 'false');
             });
+        }
+        if (this.caption) {
+            const active = this.slides[this.index];
+            this.caption.textContent = active ? (active.getAttribute('alt') || '') : '';
         }
     }
 

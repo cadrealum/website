@@ -8,7 +8,7 @@
     <title>CADRE Alumni</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preload" as="fetch" href="json/blog-data.json" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/about-style.css">
@@ -28,13 +28,16 @@
 
     <div id="site-header"></div>
 
-    <main>
+    <main id="main-content">
         <section class="about-section">
             <div class="about-container">
-                <div class="about-text">
+                <div class="about-text" style="display: flex; flex-direction: column; align-self: stretch;">
                     <h1>Welcome to the CADRE Alumni Organization website</h1>
-                    <p>We're building a creative community to connect and 
+                    <p>We're building a creative community to connect and
                        support the alumni and future alumni of the Digital Media Art program and CADRE Lab at SJSU.</p>
+                    <div style="margin-top: auto; text-align: right;">
+                        <a href="about.html" class="news-more-link">More About Us &#10142;</a>
+                    </div>
                 </div>
 
                 <div class="slideshow" data-autoplay-interval="5000">
@@ -46,9 +49,9 @@
                     </button>
 
                     <div class="slideshow-viewport">
-                        <img class="slideshow-slide is-active" src="images\Home Page\1994_conduitsetPic_Challas.jpg"alt="Conduits 1994">
-                        <img class="slideshow-slide" src="images\Home Page\pulit04.JPG" alt="Pulit 1996">
-                        <img class="slideshow-slide" src="images\Home Page\2023_Retro_InterKinect_Van-1.JPG" alt="InterKinect 2023">
+                        <img class="slideshow-slide is-active" src="images/Home Page/1994_conduitsetPic_Challas.jpg" alt="Four opera singers in cleansuits performing Conduits 1994">
+                        <img class="slideshow-slide" src="images/Home Page/pulit04.JPG" alt="People pulling the strings of the the Pulit Machine 1996">
+                        <img class="slideshow-slide" src="images/Home Page/2023_Retro_InterKinect_Van-1.JPG" alt="Audience member interacting with projection of colorful shapes for InterKinect 2023">
                     </div>
 
                     <button class="slideshow-arrow slideshow-arrow-next" aria-label="Next slide">
@@ -58,7 +61,7 @@
                         </svg>
                     </button>
 
-                    <div class="slideshow-dots" role="tablist" aria-label="Select slide"></div>
+                    <div class="slideshow-dots" aria-label="Select slide"></div>
                 </div>
             </div>
         </section>
@@ -70,7 +73,7 @@
                 <div class="news-column" data-blog-preview="combined">
                     <div class="news-header">
                         <h2 class="news-title">Announcements</h2>
-                        <a href="Announcements-Blogs/index.html" class="news-more-link">Full listing &#10142;</a>
+                        <a href="Announcements-Blogs/index.html" class="news-more-link">Full listing<span class="sr-only"> of announcements</span> &#10142;</a>
                     </div>
                     <div class="news-list"></div>
                 </div>

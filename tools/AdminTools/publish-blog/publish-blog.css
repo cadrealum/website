@@ -85,6 +85,17 @@
     font-style: italic;
 }
 
+/* Accessibility errors (blocking) rendered above the amber warnings. Red to
+   distinguish them from the soft warnings — these disable the publish buttons. */
+.publish-modal-validation-title.publish-modal-validation-error { color: var(--danger); }
+.publish-modal-validation-errors { margin: 0 0 10px 0; padding-left: 20px; list-style: disc; }
+.publish-modal-validation-errors li {
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 3px;
+    line-height: 1.4;
+}
+
 /* When the user has filled an end-date we suggest Event as the primary
    action. publish-blog.js toggles the .publish-modal-default class. */
 .publish-modal-default {
