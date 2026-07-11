@@ -70,6 +70,15 @@
     margin-top: 0.35em;
 }
 
+.blog-body a {
+    color: var(--color-complimentary);
+    font-weight: 700;
+}
+
+.blog-body a:hover {
+    text-decoration: underline;
+}
+
 .blog-section-heading {
     margin: var(--space-4) 0 var(--space-2) 0;
     font-size: 1.5rem;
