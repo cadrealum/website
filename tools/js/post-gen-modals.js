@@ -65,6 +65,32 @@ const POST_GEN_SHARED_MODALS_HTML = `
     </div>
 </div>
 
+<!-- Insert / edit link modal (rich paragraph editor). Driven by
+     post-gen-richtext.js — one prompt for both the display text and the URL. -->
+<div class="modal-overlay" id="link-modal-overlay" style="display:none">
+    <div class="modal-box">
+        <div class="modal-title" id="link-modal-title">Insert Link</div>
+        <div class="modal-body">
+            <div class="link-modal-fields">
+                <div class="field">
+                    <label for="link-modal-text">Text</label>
+                    <input type="text" id="link-modal-text" placeholder="Link text" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="link-modal-url">URL</label>
+                    <input type="url" id="link-modal-url" placeholder="https://…" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+            <div class="link-modal-error" id="link-modal-error" style="display:none"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" id="link-modal-remove" style="display:none">Remove Link</button>
+            <button class="btn-modal-cancel" id="link-modal-cancel">Cancel</button>
+            <button class="btn-modal-confirm" id="link-modal-confirm">Insert Link</button>
+        </div>
+    </div>
+</div>
+
 <!-- Clear post confirmation modal -->
 <div class="modal-overlay" id="clear-modal-overlay" style="display:none">
     <div class="modal-box">

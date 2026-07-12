@@ -120,6 +120,44 @@ function richSanitize(html) {
     const root = document.createElement('div');
     root.innerHTML = String(html || '');
     richCleanChildren(root);
+    richFixListNesting(root);
+    return root.innerHTML;
+}
+
+// Chrome's indent command nests a <ul> as a *sibling* of the <li> it indents
+// (<ul><li>a</li><ul>…</ul></ul>), which is invalid HTML. Fold such lists into
+// the preceding <li> so editor state and published markup nest properly.
+function richFixListNesting(root) {
+    Array.prototype.slice.call(root.querySelectorAll('ul > ul, ul > ol, ol > ul, ol > ol'))
+        .forEach(function(list) {
+            const prev = list.previousElementSibling;
+            if (prev && prev.tagName === 'LI') prev.appendChild(list);
+        });
+}
+
+// Wraps top-level loose inline nodes in <p>, splitting at <br>. execCommand
+// treats a flat inline run as ONE block, so without this a bullet/alignment
+// command grabs the whole editor instead of the line the caret is on.
+function richWrapLooseLines(root) {
+    let p = null;
+    Array.prototype.slice.call(root.childNodes).forEach(function(node) {
+        const tag = node.nodeType === 1 ? node.tagName : '';
+        if (tag === 'P' || tag === 'UL' || tag === 'OL') { p = null; return; }
+        if (tag === 'BR') { root.removeChild(node); p = null; return; }
+        if (node.nodeType === 3 && !node.textContent.trim() && !p) { root.removeChild(node); return; }
+        if (!p) {
+            p = document.createElement('p');
+            root.insertBefore(p, node);
+        }
+        p.appendChild(node);
+    });
+}
+
+// Sanitize + block-structure: the form editor content should always be in.
+function richNormalizeHtml(html) {
+    const root = document.createElement('div');
+    root.innerHTML = richSanitize(html);
+    richWrapLooseLines(root);
     return root.innerHTML;
 }
 
@@ -200,7 +238,7 @@ function richToolbarHtml() {
         + btn('justifyCenter', 'Align center', icoCenter)
         + btn('justifyRight',  'Align right',  icoRight)
         + sep
-        + btn('insertUnorderedList', 'Bulleted list', icoList)
+        + btn('insertUnorderedList', 'Bulleted list (Ctrl+Shift+8)', icoList)
         + '</div>';
 }
 
@@ -230,47 +268,144 @@ function richClosestAnchor(editor) {
     return a && editor.contains(a) ? a : null;
 }
 
+function richSelectionInListItem(editor) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return false;
+    let n = sel.getRangeAt(0).commonAncestorContainer;
+    if (n.nodeType === 3) n = n.parentNode;
+    const li = n && n.closest ? n.closest('li') : null;
+    return !!(li && editor.contains(li));
+}
+
+// A two-field link dialog (display text + URL) replaces the browser's
+// single-field prompt(): you give the text and the link in one shot. The
+// modal markup lives in post-gen-modals.js. Because opening the modal moves
+// focus off the editor and collapses its selection, we stash the editor and a
+// cloned Range in richLinkPending and restore them before mutating on confirm.
+let richLinkPending = null;   // { editor, range, anchor }
+
+function richLinkEl(id) { return document.getElementById(id); }
+
+function richShowLinkError(msg) {
+    const err = richLinkEl('link-modal-error');
+    if (!err) return;
+    err.textContent = msg;
+    err.style.display = msg ? '' : 'none';
+}
+
 function richLinkFlow(editor) {
     const sel = window.getSelection();
     if (!sel.rangeCount || !editor.contains(sel.anchorNode)) return;
+    const overlay  = richLinkEl('link-modal-overlay');
+    const textIn   = richLinkEl('link-modal-text');
+    const urlIn    = richLinkEl('link-modal-url');
+    const removeBtn = richLinkEl('link-modal-remove');
+    if (!overlay || !textIn || !urlIn) return;
+
     const anchor = richClosestAnchor(editor);
-    const saved = sel.getRangeAt(0).cloneRange();   // prompt() steals focus
+    richLinkPending = { editor: editor, range: sel.getRangeAt(0).cloneRange(), anchor: anchor };
 
-    let url = window.prompt(
-        anchor ? 'Edit link URL (leave empty to remove the link):' : 'Link URL:',
-        anchor ? (anchor.getAttribute('href') || '') : 'https://');
-    if (url === null) return;   // cancelled
-    url = url.trim();
+    // Editing an existing link pre-fills both fields from it; a fresh insert
+    // pre-fills the Text field with whatever is selected (often all you need).
+    textIn.value = anchor ? (anchor.textContent || '') : sel.toString();
+    urlIn.value  = anchor ? (anchor.getAttribute('href') || '') : '';
+    if (removeBtn) removeBtn.style.display = anchor ? '' : 'none';
+    const title = richLinkEl('link-modal-title');
+    if (title) title.textContent = anchor ? 'Edit Link' : 'Insert Link';
+    const confirm = richLinkEl('link-modal-confirm');
+    if (confirm) confirm.textContent = anchor ? 'Save Link' : 'Insert Link';
+    richShowLinkError('');
 
-    editor.focus();
+    overlay.style.display = 'flex';
+    // Land the caret in the field that still needs filling.
+    const focusUrl = !!textIn.value.trim();
+    (focusUrl ? urlIn : textIn).focus();
+    (focusUrl ? urlIn : textIn).select();
+}
+
+function richCloseLinkModal() {
+    const overlay = richLinkEl('link-modal-overlay');
+    if (overlay) overlay.style.display = 'none';
+    richLinkPending = null;
+}
+
+// Put the caret/selection back where it was before the modal stole focus, so
+// execCommand acts on the original spot.
+function richRestorePendingSelection() {
+    const p = richLinkPending;
+    p.editor.focus();
+    const sel = window.getSelection();
     sel.removeAllRanges();
-    sel.addRange(saved);
+    sel.addRange(p.range);
+    return sel;
+}
 
-    if (!url) {
-        if (anchor) {
-            const r = document.createRange();
-            r.selectNodeContents(anchor);
-            sel.removeAllRanges();
-            sel.addRange(r);
-            document.execCommand('unlink', false, null);
-        }
-        return;
-    }
-
-    const safe = richSafeHref(url);
+function richLinkModalConfirm() {
+    const p = richLinkPending;
+    if (!p) return;
+    const text = richLinkEl('link-modal-text').value.trim();
+    const rawUrl = richLinkEl('link-modal-url').value.trim();
+    if (!rawUrl) { richShowLinkError('Enter a URL.'); return; }
+    const safe = richSafeHref(rawUrl);
     if (!safe) {
-        alert('That link type is not allowed. Use an http(s), mailto:, or relative URL.');
+        richShowLinkError('That link type is not allowed. Use an http(s), mailto:, or relative URL.');
         return;
     }
 
-    if (anchor) {
-        anchor.setAttribute('href', safe);   // retarget in place; keeps the text
-    } else if (sel.isCollapsed) {
-        // Nothing selected — insert the URL itself as the link text.
-        document.execCommand('insertHTML', false, '<a href="' + escHtml(safe) + '">' + escHtml(safe) + '</a>');
+    const editor = p.editor;
+    richRestorePendingSelection();
+
+    if (p.anchor) {
+        p.anchor.setAttribute('href', safe);
+        const label = text || safe;
+        if (label !== p.anchor.textContent) p.anchor.textContent = label;
     } else {
-        document.execCommand('createLink', false, safe);
+        // Whether or not text was selected, replace the range with the link so
+        // the display text always matches the Text field.
+        const label = text || safe;
+        document.execCommand('insertHTML', false, '<a href="' + escHtml(safe) + '">' + escHtml(label) + '</a>');
     }
+    richCloseLinkModal();
+    richUpdateToolbarState(editor);
+}
+
+function richLinkModalRemove() {
+    const p = richLinkPending;
+    if (!p) { richCloseLinkModal(); return; }
+    const editor = p.editor;
+    if (p.anchor) {
+        const sel = richRestorePendingSelection();
+        const r = document.createRange();
+        r.selectNodeContents(p.anchor);
+        sel.removeAllRanges();
+        sel.addRange(r);
+        document.execCommand('unlink', false, null);
+    }
+    richCloseLinkModal();
+    richUpdateToolbarState(editor);
+}
+
+// Wire the shared link modal once. Called from initRichTextEvents.
+function initRichLinkModal() {
+    const overlay = richLinkEl('link-modal-overlay');
+    if (!overlay) return;
+    const confirm  = richLinkEl('link-modal-confirm');
+    const cancel   = richLinkEl('link-modal-cancel');
+    const remove   = richLinkEl('link-modal-remove');
+    if (confirm) confirm.addEventListener('click', richLinkModalConfirm);
+    if (cancel)  cancel.addEventListener('click', richCloseLinkModal);
+    if (remove)  remove.addEventListener('click', richLinkModalRemove);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) richCloseLinkModal(); });
+
+    // Enter confirms, Esc cancels — from either field.
+    ['link-modal-text', 'link-modal-url'].forEach(function(id) {
+        const inp = richLinkEl(id);
+        if (!inp) return;
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter')       { e.preventDefault(); richLinkModalConfirm(); }
+            else if (e.key === 'Escape') { e.preventDefault(); richCloseLinkModal(); }
+        });
+    });
 }
 
 // ─── Event wiring ─────────────────────────────────────────────────────────────
@@ -280,6 +415,8 @@ function richLinkFlow(editor) {
 function initRichTextEvents(builder) {
     // Enter should produce <p> (not <div>) so editor content matches output.
     try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (_) {}
+
+    initRichLinkModal();   // wires the shared insert/edit-link dialog
 
     // A mousedown on a toolbar button would move focus and collapse the
     // editor's selection before the click lands — suppress it.
@@ -296,10 +433,10 @@ function initRichTextEvents(builder) {
         editor.focus();
         const cmd = btn.dataset.richCmd;
         if (cmd === 'link') {
-            richLinkFlow(editor);
-        } else {
-            document.execCommand(cmd, false, null);
+            richLinkFlow(editor);   // opens the modal; refreshes toolbar on close
+            return;
         }
+        document.execCommand(cmd, false, null);
         richUpdateToolbarState(editor);
     });
 
@@ -309,21 +446,63 @@ function initRichTextEvents(builder) {
         const ed = e.target.closest('.rich-editor');
         if (!ed || !e.clipboardData) return;
         e.preventDefault();
-        const clean = richSanitize(e.clipboardData.getData('text/html'));
-        if (!richIsEmpty(clean)) {
-            document.execCommand('insertHTML', false, clean);
-        } else {
-            const txt = e.clipboardData.getData('text/plain');
-            document.execCommand('insertHTML', false, escHtml(txt).replace(/\r\n?|\n/g, '<br>'));
+        let clean = richSanitize(e.clipboardData.getData('text/html'));
+        if (richIsEmpty(clean)) {
+            clean = escHtml(e.clipboardData.getData('text/plain')).replace(/\r\n?|\n/g, '<br>');
         }
+        // Multi-line pastes get real block structure (one <p> per line) so a
+        // later bullet/align command doesn't swallow the whole editor. A short
+        // inline snippet is left as-is so it doesn't split the paragraph it
+        // lands in.
+        if (/<(p|ul|ol|br)[\s>/]/i.test(clean)) clean = richNormalizeHtml(clean);
+        if (!richIsEmpty(clean)) document.execCommand('insertHTML', false, clean);
     });
 
+    // Standard editor shortcuts. Bold/italic/underline are handled explicitly
+    // (rather than trusting native contenteditable) so behavior is identical
+    // across browsers — Firefox otherwise treats Ctrl+U as view-source — and
+    // so the toolbar highlight updates immediately.
     builder.addEventListener('keydown', function(e) {
         const ed = e.target.closest('.rich-editor');
         if (!ed) return;
-        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'k' || e.key === 'K')) {
+
+        // Tab / Shift+Tab: indent / outdent list items. Outside a list, Tab
+        // keeps its normal move-focus behavior.
+        if (e.key === 'Tab') {
+            if (richSelectionInListItem(ed)) {
+                e.preventDefault();
+                document.execCommand(e.shiftKey ? 'outdent' : 'indent', false, null);
+                richUpdateToolbarState(ed);
+            }
+            return;
+        }
+
+        if (!(e.ctrlKey || e.metaKey)) return;
+
+        if (e.shiftKey) {
+            // Ctrl+Shift+8: toggle bulleted list (Google Docs convention).
+            // With Shift held, e.key is layout-dependent ('*'), so match the
+            // physical key via e.code.
+            if (e.code === 'Digit8') {
+                e.preventDefault();
+                document.execCommand('insertUnorderedList', false, null);
+                richUpdateToolbarState(ed);
+            }
+            return;
+        }
+
+        const key = e.key.toLowerCase();
+        if (key === 'k') {
             e.preventDefault();
             richLinkFlow(ed);
+            richUpdateToolbarState(ed);
+            return;
+        }
+        const cmd = { b: 'bold', i: 'italic', u: 'underline' }[key];
+        if (cmd) {
+            e.preventDefault();
+            document.execCommand(cmd, false, null);
+            richUpdateToolbarState(ed);
         }
     });
 

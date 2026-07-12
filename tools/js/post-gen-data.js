@@ -58,9 +58,11 @@ const BLOCK_TYPES = {
         renderBody: function(b) {
             // Re-sanitize on render: b.html may come from an imported draft
             // JSON, and the editor injects it as live markup.
+            // Normalising wraps loose lines in <p> so list/alignment commands
+            // act on one line at a time instead of the whole editor.
             const content = b.html
-                ? richSanitize(b.html)
-                : escHtml(b.text).replace(/\r\n?|\n/g, '<br>');
+                ? richNormalizeHtml(b.html)
+                : richNormalizeHtml(escHtml(b.text).replace(/\r\n?|\n/g, '<br>'));
             return '<div class="rich-text-wrap">'
                 + richToolbarHtml()
                 + '<div class="rich-editor" contenteditable="true" data-field="html"'

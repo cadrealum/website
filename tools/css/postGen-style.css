@@ -949,6 +949,7 @@ textarea { resize: vertical; min-height: 80px; }
 }
 .rich-editor p { margin: 0 0 0.6em; }
 .rich-editor ul, .rich-editor ol { margin: 0 0 0.6em; padding-left: 24px; }
+.rich-editor li > ul, .rich-editor li > ol { margin: 2px 0 0; }
 .rich-editor p:last-child, .rich-editor ul:last-child, .rich-editor ol:last-child { margin-bottom: 0; }
 .rich-editor a { color: var(--accent); text-decoration: underline; }
 
@@ -1193,6 +1194,13 @@ body[data-page-role="admin"].admin-panel-open .generate-bar {
 .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
 .modal-body { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+/* Insert/edit-link modal: stacked Text + URL fields and its inline error. The
+   .field labels are un-uppercased here so "Text"/"URL" read as plain labels. */
+.link-modal-fields { display: flex; flex-direction: column; gap: 14px; }
+.link-modal-fields label { text-transform: none; letter-spacing: 0; }
+.link-modal-error { color: var(--danger); font-size: 13px; margin-top: 10px; }
+/* The Remove button sits apart from Cancel/Insert on the modal's left edge. */
+#link-modal-remove { margin-right: auto; }
 .btn-modal-cancel {
     background: var(--surface2);
     border: 1px solid var(--border);
